@@ -1,0 +1,71 @@
+LCD_DATA_0_TRIS equ TRISA
+LCD_DATA_0_PORT equ PORTA
+LCD_DATA_0_BIT  equ 0
+
+LCD_DATA_1_TRIS equ TRISA
+LCD_DATA_1_PORT equ PORTA
+LCD_DATA_1_BIT  equ 1
+
+LCD_DATA_2_TRIS equ TRISA
+LCD_DATA_2_PORT equ PORTA
+LCD_DATA_2_BIT  equ 2
+
+LCD_DATA_3_TRIS equ TRISA
+LCD_DATA_3_PORT equ PORTA
+LCD_DATA_3_BIT  equ 3
+
+LCD_DATA_4_TRIS equ TRISA
+LCD_DATA_4_PORT equ PORTA
+LCD_DATA_4_BIT  equ 4
+
+LCD_DATA_5_TRIS equ TRISA
+LCD_DATA_5_PORT equ PORTA
+LCD_DATA_5_BIT  equ 5
+
+LCD_DATA_6_TRIS equ TRISA
+LCD_DATA_6_PORT equ PORTA
+LCD_DATA_6_BIT  equ 6
+
+LCD_DATA_7_TRIS equ TRISA
+LCD_DATA_7_PORT equ PORTA
+LCD_DATA_7_BIT  equ 7
+
+LCD_E1_TRIS     equ TRISC
+LCD_E1_PORT     equ PORTC
+LCD_E1_BIT      equ 0
+
+LCD_E2_TRIS     equ TRISC
+LCD_E2_PORT     equ PORTC
+LCD_E2_BIT      equ 1
+
+LCD_WR_TRIS     equ TRISC
+LCD_WR_PORT     equ PORTC
+LCD_WR_BIT      equ 4
+
+LCD_A0_TRIS     equ TRISC
+LCD_A0_PORT     equ PORTC
+LCD_A0_BIT      equ 2
+
+SPI_CS_TRIS    equ TRISB
+SPI_CS_PORT    equ PORTB
+SPI_CS_BIT     equ 4
+
+ENC_A_TRIS equ TRISB
+ENC_A_PORT equ PORTB
+ENC_A_BIT  equ 0
+
+ENC_B_TRIS equ TRISB
+ENC_B_PORT equ PORTB
+ENC_B_BIT  equ 1
+
+TEST_TRIS     equ TRISB
+TEST_PORT     equ PORTB
+TEST_BIT      equ 5
+
+
+
+#ifndef IO_M
+    extern io_configure
+    extern io_config_lcd_data_output
+    extern io_config_lcd_data_input
+#endif
