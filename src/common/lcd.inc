@@ -21,8 +21,12 @@
 #define LCD_WIDTH   0x7a
 #define LCD_HEIGH   0x20
 
+#define LCD_WIDTH_TXT   0x1e
+#define LCD_HEIGH_TXT   0x4
+
 #define LCD_CHAR_WIDTH        4
 #define LCD_CHAR_WIDTH_SHIFT  2
+#define FIRST_FONT_CHAR_NUM   0x20
 
 
 lcd_recv_cmd_1 macro
@@ -89,12 +93,14 @@ lcd_send_cmd_2 macro cmd, value
     extern lcd_init
     extern lcd_clear
     extern lcd_plot
+    extern lcd_string
     extern lcd_rectangle
     extern lcd_write
     extern lcd_read
     extern set_lcd_data
     extern get_lcd_data
     extern lcd_char
+    extern lcd_locate
     extern lcd_test_io_blink
     extern lcd_test_io_on
     extern lcd_test_io_off

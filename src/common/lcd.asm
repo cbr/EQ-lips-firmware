@@ -170,7 +170,7 @@ lcd_plot
     movlw LCD_WIDTH/2
     subwf var1, W
 
-    ; if x is greter than LCD_WIDTH/2, goto lcd_plot_prepare_clmn_2
+    ; if x is greater than LCD_WIDTH/2, goto lcd_plot_prepare_clmn_2
     btfsc STATUS, C
     goto lcd_plot_prepare_clmn_2
 
@@ -688,18 +688,116 @@ lcd_test_io_blink
     ; never return !
     return
 
+
 ;;; draw a string
 ;;; param1: x
 ;;; param2: y
 ;;; param3: addrl of null terminated string
 ;;; param4: addrh of null terminated string
 lcd_string
+    global lcd_string
+    call lcd_locate
+    ;; *** Draw string
+    ;; start read_modify_write
+    movlw LCD_READ_MODIFY_WRITE
+    movwf param1
+    bsf param2, LCD_COMMAND
+    call lcd_write
+    ;; init position counter (in var1)
+    movlw 0
+    movwf var1
+lcd_string_loop:
+    ;;  set addr to read
+    movf var1, W
+    addwf param3, W
+    banksel EEADR
+    movwf EEADR
+
+    banksel param4
+    movf param4, W
+    banksel EEADRH
+    movwf EEADRH
+    btfsc STATUS, C
+    incf EEADRH, F
+    banksel 0
+
+    ;;  read  flash
+    banksel EECON1
+    bsf EECON1, EEPGD
+    bsf EECON1, RD
+    nop
+    nop
+    banksel 0
+    ;; verify if last char
+    sublw 0
+    btfsc STATUS, Z
+    ;; It's 0 -> finished
+    goto lcd_string_end
+    ;; write read data in param1 and draw char
+    banksel EEDAT
+    movf EEDAT, W
+    banksel param1
+    movwf param1
+    call lcd_char
+    incf var1, F
+    goto lcd_string_loop
+lcd_string_end:
+    ;; end of read modify write
+    bsf param2, LCD_COMMAND
+    movlw LCD_END
+    movwf param1
+    call lcd_write
+    return
+
+
+;;; set the text position
+;;; param1: x
+;;; param2: y
+lcd_locate
+    global lcd_locate
+    ;;  store param1 and param 2
+    movf param1, W
+    movwf var1
+    movf param2, W
+    movwf var2
+
+    ;; *** Set x position
+    movlw LCD_WIDTH_TXT/2
+    subwf var1, W
+
+    ; if x is greater than LCD_WIDTH/2, goto lcd_string_chip_2
+    btfsc STATUS, C
+    goto lcd_string_chip_2
+lcd_string_chip_1:
+    ;; lcd chip 0
+    bsf param2, LCD_FIRST_CHIP
+    movf var1, W
+    goto lcd_string_chip_after
+lcd_string_chip_2:
+    ;; lcd chip 0
+    bcf param2, LCD_FIRST_CHIP
+lcd_string_chip_after:
+    iorlw LCD_COLUMN_ADDRESS
+    movwf param1
+    bsf param2, LCD_COMMAND
+    call lcd_write
+
+    ;; *** Set y position
+    ;; lcd page 0
+    movf var2, W
+    iorlw LCD_SET_PAGE_ADDRESS
+    movwf param1
+    bsf param2, LCD_COMMAND
+    call lcd_write
     return
 
 ;;; draw a char
 ;;; param1: is the character number
 lcd_char:
     global lcd_char
+
+    movlw FIRST_FONT_CHAR_NUM
+    subwf param1, F
 
     ;;  set addr to read
     banksel EEADR
@@ -721,7 +819,7 @@ lcd_char_add_offset_loop:
     btfsc STATUS, C
     incf EEADRH, F
     banksel var1
-    decfsz var1
+    decfsz var1, F
     goto lcd_char_add_offset_loop
 
     banksel 0
@@ -729,26 +827,6 @@ lcd_char_add_offset_loop:
     ;; prepare loop var
     movlw LCD_CHAR_WIDTH
     movwf var1
-
-    ;; lcd chip 0
-    bsf param2, LCD_FIRST_CHIP
-    ;; lcd page 0
-    movlw 0x00
-    iorlw LCD_SET_PAGE_ADDRESS
-    movwf param1
-    bsf param2, LCD_COMMAND
-    call lcd_write
-    ;; lcd column 0
-    movlw 0x00
-    iorlw LCD_COLUMN_ADDRESS
-    movwf param1
-    bsf param2, LCD_COMMAND
-    call lcd_write
-
-    ;; start read_modify_write
-    movlw LCD_READ_MODIFY_WRITE
-    movwf param1
-    call lcd_write
 
 lcd_char_loop:
     ;;  read  flash
@@ -763,6 +841,7 @@ lcd_char_loop:
     ;; write data
     bcf param2, LCD_COMMAND
     banksel EEDAT
+    movlw FIRST_FONT_CHAR_NUM
     movf EEDAT, W
     banksel 0
     movwf param1
@@ -779,12 +858,6 @@ loop_char_end_loop
     banksel 0
     decfsz var1, F
     goto lcd_char_loop
-
-    ;; end of read modify write
-    bsf param2, LCD_COMMAND
-    movlw LCD_END
-    movwf param1
-    call lcd_write
 
     return
 font:

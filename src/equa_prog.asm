@@ -51,6 +51,9 @@ interrupt
     swapf   w_saved,w
     retfie
 
+st_toto:
+    dt 't','o','t','o',0
+
 start
 
     ; init clock
@@ -97,9 +100,33 @@ start
     call lcd_plot
     goto $
 #endif
+
+
+#if 1
+    movlw 8
+    movwf param1
+    movlw 0
+    movwf param2
+    movlw low st_toto
+    movwf param3
+    movlw high st_toto
+    movwf param4
+
+    call lcd_string
+#endif
+    movlw 8
+    movwf param1
     movlw 1
+    movwf param2
+    call lcd_locate
+    movlw 'A'
     movwf param1
     call lcd_char
+    movlw 'B'
+    movwf param1
+    call lcd_char
+
+    call $
 
 loop_draw:
 
