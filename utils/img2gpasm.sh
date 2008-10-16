@@ -30,7 +30,7 @@ do
             then
                 echo -n ", " >> $OUT_FILE
             fi
-            echo -n "${TEMP_ARRAY[$((j + pos_x * GROUP_SIZE + pos_y * HEIGHT / BYTE_SIZE ))]}" >> $OUT_FILE
+            echo -n "${TEMP_ARRAY[$(( ((HEIGHT / BYTE_SIZE - 1) - pos_y) + j * (HEIGHT / BYTE_SIZE) + pos_x * GROUP_SIZE * (HEIGHT / BYTE_SIZE) ))]}" >> $OUT_FILE
         done
         echo >> $OUT_FILE
     done
