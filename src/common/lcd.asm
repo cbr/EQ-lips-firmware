@@ -694,6 +694,7 @@ lcd_test_io_blink
 ;;; param2: y
 ;;; param3: addrl of null terminated string
 ;;; param4: addrh of null terminated string
+;;; used variables: var2
 lcd_string
     global lcd_string
     call lcd_locate
@@ -703,12 +704,13 @@ lcd_string
     movwf param1
     bsf param2, LCD_COMMAND
     call lcd_write
-    ;; init position counter (in var1)
+    ;; init position counter (in var2)
+    banksel var2
     movlw 0
-    movwf var1
+    movwf var2
 lcd_string_loop:
     ;;  set addr to read
-    movf var1, W
+    movf var2, W
     addwf param3, W
     banksel EEADR
     movwf EEADR
@@ -729,6 +731,8 @@ lcd_string_loop:
     nop
     banksel 0
     ;; verify if last char
+    banksel EEDAT
+    movf EEDAT, W
     sublw 0
     btfsc STATUS, Z
     ;; It's 0 -> finished
@@ -739,10 +743,11 @@ lcd_string_loop:
     banksel param1
     movwf param1
     call lcd_char
-    incf var1, F
+    incf var2, F
     goto lcd_string_loop
 lcd_string_end:
     ;; end of read modify write
+    banksel 0
     bsf param2, LCD_COMMAND
     movlw LCD_END
     movwf param1
@@ -753,32 +758,41 @@ lcd_string_end:
 ;;; set the text position
 ;;; param1: x
 ;;; param2: y
+;;; used variables: var1, var2
 lcd_locate
     global lcd_locate
-    ;;  store param1 and param 2
-    movf param1, W
-    movwf var1
+    ;; store param 2
     movf param2, W
     movwf var2
 
     ;; *** Set x position
     movlw LCD_WIDTH_TXT/2
-    subwf var1, W
+    subwf param1, W
 
-    ; if x is greater than LCD_WIDTH/2, goto lcd_string_chip_2
+    ; if x is greater than LCD_WIDTH/2, goto lcd_locate_chip_2
     btfsc STATUS, C
-    goto lcd_string_chip_2
-lcd_string_chip_1:
+    goto lcd_locate_chip_2
+lcd_locate_chip_1:
     ;; lcd chip 0
     bsf param2, LCD_FIRST_CHIP
-    movf var1, W
-    goto lcd_string_chip_after
-lcd_string_chip_2:
+    goto lcd_locate_mult_x
+lcd_locate_chip_2:
     ;; lcd chip 0
-    bcf param2, LCD_FIRST_CHIP
-lcd_string_chip_after:
-    iorlw LCD_COLUMN_ADDRESS
     movwf param1
+    bcf param2, LCD_FIRST_CHIP
+
+lcd_locate_mult_x:
+    movlw LCD_CHAR_WIDTH_SHIFT
+    movwf var1
+lcd_locate_mult_x_loop:
+    bcf STATUS, C
+    rlf param1, F
+    decfsz var1, F
+    goto lcd_locate_mult_x_loop
+
+    movlw LCD_COLUMN_ADDRESS
+    iorwf param1, F
+
     bsf param2, LCD_COMMAND
     call lcd_write
 
@@ -793,6 +807,7 @@ lcd_string_chip_after:
 
 ;;; draw a char
 ;;; param1: is the character number
+;;; used variables: var1
 lcd_char:
     global lcd_char
 
