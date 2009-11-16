@@ -39,7 +39,7 @@ all: make_dir image $(BIN_NAME)
 
 .PHONY:prog
 prog: all
-	pk2cmd -PPIC16F886 -F$(BIN_NAME) -M
+	pk2cmd -B/usr/share/pk2 -PPIC16F886 -F$(BIN_NAME) -M
 
 $(BIN_NAME): $(OBJS)
 	$(LD) -o$@ $(LD_FLAGS) $^
