@@ -15,7 +15,6 @@
 
 #define PIXEL_MASK     0x07
 
-
     UDATA
 var1       RES 1
 var2       RES 1
@@ -51,21 +50,20 @@ PROG CODE
 ; Init LCD
 ; no parameters
 lcd_init
-    global lcd_init
-    ; initial delay
+    global lcd_init    ; initial delay
     ;movlw 0xFF
     ;call delay_wait
 
     ; reset lcd
 
-    bsf LCD_E1_PORT, LCD_E1_BIT
-    bsf LCD_E2_PORT, LCD_E2_BIT
+    bcf LCD_E1_PORT, LCD_E1_BIT
+    bcf LCD_E2_PORT, LCD_E2_BIT
 
     ;bsf LCD_WR_PORT, LCD_WR_BIT
     bcf LCD_WR_PORT, LCD_WR_BIT
 
     bcf LCD_A0_PORT, LCD_A0_BIT
-
+#if 1
     ; init lcd 1
     lcd_send_cmd_1 LCD_DISPLAY_ON_OFF, 0
     lcd_send_cmd_1 LCD_DISPLAY_START_LINE, 0
@@ -77,7 +75,7 @@ lcd_init
     lcd_send_cmd_1 LCD_SELECT_ADC, 0
 
     lcd_send_cmd_1 LCD_END, 0
-
+#endif
     ; init lcd 2
     lcd_send_cmd_2 LCD_DISPLAY_ON_OFF, 0
 
@@ -96,7 +94,6 @@ lcd_init
 
     lcd_send_cmd_1 LCD_DISPLAY_ON_OFF, 1
     lcd_send_cmd_2 LCD_DISPLAY_ON_OFF, 1
-
 
     return
 
@@ -519,11 +516,19 @@ lcd_write
     call set_lcd_data
     ; Set E1 if LCD_FIRST_CHIP is set
     btfsc param2, LCD_FIRST_CHIP
+#ifdef INVERT_E
+    bsf LCD_E2_PORT, LCD_E2_BIT
+#else
     bsf LCD_E1_PORT, LCD_E1_BIT
+#endif
 
     ; Set E2 if LCD_FIRST_CHIP is clear
     btfss param2, LCD_FIRST_CHIP
+#ifdef INVERT_E
+    bsf LCD_E1_PORT, LCD_E1_BIT
+#else
     bsf LCD_E2_PORT, LCD_E2_BIT
+#endif
     ; delay
     movlw DELAY_CS
     call delay_wait
@@ -547,11 +552,19 @@ lcd_read
 
     ; Set E1 if LCD_FIRST_CHIP is set
     btfsc param2, LCD_FIRST_CHIP
+#ifdef INVERT_E
+    bsf LCD_E2_PORT, LCD_E2_BIT
+#else
     bsf LCD_E1_PORT, LCD_E1_BIT
+#endif
 
     ; Set E2 if LCD_FIRST_CHIP is clear
     btfss param2, LCD_FIRST_CHIP
+#ifdef INVERT_E
+    bsf LCD_E1_PORT, LCD_E1_BIT
+#else
     bsf LCD_E2_PORT, LCD_E2_BIT
+#endif
 
     ; delay
     movlw DELAY_CS
@@ -694,23 +707,37 @@ lcd_test_io_blink
 ;;; param2: y
 ;;; param3: addrl of null terminated string
 ;;; param4: addrh of null terminated string
-;;; used variables: var2
+;;; used variables: var3, var4, var5
 lcd_string
     global lcd_string
-    call lcd_locate
+
+    ;; store param1 and param2
+    movf param1, W
+    movwf var3
+    movf param2, W
+    movwf var4
+
     ;; *** Draw string
+    ;; init position counter (in var5)
+    banksel var5
+    movlw 0
+    movwf var5
+lcd_string_loop:
+    ;; locate
+    movf var3, W
+    movwf param1
+    movf var4, W
+    movwf param2
+    call lcd_locate
+#if 0
     ;; start read_modify_write
     movlw LCD_READ_MODIFY_WRITE
     movwf param1
     bsf param2, LCD_COMMAND
     call lcd_write
-    ;; init position counter (in var2)
-    banksel var2
-    movlw 0
-    movwf var2
-lcd_string_loop:
+#endif
     ;;  set addr to read
-    movf var2, W
+    movf var5, W
     addwf param3, W
     banksel EEADR
     movwf EEADR
@@ -721,7 +748,6 @@ lcd_string_loop:
     movwf EEADRH
     btfsc STATUS, C
     incf EEADRH, F
-    banksel 0
 
     ;;  read  flash
     banksel EECON1
@@ -743,15 +769,60 @@ lcd_string_loop:
     banksel param1
     movwf param1
     call lcd_char
-    incf var2, F
+
+    banksel 0
+    incf var5, F
+    incf var3, F
     goto lcd_string_loop
-lcd_string_end:
+
+#if 0
     ;; end of read modify write
     banksel 0
     bsf param2, LCD_COMMAND
     movlw LCD_END
     movwf param1
     call lcd_write
+#endif
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    lcd_send_cmd_1 LCD_END, 0
+    lcd_send_cmd_2 LCD_END, 0
+lcd_string_end:
+
     return
 
 
@@ -773,11 +844,11 @@ lcd_locate
     btfsc STATUS, C
     goto lcd_locate_chip_2
 lcd_locate_chip_1:
-    ;; lcd chip 0
+    ;; lcd chip 1
     bsf param2, LCD_FIRST_CHIP
     goto lcd_locate_mult_x
 lcd_locate_chip_2:
-    ;; lcd chip 0
+    ;; lcd chip 2
     movwf param1
     bcf param2, LCD_FIRST_CHIP
 
@@ -838,7 +909,13 @@ lcd_char_add_offset_loop:
     goto lcd_char_add_offset_loop
 
     banksel 0
-
+#if 0
+    ;; start read modify wriye
+    movlw LCD_READ_MODIFY_WRITE
+    movwf param1
+    bsf param2, LCD_COMMAND
+    call lcd_write
+#endif
     ;; prepare loop var
     movlw LCD_CHAR_WIDTH
     movwf var1
@@ -873,7 +950,24 @@ loop_char_end_loop
     banksel 0
     decfsz var1, F
     goto lcd_char_loop
+#if 0
+    nop
+    nop
+    nop
+    ;; end of read modify wriye
+    bsf param2, LCD_FIRST_CHIP
+    bsf param2, LCD_COMMAND
+    movlw LCD_END
+    movwf param1
+    call lcd_write
+    ;; end of read modify wriye
+    bcf param2, LCD_FIRST_CHIP
+    bsf param2, LCD_COMMAND
+    movlw LCD_END
+    movwf param1
+    call lcd_write
 
+#endif
     return
 font:
 #include <font.inc>

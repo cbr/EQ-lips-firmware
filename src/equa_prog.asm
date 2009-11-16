@@ -52,7 +52,7 @@ interrupt
     retfie
 
 st_toto:
-    dt 't','o','t','o',0
+    dt "ABCDEFGHIJKLMNOPQRSTUV", 0
 
 start
 
@@ -61,8 +61,8 @@ start
     BCF  STATUS,RP1 ;
     movlw 0x0F
     andwf OSCCON, 1
-    movlw 0x70 ; 8 MHz
-    ;movlw 0x30 ; 500kHz
+    ;movlw 0x70 ; 8 MHz
+    movlw 0x30 ; 500kHz
     ;movlw 0x00 ; 31kHz
     iorwf OSCCON, 1
     BCF  STATUS,RP0 ;Bank 0
@@ -102,8 +102,9 @@ start
 #endif
 
 
+
 #if 1
-    movlw 8
+    movlw 5
     movwf param1
     movlw 0
     movwf param2
@@ -114,7 +115,9 @@ start
 
     call lcd_string
 #endif
-    movlw 8
+
+
+    movlw 0x14
     movwf param1
     movlw 1
     movwf param2
@@ -122,12 +125,16 @@ start
     movlw 'A'
     movwf param1
     call lcd_char
+    movlw 0x15
+    movwf param1
+    movlw 1
+    movwf param2
+    call lcd_locate
     movlw 'B'
     movwf param1
     call lcd_char
 
-    call $
-
+        goto $
 loop_draw:
 
     movf encoder_last_value, W
