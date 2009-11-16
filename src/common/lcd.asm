@@ -910,7 +910,7 @@ lcd_char_add_offset_loop:
 
     banksel 0
 #if 0
-    ;; start read modify wriye
+    ;; start read modify write
     movlw LCD_READ_MODIFY_WRITE
     movwf param1
     bsf param2, LCD_COMMAND
@@ -946,7 +946,7 @@ lcd_char_loop:
     movlw 0
     movwf EEADR
     incf EEADRH, F
-loop_char_end_loop
+loop_char_end_loop:
     banksel 0
     decfsz var1, F
     goto lcd_char_loop
@@ -954,13 +954,13 @@ loop_char_end_loop
     nop
     nop
     nop
-    ;; end of read modify wriye
+    ;; end of read modify write
     bsf param2, LCD_FIRST_CHIP
     bsf param2, LCD_COMMAND
     movlw LCD_END
     movwf param1
     call lcd_write
-    ;; end of read modify wriye
+    ;; end of read modify write
     bcf param2, LCD_FIRST_CHIP
     bsf param2, LCD_COMMAND
     movlw LCD_END
