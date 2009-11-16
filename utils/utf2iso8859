@@ -1,0 +1,13 @@
+#!/bin/bash
+
+ASM_FILE=`find ./ -iname "*.asm"`
+for file in $ASM_FILE
+do
+    FILE_TYPE=`file $file`
+    if (echo $FILE_TYPE | grep "UTF-8" > /dev/null)
+    then
+        iconv -f UTF-8 -t ISO8859-15 $file -o $file-conv
+        rm $file
+        mv $file-conv $file
+    fi
+done
