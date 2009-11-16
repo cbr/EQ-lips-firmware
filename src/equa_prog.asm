@@ -1,10 +1,9 @@
 ; -----------------------------------------------------------------------
-; Fichier source modèle généré par Piklab
 #include <cpu.inc>
 
 
 ; -----------------------------------------------------------------------
-; Bits de configuration: adapté à votre dispositif et à vos besoins
+; Configuration bits
 ;    __CONFIG _CONFIG1, _EXTRC_OSC_CLKOUT & _WDT_ON & _PWRTE_OFF & _MCLRE_ON & _CP_OFF & _CPD_OFF & _BOR_ON & _IESO_ON & _FCMEN_ON & _LVP_ON & _DEBUG_OFF
     __CONFIG _CONFIG1, _INTOSCIO  & _WDT_OFF & _PWRTE_ON & _MCLRE_OFF & _CP_OFF & _CPD_OFF & _BOR_ON & _IESO_ON & _FCMEN_ON & _LVP_OFF & _DEBUG_OFF
     __CONFIG _CONFIG2, _BOR21V & _WRT_OFF
@@ -16,34 +15,34 @@
 #include <encoder.inc>
 #include <delay.inc>
 ; -----------------------------------------------------------------------
-; Déclaration des variables
+; Variable declaration
 
 ; -----------------------------------------------------------------------
-; vecteur de redémarrage
+; Startup vector
 STARTUP CODE 0x000
-    nop                    ; nécessaire pour le débogage avec l'ICD2
-    movlw   high start     ; charge l'octet supérieur de l'étiquette « start »
-    movwf   PCLATH         ; initialise PCLATH
-    goto    start          ; va au début du code principal
+    nop                    ; necessary for debug with ICD2
+    movlw   high start     ; load high order byte from start label
+    movwf   PCLATH         ; initialiee PCLATH
+    goto    start          ; start
 
 ; vecteur d'interruption
 INT_VECTOR CODE 0x004
-    goto    interrupt      ; va au début du code d'interruption
+    goto    interrupt      ; go to begining of interrupt code
 
 ; code relogeable
 PROG CODE
 interrupt
-    movwf   w_saved        ; sauvegarde du contexte
+    movwf   w_saved        ; save context
     swapf   STATUS,w
     movwf   status_saved
-    movf    PCLATH,w       ; nécessaire seulement si on utilise plus que la première page
+    movf    PCLATH,w       ; only necessary if using more than the first page
     movwf   pclath_saved
     clrf    PCLATH
-    ; << insérer le code d'interruption >>
+    ; << insert interrupt code >>
     encoder_it
 
 
-    movf    pclath_saved,w ; restauration du contexte
+    movf    pclath_saved,w ; restore context
     movwf   PCLATH
     swapf   status_saved,w
     movwf   STATUS
@@ -177,6 +176,6 @@ loop_draw:
     goto loop_draw
 
 
-    goto    $              ; boucle indéfiniment
+    goto    $              ; infinite loop
 
 END
