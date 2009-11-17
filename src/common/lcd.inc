@@ -94,6 +94,7 @@ lcd_send_cmd_2 macro cmd, value
     extern lcd_clear
     extern lcd_plot
     extern lcd_string
+    extern lcd_loc_string
     extern lcd_rectangle
     extern lcd_write
     extern lcd_read

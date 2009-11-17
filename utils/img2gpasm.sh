@@ -13,8 +13,18 @@ HEIGHT=$4
 GROUP_SIZE=4
 BYTE_SIZE=8
 
+# This function reverse the bits in a byte.
+# The algo comes from:
+#   http://graphics.stanford.edu/~seander/bithacks.html#BitReverseObvious
+#   Reverse the bits in a byte with 3 operations (64-bit multiply and modulus division):
+function reverseBitsInByte
+{
+    VALUE=$1
+    printf "0x%02X" "$(((VALUE * 0x0202020202 & 0x010884422010) % 1023))"
+}
 
-convert -rotate 90 -negate $IN_FILE $OUT_FILE.mono
+#convert -rotate 90 -negate $IN_FILE $OUT_FILE.mono
+convert -rotate 90 $IN_FILE $OUT_FILE.mono
 TEMP=`hexdump  -e '8/1 "0x%02X "' -e '"\n"' -v $OUT_FILE.mono`
 TEMP_ARRAY=( `echo $TEMP | tr '\n' ' '` )
 
@@ -30,7 +40,9 @@ do
             then
                 echo -n ", " >> $OUT_FILE
             fi
-            echo -n "${TEMP_ARRAY[$(( ((HEIGHT / BYTE_SIZE - 1) - pos_y) + j * (HEIGHT / BYTE_SIZE) + pos_x * GROUP_SIZE * (HEIGHT / BYTE_SIZE) ))]}" >> $OUT_FILE
+
+            VALUE=${TEMP_ARRAY[$(( ((HEIGHT / BYTE_SIZE - 1) - pos_y) + j * (HEIGHT / BYTE_SIZE) + pos_x * GROUP_SIZE * (HEIGHT / BYTE_SIZE) ))]}
+            reverseBitsInByte $VALUE >> $OUT_FILE
         done
         echo >> $OUT_FILE
     done

@@ -50,8 +50,10 @@ interrupt
     swapf   w_saved,w
     retfie
 
-st_toto:
-    dt "ABCDEFGHIJKLMNOPQRSTUV", 0
+st_eqprog:
+    dt "-= EQ_PROG =-", 0
+st_de:
+    dt "DE", 0
 
 start
 
@@ -103,35 +105,48 @@ start
 
 
 #if 1
-    movlw 5
+    movlw 0x08
     movwf param1
     movlw 0
     movwf param2
-    movlw low st_toto
+
+
+    movlw low st_eqprog
     movwf param3
-    movlw high st_toto
+    movlw high st_eqprog
     movwf param4
 
-    call lcd_string
+    call lcd_loc_string
 #endif
 
-
-    movlw 0x14
+    ;; Print 'A' then 'B'
+    movlw 0x05
     movwf param1
     movlw 1
     movwf param2
+    nop
     call lcd_locate
     movlw 'A'
     movwf param1
     call lcd_char
+    movlw 'B'
+    movwf param1
+    call lcd_char
+
+    ;; Print 'C' then "DE"
     movlw 0x15
     movwf param1
-    movlw 1
+    movlw 2
     movwf param2
     call lcd_locate
     movlw 'B'
     movwf param1
     call lcd_char
+    movlw low st_de
+    movwf param3
+    movlw high st_de
+    movwf param4
+    call lcd_string
 
         goto $
 loop_draw:
