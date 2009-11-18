@@ -29,9 +29,10 @@ encoder_init
 #endif
     bsf INTCON, GIE
     ; Set default encoder value
-    movlw ENCODER_DEFAULT_VALUE 
+    movlw ENCODER_DEFAULT_VALUE
     movwf encoder_value
 
     return
+
 
 END

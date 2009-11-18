@@ -10,5 +10,6 @@
 
     extern encoder_value
     extern encoder_last_value
+    extern menu_value
     extern interrupt_var_1
     extern interrupt_var_2

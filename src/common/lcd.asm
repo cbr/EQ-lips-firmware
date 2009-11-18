@@ -152,7 +152,9 @@ loop_column
 ; plot in lcd
 ; param1 : x
 ; param2 : y
-; param3 : set or unset pixel (LCD_SET_PIXEL bit)
+; param3 : - Use xor or not (LCD_XOR bit).
+;          - Set or unset pixels (LCD_SET_PIXEL bit). Only valid if xor is not activated.
+
 lcd_plot
     global lcd_plot
     ; store param1
@@ -271,7 +273,8 @@ lcd_plot_write
 ; param2 : y
 ; param3 : w
 ; param4 : h
-; param5 : set or unset pixels (LCD_SET_PIXEL bit)
+; param5 : - Use xor or not (LCD_XOR bit).
+;          - Set or unset pixels (LCD_SET_PIXEL bit). Only valid if xor is not activated.
 lcd_rectangle
     global lcd_rectangle
 
@@ -449,6 +452,14 @@ lcd_rect_column_loop
     call lcd_read
     call lcd_read
 
+    ; *** XOR ?
+    btfss param5, LCD_XOR
+    goto lcd_rect_set_unset
+    ; param1 = param1 xor var7
+    movf var7, W
+    xorwf param1, F
+    goto lcd_rect_write
+lcd_rect_set_unset
     ; *** Set or unset pixels?
     btfsc param5, LCD_SET_PIXEL
     goto lcd_rect_set
@@ -501,7 +512,6 @@ lcd_rect_write
 ; param2 : write status :
 ;       LCD_COMMAND    -> command if set, data otherwise
 ;       LCD_FIRST_CHIP -> write on first chip if set, on second otherwise
-
 lcd_write
     global lcd_write
 
@@ -538,6 +548,11 @@ lcd_write
     bcf LCD_E2_PORT, LCD_E2_BIT
     return
 
+; read data from lcd
+; param1 : return value
+; param2 : write status :
+;       LCD_COMMAND    -> command if set, data otherwise
+;       LCD_FIRST_CHIP -> write on first chip if set, on second otherwise
 lcd_read
     global lcd_read
 

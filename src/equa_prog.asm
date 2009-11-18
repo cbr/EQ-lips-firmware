@@ -14,6 +14,7 @@
 #include <lcd.inc>
 #include <encoder.inc>
 #include <delay.inc>
+#include <menu.inc>
 ; -----------------------------------------------------------------------
 ; Variable declaration
 
@@ -38,7 +39,7 @@ interrupt
     movf    PCLATH,w       ; only necessary if using more than the first page
     movwf   pclath_saved
     clrf    PCLATH
-    ; << insert interrupt code >>
+    ;; Manage encode interrupt
     encoder_it
 
 
@@ -80,7 +81,30 @@ start
     call lcd_init
     call encoder_init
 
+#if 1
+    ;; *** TEST MENU ***
+    movlw 0x01
+    movwf menu_value
+    menu_start
+    menu_entry st_eqprog, 0
+    menu_entry st_de, 1
+    menu_entry st_eqprog, 2
+    menu_entry st_de, 3
+    goto $
+    ;; movlw 0
+    ;; movwf param1
+    ;; movlw 0
+    ;; movwf param2
+    ;; movlw LCD_WIDTH
+    ;; movwf param3
+    ;; movlw 9
+    ;; movwf param4
+    ;; bsf param5, LCD_XOR
+    ;; call lcd_rectangle
+#endif
+
 #if 0
+    ;; *** TEST LCD ***
     ; draw rectangle
     movlw 1
     movwf param1
@@ -102,9 +126,8 @@ start
     goto $
 #endif
 
-
-
-#if 1
+#if 0
+    ;; *** TEST FONT PRINTING ***
     movlw 0x08
     movwf param1
     movlw 0
@@ -117,7 +140,6 @@ start
     movwf param4
 
     call lcd_loc_string
-#endif
 
     ;; Print 'A' then 'B'
     movlw 0x05
@@ -139,7 +161,7 @@ start
     movlw 2
     movwf param2
     call lcd_locate
-    movlw 'B'
+    movlw 'C'
     movwf param1
     call lcd_char
     movlw low st_de
@@ -147,8 +169,10 @@ start
     movlw high st_de
     movwf param4
     call lcd_string
+#endif
 
-        goto $
+#if 0
+    ;; *** DRAW RECT WITH ENCODER ***
 loop_draw:
 
     movf encoder_last_value, W
@@ -184,12 +208,11 @@ loop_draw:
     bcf STATUS, C
     rrf param4, F
 #endif
-
     bsf param5, LCD_SET_PIXEL
     call lcd_rectangle
 
     goto loop_draw
-
+#endif
 
     goto    $              ; infinite loop
 

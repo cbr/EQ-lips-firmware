@@ -2,6 +2,7 @@
 #define LCD_FIRST_CHIP     0x02
 
 #define LCD_SET_PIXEL      0x01
+#define LCD_XOR            0x02
 
 #define LCD_DISPLAY_ON_OFF          0xAE
 #define LCD_DISPLAY_START_LINE      0xC0
@@ -25,7 +26,9 @@
 #define LCD_HEIGH_TXT   0x4
 
 #define LCD_CHAR_WIDTH        4
+#define LCD_CHAR_HEIGH        8
 #define LCD_CHAR_WIDTH_SHIFT  2
+#define LCD_CHAR_HEIGH_SHIFT  3
 #define FIRST_FONT_CHAR_NUM   0x20
 
 
@@ -88,7 +91,6 @@ lcd_send_cmd_2 macro cmd, value
 
 
 #ifndef LCD_M
-
     ; Functions
     extern lcd_init
     extern lcd_clear
