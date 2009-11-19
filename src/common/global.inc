@@ -9,7 +9,10 @@
     extern param5
 
     extern encoder_value
+    extern encoder_min_value
+    extern encoder_max_value
     extern encoder_last_value
     extern menu_value
+    extern menu_action
     extern interrupt_var_1
     extern interrupt_var_2

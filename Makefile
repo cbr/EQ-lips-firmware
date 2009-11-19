@@ -8,6 +8,7 @@ SRCS=src/equa_prog.asm \
 	src/common/io.asm  \
 	src/common/spi.asm \
 	src/common/lcd.asm \
+	src/common/menu.asm
 
 IMGS=src/common/font.xcf
 

@@ -46,7 +46,7 @@ do
         done
         echo >> $OUT_FILE
     done
-    echo
+    echo >> $OUT_FILE
 done
 
 rm -f $OUT_FILE.mono

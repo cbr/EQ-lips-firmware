@@ -10,6 +10,7 @@
 ;    __CONFIG _INTOSCIO & _WDT_OFF & _PWRTE_OFF & _MCLRE_OFF & _CP_OFF & _CPD_OFF & _BOR_ON & _IESO_ON & _FCMEN_ON
 
 #include <global.inc>
+#include <interrupt.inc>
 #include <io.inc>
 #include <lcd.inc>
 #include <encoder.inc>
@@ -26,11 +27,11 @@ STARTUP CODE 0x000
     movwf   PCLATH         ; initialiee PCLATH
     goto    start          ; start
 
-; vecteur d'interruption
+; interrupt vector
 INT_VECTOR CODE 0x004
     goto    interrupt      ; go to begining of interrupt code
 
-; code relogeable
+; relocatable code
 PROG CODE
 interrupt
     movwf   w_saved        ; save context
@@ -81,15 +82,16 @@ start
     call lcd_init
     call encoder_init
 
+    ; enable interrupt
+    interrupt_enable
 #if 1
     ;; *** TEST MENU ***
-    movlw 0x01
-    movwf menu_value
     menu_start
-    menu_entry st_eqprog, 0
-    menu_entry st_de, 1
-    menu_entry st_eqprog, 2
-    menu_entry st_de, 3
+    menu_entry st_eqprog
+    ;; menu_entry st_de
+    menu_entry st_eqprog
+    menu_entry st_de
+    menu_end
     goto $
     ;; movlw 0
     ;; movwf param1
@@ -197,7 +199,7 @@ loop_draw:
     movwf param2
     movlw 10
     movwf param3
-    movf encoder_value, 0
+    movf encoder_value, W
     movwf encoder_last_value
     movwf param4
 #if 0

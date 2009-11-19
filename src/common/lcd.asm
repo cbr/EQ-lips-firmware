@@ -539,9 +539,11 @@ lcd_write
 #else
     bsf LCD_E2_PORT, LCD_E2_BIT
 #endif
+#ifdef LCD_DELAY
     ; delay
     movlw DELAY_CS
     call delay_wait
+#endif
 
     ; Clear E1 and E2
     bcf LCD_E1_PORT, LCD_E1_BIT
@@ -581,9 +583,11 @@ lcd_read
     bsf LCD_E2_PORT, LCD_E2_BIT
 #endif
 
+#ifdef LCD_DELAY
     ; delay
     movlw DELAY_CS
     call delay_wait
+#endif
 
     ; read data from bus
     call get_lcd_data
@@ -693,8 +697,10 @@ lcd_test_io_blink
     bsf LCD_WR_PORT, LCD_WR_BIT
     bsf LCD_A0_PORT, LCD_A0_BIT
 
+#ifdef LCD_DELAY
     movlw 0xFF
     call delay_wait
+#endif
 
     bcf LCD_DATA_0_PORT, LCD_DATA_0_BIT
     bcf LCD_DATA_1_PORT, LCD_DATA_1_BIT
@@ -709,8 +715,10 @@ lcd_test_io_blink
     bcf LCD_WR_PORT, LCD_WR_BIT
     bcf LCD_A0_PORT, LCD_A0_BIT
 
+#ifdef LCD_DELAY
     movlw 0xFF
     call delay_wait
+#endif
 
     goto lcd_test_io_blink
     ; never return !

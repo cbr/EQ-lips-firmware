@@ -8,6 +8,8 @@
 #include <delay.inc>
 
 #define ENCODER_DEFAULT_VALUE 0x9
+#define ENCODER_DEFAULT_MIN_VALUE 0x00
+#define ENCODER_DEFAULT_MAX_VALUE 0x15
 
 PROG CODE
 
@@ -27,10 +29,13 @@ encoder_init
 #else
     bsf INTCON, RBIE
 #endif
-    bsf INTCON, GIE
-    ; Set default encoder value
+    ; Set default encoder values
     movlw ENCODER_DEFAULT_VALUE
     movwf encoder_value
+    movlw ENCODER_DEFAULT_MIN_VALUE
+    movwf encoder_min_value
+    movlw ENCODER_DEFAULT_MAX_VALUE
+    movwf encoder_max_value
 
     return
 

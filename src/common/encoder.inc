@@ -52,17 +52,21 @@ encoder_it_continue:
     btfsc ENC_B_PORT, ENC_B_BIT
     goto encoder_rotate_ccw
 encoder_rotate_cw
+    ;; Test if not already max value
+    movf encoder_value, W
+    subwf encoder_max_value, W
+    btfsc STATUS, Z
+    goto encoder_ack_it_enc
+    ;; Not max value
     incf encoder_value, F
-    ;incf encoder_value, F
-    ;incf encoder_value, F
-    ;incf encoder_value, F
-    ;incf encoder_value, F
     goto encoder_ack_it_enc
 encoder_rotate_ccw
-    ;decf encoder_value, F
-    ;decf encoder_value, F
-    ;decf encoder_value, F
-    ;decf encoder_value, F
+    ;; Test if not already min value
+    movf encoder_value, W
+    subwf encoder_min_value, W
+    btfsc STATUS, Z
+    goto encoder_ack_it_enc
+    ;; Not min value
     decf encoder_value, F
 
 
@@ -85,9 +89,12 @@ encoder_other_it
 
 
 encoder_set_value macro current_value, value_min, value_max
-    ;; Disable it
-    ;; todo
-    ;; enable it
+    interrupt_disable
     movlw current_value
     movwf encoder_value
+    movlw value_min
+    movwf encoder_min_value
+    movlw value_max
+    movwf encoder_max_value
+    interrupt_enable
     endm
