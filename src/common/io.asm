@@ -6,7 +6,7 @@
 PROG CODE
 
     ; configure ios
-io_configure
+io_configure:
     global io_configure
 
     banksel PORTA
@@ -30,7 +30,7 @@ io_configure
     banksel 0
     return
 
-io_config_lcd_data_output
+io_config_lcd_data_output:
     global io_config_lcd_data_output
     banksel TRISA
     bcf LCD_DATA_0_TRIS, LCD_DATA_0_BIT
@@ -44,7 +44,7 @@ io_config_lcd_data_output
     banksel 0
     return
 
-io_config_lcd_data_input
+io_config_lcd_data_input:
     global io_config_lcd_data_input
     banksel TRISA
     bsf LCD_DATA_0_TRIS, LCD_DATA_0_BIT

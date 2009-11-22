@@ -25,7 +25,7 @@ PROG CODE
 
 ; init spi
 ;   no param
-spi_init
+spi_init:
     global spi_init
     ; unset CS
     bsf SPI_CS_PORT, SPI_CS_BIT
@@ -51,7 +51,7 @@ spi_init
 ; send spi
 ;   param1: data to send
 ;   param2: cmd to send
-spi_send
+spi_send:
     global spi_send
     ; set CS
     bcf SPI_CS_PORT, SPI_CS_BIT

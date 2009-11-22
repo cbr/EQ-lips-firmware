@@ -16,7 +16,7 @@ PROG CODE
 ; write byte into eeprom
 ;   param1: addr in eeprom
 ;   param2: byte to write
-eeprom_write
+eeprom_write:
     global eeprom_write
     ; Set addr
     movf param1, W
@@ -34,7 +34,7 @@ eeprom_write
     bcf EECON1, EEPGD
     bsf EECON1, WREN
     ;Disable IT.
-eeprom_write_disable_it
+eeprom_write_disable_it:
     bcf INTCON, GIE
     btfsc INTCON, GIE    ;SEE AN576
     goto eeprom_write_disable_it
@@ -52,7 +52,7 @@ eeprom_write_disable_it
     banksel 0x00
 
     ; wait end of write
-eeprom_write_wait_end
+eeprom_write_wait_end:
     btfss PIR2, EEIF
     goto eeprom_write_wait_end
 
@@ -66,7 +66,7 @@ eeprom_write_wait_end
 ; read byte from eeprom
 ;   param1: addr in eeprom
 ; return read byte in W
-eeprom_read
+eeprom_read:
     global eeprom_read
 
     ; Set addr

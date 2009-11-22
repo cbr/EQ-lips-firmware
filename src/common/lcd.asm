@@ -15,6 +15,10 @@
 
 #define PIXEL_MASK     0x07
 
+#define LCD_INT_DEC_POS_100    0x03
+#define LCD_INT_DEC_POS_10     0x02
+#define LCD_INT_DEC_POS_1      0x01
+
     UDATA
 var1       RES 1
 var2       RES 1
@@ -23,24 +27,23 @@ var4       RES 1
 var5       RES 1
 var6       RES 1
 var7       RES 1
-
-;#define DELAY_RESET 0xFF
-;#define DELAY_CS 0xFF
-
+lcd_save_chip RES 1
 set_lcd_data_bit macro num_bit, value
-set_lcd_data_#v(num_bit)
-        btfsc value, num_bit
-        goto set_lcd_data_set_#v(num_bit)
-        bcf LCD_DATA_#v(num_bit)_PORT, LCD_DATA_#v(num_bit)_BIT
-        goto set_lcd_data_after_#v(num_bit)
-set_lcd_data_set_#v(num_bit)
-        bsf LCD_DATA_#v(num_bit)_PORT, LCD_DATA_#v(num_bit)_BIT
-set_lcd_data_after_#v(num_bit)
+    local set_lcd_data_set
+    local set_lcd_data_after
+
+    btfsc value, num_bit
+    goto set_lcd_data_set
+    bcf LCD_DATA_#v(num_bit)_PORT, LCD_DATA_#v(num_bit)_BIT
+    goto set_lcd_data_after
+set_lcd_data_set:
+    bsf LCD_DATA_#v(num_bit)_PORT, LCD_DATA_#v(num_bit)_BIT
+set_lcd_data_after:
     endm
 
 get_lcd_data_bit macro num_bit
-        btfsc LCD_DATA_#v(num_bit)_PORT, LCD_DATA_#v(num_bit)_BIT
-        bsf param1, num_bit
+    btfsc LCD_DATA_#v(num_bit)_PORT, LCD_DATA_#v(num_bit)_BIT
+    bsf param1, num_bit
     endm
 
 ; relocatable code
@@ -49,7 +52,7 @@ PROG CODE
 
 ; Init LCD
 ; no parameters
-lcd_init
+lcd_init:
     global lcd_init    ; initial delay
     ;movlw 0xFF
     ;call delay_wait
@@ -99,12 +102,12 @@ lcd_init
 
 ; Clear the entire LCD
 ; no parameters
-lcd_clear
+lcd_clear:
     global lcd_clear
     movlw 4 ; number of page
     movwf var1
 
-loop_pages
+loop_pages:
     movlw 40 ; number of column
     movwf var2
 
@@ -132,7 +135,7 @@ loop_pages
     call lcd_write
 
     bcf param2, LCD_COMMAND
-loop_column
+loop_column:
     movlw 0
     movwf param1
     bsf param2, LCD_FIRST_CHIP
@@ -155,7 +158,7 @@ loop_column
 ; param3 : - Use xor or not (LCD_XOR bit).
 ;          - Set or unset pixels (LCD_SET_PIXEL bit). Only valid if xor is not activated.
 
-lcd_plot
+lcd_plot:
     global lcd_plot
     ; store param1
     movf param1, W
@@ -173,15 +176,15 @@ lcd_plot
     btfsc STATUS, C
     goto lcd_plot_prepare_clmn_2
 
-lcd_plot_prepare_clmn_1
+lcd_plot_prepare_clmn_1:
     movf var1, W
     bsf param2, LCD_FIRST_CHIP
     goto lcd_plot_set_clmn
 
-lcd_plot_prepare_clmn_2
+lcd_plot_prepare_clmn_2:
     bcf param2, LCD_FIRST_CHIP
 
-lcd_plot_set_clmn
+lcd_plot_set_clmn:
     ; w |= LCD_COLUMN_ADDRESS
     iorlw LCD_COLUMN_ADDRESS
     movwf param1
@@ -232,30 +235,30 @@ lcd_plot_set_clmn
     goto lcd_plot_set_pix_after
     ; shift bar2
     bcf STATUS, C
-lcd_plot_set_pix
+lcd_plot_set_pix:
     rlf var2, F
     ; var-- and loop while != 0
     decfsz var1, F
     goto lcd_plot_set_pix
-lcd_plot_set_pix_after
+lcd_plot_set_pix_after:
 
     ; *** Set or unset pixel?
     btfsc param3, LCD_SET_PIXEL
     goto lcd_plot_set
-lcd_plot_unset
+lcd_plot_unset:
     ; var2 = !var2 (equiv to xor 0xFF)
     movlw 0xFF
     xorwf var2, W
     andwf param1, F
     goto lcd_plot_write
 
-lcd_plot_set
+lcd_plot_set:
     ; move var2 in w (mask to write)
     movf var2, W
     ; param1 = param1 | w
     iorwf param1, F
 
-lcd_plot_write
+lcd_plot_write:
     ; call command
     call lcd_write
 
@@ -275,7 +278,7 @@ lcd_plot_write
 ; param4 : h
 ; param5 : - Use xor or not (LCD_XOR bit).
 ;          - Set or unset pixels (LCD_SET_PIXEL bit). Only valid if xor is not activated.
-lcd_rectangle
+lcd_rectangle:
     global lcd_rectangle
 
     ; store param1
@@ -294,17 +297,17 @@ lcd_rectangle
     btfsc STATUS, C
     goto lcd_rect_chip_2
 
-lcd_rect_chip_1
+lcd_rect_chip_1:
     bsf param2, LCD_FIRST_CHIP
     goto lcd_rect_y
 
-lcd_rect_chip_2
+lcd_rect_chip_2:
     ; memorize x in chip 2 in param1
     movwf var1
     bcf param2, LCD_FIRST_CHIP
 
     ; *** Y
-lcd_rect_y
+lcd_rect_y:
     ; ** get lastpixel number in byte to set
     ; param4 = var2 + param4 - 1(= absolute y2)
     movf var2, W
@@ -364,7 +367,7 @@ lcd_rect_y
     ; now:
     ;  var5 is the number of page
 
-lcd_rect_page_loop
+lcd_rect_page_loop:
     ; set param 1 of command:
     ; w = LCD_SET_PAGE_ADDRESS
     movlw LCD_SET_PAGE_ADDRESS
@@ -388,13 +391,13 @@ lcd_rect_page_loop
     btfsc STATUS, Z
     goto lcd_rect_set_pix_start_after
     ; shift var7
-lcd_rect_set_pix_start
+lcd_rect_set_pix_start:
     bcf STATUS, C
     rlf var7, F
     ; var-- and loop while != 0
     decfsz var2, F
     goto lcd_rect_set_pix_start
-lcd_rect_set_pix_start_after
+lcd_rect_set_pix_start_after:
 
     ; * end of the rectangle
     ; if var5 (number of page) is 1, it means it is the last page
@@ -417,19 +420,19 @@ lcd_rect_set_pix_start_after
     goto lcd_rect_set_pix_end_after
 
     ; shift var2 (and include 1 with CARRY flag)
-lcd_rect_set_pix_end
+lcd_rect_set_pix_end:
     bsf STATUS, C
     rlf var2, F
     ; var-- and loop while != 0
     decfsz var4, F
     goto lcd_rect_set_pix_end
-lcd_rect_set_pix_end_after
+lcd_rect_set_pix_end_after:
     ; apply end mask (var2) on var7
     movf var2, W
     andwf var7, F
 
     ; ** set start column (x1)
-lcd_rect_set_clmn
+lcd_rect_set_clmn:
     ; w = var1
     movf var1, W
     ; w |= LCD_COLUMN_ADDRESS
@@ -445,7 +448,7 @@ lcd_rect_set_clmn
 
     movf param3, W
     movwf var6
-lcd_rect_column_loop
+lcd_rect_column_loop:
     ; *** Get pixel in param1
 
     bcf param2, LCD_COMMAND
@@ -459,24 +462,24 @@ lcd_rect_column_loop
     movf var7, W
     xorwf param1, F
     goto lcd_rect_write
-lcd_rect_set_unset
+lcd_rect_set_unset:
     ; *** Set or unset pixels?
     btfsc param5, LCD_SET_PIXEL
     goto lcd_rect_set
-lcd_rect_unset
+lcd_rect_unset:
     ; var7 = !var7 (equiv to xor 0xFF)
     movlw 0xFF
     xorwf var7, W
     andwf param1, F
     goto lcd_rect_write
 
-lcd_rect_set
+lcd_rect_set:
     ; move var7 in w (mask to write)
     movf var7, W
     ; param1 = param1 | w
     iorwf param1, F
 
-lcd_rect_write
+lcd_rect_write:
     ; call command
     call lcd_write
 
@@ -512,7 +515,7 @@ lcd_rect_write
 ; param2 : write status :
 ;       LCD_COMMAND    -> command if set, data otherwise
 ;       LCD_FIRST_CHIP -> write on first chip if set, on second otherwise
-lcd_write
+lcd_write:
     global lcd_write
 
     ; Set A0 if data, unset else
@@ -555,7 +558,7 @@ lcd_write
 ; param2 : write status :
 ;       LCD_COMMAND    -> command if set, data otherwise
 ;       LCD_FIRST_CHIP -> write on first chip if set, on second otherwise
-lcd_read
+lcd_read:
     global lcd_read
 
     ; Set A0 if data, unset else
@@ -600,7 +603,7 @@ lcd_read
 
 ; set  data on lcd data bus
 ; param1 : data to write
-set_lcd_data
+set_lcd_data:
     global set_lcd_data
 
 
@@ -622,7 +625,7 @@ set_lcd_data
 
 ; get data on lcd data bus
 ; param1 : return value
-get_lcd_data
+get_lcd_data:
     global get_lcd_data
     ; configure gpio
     call io_config_lcd_data_input
@@ -642,7 +645,7 @@ get_lcd_data
 
     return
 
-lcd_test_io_on
+lcd_test_io_on:
     global lcd_test_io_on
     bsf LCD_DATA_0_PORT, LCD_DATA_0_BIT
     bsf LCD_DATA_1_PORT, LCD_DATA_1_BIT
@@ -663,7 +666,7 @@ lcd_test_io_on
     ; never return !
     return
 
-lcd_test_io_off
+lcd_test_io_off:
     global lcd_test_io_off
     bcf LCD_DATA_0_PORT, LCD_DATA_0_BIT
     bcf LCD_DATA_1_PORT, LCD_DATA_1_BIT
@@ -682,7 +685,7 @@ lcd_test_io_off
     ; never return !
     return
 
-lcd_test_io_blink
+lcd_test_io_blink:
     global lcd_test_io_blink
     bsf LCD_DATA_0_PORT, LCD_DATA_0_BIT
     bsf LCD_DATA_1_PORT, LCD_DATA_1_BIT
@@ -725,13 +728,89 @@ lcd_test_io_blink
     return
 
 
+
+lcd_int_print_unit macro reg_value, unit, max_unit
+    local lcd_int_print_unit_continue
+    local lcd_int_print_unit_end
+    movlw 0x00
+    movwf var2
+
+lcd_int_print_unit_continue:
+    movlw unit
+    subwf reg_value, W
+    btfss STATUS, C
+    goto lcd_int_print_unit_end
+    movlw unit
+    subwf reg_value, F
+    incf var2, F
+    movlw max_unit
+    subwf var2, W
+    btfsc STATUS, Z
+    goto lcd_int_print_unit_end
+    goto lcd_int_print_unit_continue
+
+lcd_int_print_unit_end:
+    ;; Print unit value
+    movf var2, W
+    addlw '0'
+    movwf param1
+    call lcd_char
+
+    endm
+
+;;; Print an integer on current position of LCD
+;;; param1: value of integer to be printed
+;;; param2: position of decimal point. If 0, no decimal point
+;;; used variables: var1, var2, var3, var4
+lcd_int:
+    global lcd_int
+    ;; Save param
+    movf param1, W
+    movwf var3
+    movf param2, W
+    movwf var4
+
+    movf var4, W
+    sublw LCD_INT_DEC_POS_100
+    btfss STATUS, Z
+    goto lcd_int_print_100
+    movlw '.'
+    movwf param1
+    call lcd_char
+lcd_int_print_100:
+    lcd_int_print_unit var3, 0x64, 2
+    movf var4, W
+    sublw LCD_INT_DEC_POS_10
+    btfss STATUS, Z
+    goto lcd_int_print_10
+    movlw '.'
+    movwf param1
+    call lcd_char
+lcd_int_print_10:
+    lcd_int_print_unit var3, 0x0A, 9
+    movf var4, W
+    sublw LCD_INT_DEC_POS_1
+    btfss STATUS, Z
+    goto lcd_int_print_1
+    movlw '.'
+    movwf param1
+    call lcd_char
+lcd_int_print_1:
+    ;; Print last unit
+    movf var3, W
+    addlw '0'
+    movwf param1
+    call lcd_char
+
+    return
+
 ;;; locate and draw a string
 ;;; param1: x
 ;;; param2: y
 ;;; param3: addrl of null terminated string
 ;;; param4: addrh of null terminated string
 ;;; used variables: var3, var4, var5
-lcd_loc_string
+lcd_loc_string:
     global lcd_loc_string
 
     ;; store param1 and param2
@@ -815,11 +894,16 @@ lcd_loc_string_end:
     return
 
 ;;; draw a string
-;;; param3: addrl of null terminated string
-;;; param4: addrh of null terminated string
-;;; used variables: var5
-lcd_string
+;;; param1: addrl of null terminated string
+;;; param2: addrh of null terminated string
+;;; used variables: var3, var4, var5
+lcd_string:
     global lcd_string
+    ;; Save params
+    movf param1, W
+    movwf var3
+    movf param2, W
+    movwf var4
 
     ;; *** Draw string
     ;; init position counter (in var5)
@@ -836,12 +920,12 @@ lcd_string_loop:
 #endif
     ;;  set addr to read
     movf var5, W
-    addwf param3, W
+    addwf var3, W
     banksel EEADR
     movwf EEADR
 
-    banksel param4
-    movf param4, W
+    banksel var4
+    movf var4, W
     banksel EEADRH
     movwf EEADRH
     btfsc STATUS, C
@@ -893,7 +977,7 @@ lcd_string_end:
 ;;; param1: x
 ;;; param2: y
 ;;; used variables: var1, var2
-lcd_locate
+lcd_locate:
     global lcd_locate
     ;; store param 2
     movf param2, W
@@ -916,6 +1000,11 @@ lcd_locate_chip_2:
     bcf param2, LCD_FIRST_CHIP
 
 lcd_locate_mult_x:
+    ;; save param2 (to know what chip to use)
+    movf param2, W
+    banksel lcd_save_chip
+    movwf lcd_save_chip
+    banksel var1
     movlw LCD_CHAR_WIDTH_SHIFT
     movwf var1
 lcd_locate_mult_x_loop:
@@ -944,9 +1033,15 @@ lcd_locate_mult_x_loop:
 
 ;;; draw a char
 ;;; param1: is the character number
-;;; used variables: var1
+;;; used variables: var1, param2
 lcd_char:
     global lcd_char
+
+    ;;  restore param2 (the chip to be used)
+    banksel lcd_save_chip
+    movf lcd_save_chip, W
+    banksel param2
+    movwf param2
 
     movlw FIRST_FONT_CHAR_NUM
     subwf param1, F

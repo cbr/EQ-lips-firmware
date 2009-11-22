@@ -33,7 +33,7 @@ INT_VECTOR CODE 0x004
 
 ; relocatable code
 PROG CODE
-interrupt
+interrupt:
     movwf   w_saved        ; save context
     swapf   STATUS,w
     movwf   status_saved
@@ -57,7 +57,7 @@ st_eqprog:
 st_de:
     dt "DE", 0
 
-start
+start:
 
     ; init clock
     BSF  STATUS,RP0 ;Bank 1
@@ -84,7 +84,7 @@ start
 
     ; enable interrupt
     interrupt_enable
-#if 1
+#if 0
     ;; *** TEST MENU ***
     menu_start
     menu_entry st_eqprog
@@ -128,7 +128,7 @@ start
     goto $
 #endif
 
-#if 0
+#if 1
     ;; *** TEST FONT PRINTING ***
     movlw 0x08
     movwf param1
@@ -167,10 +167,36 @@ start
     movwf param1
     call lcd_char
     movlw low st_de
-    movwf param3
+    movwf param1
     movlw high st_de
-    movwf param4
+    movwf param2
     call lcd_string
+
+    ;; Print int
+    movlw 0x02
+    movwf param1
+    movlw 0x03
+    movwf param2
+    call lcd_locate
+
+    movlw 0xF0                  ; = 240
+    movwf param1
+    movlw 0x00
+    movwf param2
+    call lcd_int
+
+    movlw 0x12
+    movwf param1
+    movlw 0x03
+    movwf param2
+    call lcd_locate
+
+    movlw 0x7C                  ; = 1.24
+    movwf param1
+    movlw 0x02
+    movwf param2
+    call lcd_int
+
 #endif
 
 #if 0

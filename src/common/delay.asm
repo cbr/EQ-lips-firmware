@@ -5,11 +5,11 @@ delay      RES 1 ; variable used for context saving
 PROG CODE
 
 ; wait for w cycles
-delay_wait
+delay_wait:
     return
     global delay_wait
     movwf delay
-delay_loop
+delay_loop:
     decfsz delay, 1
     goto delay_loop
     return

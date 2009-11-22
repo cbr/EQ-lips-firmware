@@ -3,6 +3,16 @@
 #define MENU_ACTION_SELECT_CHANGE   0x02
 #define MENU_INIT_LAST_VALUE        0xFF
 
+;#define SIMPLE_SELECT
+
+#ifdef SIMPLE_SELECT
+#define MENU_SELECT_CHAR            '>'
+#define MENU_UNSELECT_CHAR          ' '
+#define MENU_STRING_POS_X           2
+#else
+#define MENU_STRING_POS_X           0
+#endif
+
     extern menu_last_value
     VARIABLE MENU_NB_ENTRY
 
@@ -89,11 +99,12 @@ lshift_f macro reg, value
 
 
 menu_entry macro string
-    local menu_entry_not_selected
+    local menu_entry_end_select
     local menu_entry_init
     local menu_entry_undef
     local menu_entry_select_change
     local menu_entry_draw_select
+    local menu_entry_draw_unselect
     ;; *** Check current action
     ;; INIT
     movlw MENU_ACTION_INIT
@@ -110,7 +121,7 @@ menu_entry macro string
 
 menu_entry_init:
     ;; Print string
-    movlw 0x00
+    movlw MENU_STRING_POS_X
     movwf param1
     movlw MENU_NB_ENTRY
     movwf param2
@@ -135,11 +146,30 @@ menu_entry_select_change:
     movlw MENU_NB_ENTRY
     subwf menu_last_value, W
     btfsc STATUS, Z
-    goto menu_entry_draw_select
-    goto menu_entry_not_selected
+    goto menu_entry_draw_unselect
+    goto menu_entry_end_select
+#ifdef SIMPLE_SELECT
+menu_entry_draw_unselect:
+    movlw 0
+    movwf param1
+    call lcd_locate
+    movlw MENU_UNSELECT_CHAR
+    movwf param1
+    call lcd_char
+    goto menu_entry_end_select
+menu_entry_draw_select:
+    movlw 0
+    movwf param1
+    call lcd_locate
+    movlw MENU_SELECT_CHAR
+    movwf param1
+    call lcd_char
+    goto menu_entry_end_select
+#else
+menu_entry_draw_unselect:
+menu_entry_draw_select:
     ;; draw the selection rectangle with XOR
     ;; (So, the same operation can select and also deselect)
-menu_entry_draw_select:
     movlw 0
     movwf param1
     lshift_f param2, LCD_CHAR_HEIGH_SHIFT
@@ -151,7 +181,8 @@ menu_entry_draw_select:
     movwf param4
     bsf param5, LCD_XOR
     call lcd_rectangle
-menu_entry_not_selected:
+#endif
+menu_entry_end_select:
 
 
 menu_entry_undef:

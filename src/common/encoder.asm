@@ -15,7 +15,7 @@ PROG CODE
 
 ; init encoder
 ;   no param
-encoder_init
+encoder_init:
     global encoder_init
 
     ; configure ENC_A and ENC_B

@@ -51,7 +51,7 @@ encoder_it_continue:
     ; test enc_b
     btfsc ENC_B_PORT, ENC_B_BIT
     goto encoder_rotate_ccw
-encoder_rotate_cw
+encoder_rotate_cw:
     ;; Test if not already max value
     movf encoder_value, W
     subwf encoder_max_value, W
@@ -60,7 +60,7 @@ encoder_rotate_cw
     ;; Not max value
     incf encoder_value, F
     goto encoder_ack_it_enc
-encoder_rotate_ccw
+encoder_rotate_ccw:
     ;; Test if not already min value
     movf encoder_value, W
     subwf encoder_min_value, W
@@ -70,7 +70,7 @@ encoder_rotate_ccw
     decf encoder_value, F
 
 
-encoder_ack_it_enc
+encoder_ack_it_enc:
     ; ack it
     movf ENC_A_PORT, F
 #ifdef RABIF
@@ -78,7 +78,7 @@ encoder_ack_it_enc
 #else
     bcf INTCON, RBIF
 #endif
-encoder_other_it
+encoder_other_it:
     endm
 
 
