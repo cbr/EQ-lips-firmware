@@ -16,6 +16,7 @@
 #include <encoder.inc>
 #include <delay.inc>
 #include <menu.inc>
+#include <spi.inc>
 ; -----------------------------------------------------------------------
 ; Variable declaration
 
@@ -81,9 +82,59 @@ start:
     call io_configure
     call lcd_init
     call encoder_init
+    call spi_init
 
     ; enable interrupt
     interrupt_enable
+
+
+#if 1
+spi_test:
+    movlw 0x13
+    movwf param1
+    movlw 0xFF
+    movwf param2
+    call spi_send
+
+    goto spi_test
+
+    movlw 0xFF
+    movwf param3
+
+
+loop_spi_inc
+    movlw 0x13
+    movwf param1
+    movf param3, W
+    movwf param2
+
+    call spi_send
+
+    movlw 0x70
+    call delay_wait
+
+    incfsz param3
+    goto loop_spi_inc
+
+loop_spi_dec
+    movlw 0x13
+    movwf param1
+    movf param3, W
+    movwf param2
+
+    call spi_send
+
+    movlw 0x70
+    call delay_wait
+
+    decfsz param3
+    goto loop_spi_dec
+
+    goto loop_spi_inc
+
+#endif
+
+
 #if 0
     ;; *** TEST MENU ***
     menu_start
@@ -128,7 +179,7 @@ start:
     goto $
 #endif
 
-#if 1
+#if 0
     ;; *** TEST FONT PRINTING ***
     movlw 0x08
     movwf param1

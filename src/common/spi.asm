@@ -10,6 +10,7 @@
 
 spi_send_w_and_wait macro
         ; send cmd
+        banksel SSPBUF
         movwf SSPBUF
         banksel SSPSTAT
         ; wait end of transmission
@@ -28,6 +29,7 @@ PROG CODE
 spi_init:
     global spi_init
     ; unset CS
+    banksel SPI_CS_PORT
     bsf SPI_CS_PORT, SPI_CS_BIT
 
     ; Configure spi
@@ -35,16 +37,18 @@ spi_init:
     movlw (1 << SMP) | (1 << CKE)
     movwf SSPSTAT
 
-    bcf TRISC, 7
-    bcf TRISB, 6
+    ;;  Configure SPI pins
+    banksel SPI_SDO_TRIS
+    bcf SPI_SDO_TRIS, SPI_SDO_BIT
+    banksel SPI_SCL_TRIS
+    bcf SPI_SCL_TRIS, SPI_SCL_BIT
 
 
     ; Activate spi
-    banksel 0
+    banksel SSPCON
     movlw (1 << SSPEN)
     movwf SSPCON
     return
-
 
 
 
@@ -54,8 +58,10 @@ spi_init:
 spi_send:
     global spi_send
     ; set CS
+    banksel SPI_CS_PORT
     bcf SPI_CS_PORT, SPI_CS_BIT
 
+    banksel 0
     ; send cmd
     movf param1, W
     spi_send_w_and_wait
@@ -69,7 +75,28 @@ spi_send:
     movlw 0
     spi_send_w_and_wait
 
+    movlw 0
+    spi_send_w_and_wait
+    movlw 0
+    spi_send_w_and_wait
+
+    movlw 0
+    spi_send_w_and_wait
+    movlw 0
+    spi_send_w_and_wait
+
+    movlw 0
+    spi_send_w_and_wait
+    movlw 0
+    spi_send_w_and_wait
+
+    movlw 0
+    spi_send_w_and_wait
+    movlw 0
+    spi_send_w_and_wait
+
     ; unset CS
+    banksel SPI_CS_PORT
     bsf SPI_CS_PORT, SPI_CS_BIT
 
     return
