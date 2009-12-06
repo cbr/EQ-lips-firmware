@@ -8,31 +8,17 @@
 #include <delay.inc>
 #include <spi.inc>
 
-spi_send_w_and_wait macro
-        ; send cmd
-        banksel SSPBUF
-        movwf SSPBUF
-        banksel SSPSTAT
-        ; wait end of transmission
-        btfss SSPSTAT, BF
-        goto $ - 1
-        banksel 0
-    endm
-
-
-
-
 PROG CODE
 
 ; init spi
 ;   no param
 spi_init:
     global spi_init
-    ; unset CS
+    ;; unset CS
     banksel SPI_CS_PORT
     bsf SPI_CS_PORT, SPI_CS_BIT
 
-    ; Configure spi
+    ;; Configure spi
     banksel SSPSTAT
     movlw (1 << SMP) | (1 << CKE)
     movwf SSPSTAT
@@ -44,7 +30,7 @@ spi_init:
     bcf SPI_SCL_TRIS, SPI_SCL_BIT
 
 
-    ; Activate spi
+    ;; Activate SPI
     banksel SSPCON
     movlw (1 << SSPEN)
     movwf SSPCON
@@ -52,53 +38,5 @@ spi_init:
 
 
 
-; send spi
-;   param1: data to send
-;   param2: cmd to send
-spi_send:
-    global spi_send
-    ; set CS
-    banksel SPI_CS_PORT
-    bcf SPI_CS_PORT, SPI_CS_BIT
-
-    banksel 0
-    ; send cmd
-    movf param1, W
-    spi_send_w_and_wait
-
-    ; send data
-    movf param2, W
-    spi_send_w_and_wait
-
-    movlw 0
-    spi_send_w_and_wait
-    movlw 0
-    spi_send_w_and_wait
-
-    movlw 0
-    spi_send_w_and_wait
-    movlw 0
-    spi_send_w_and_wait
-
-    movlw 0
-    spi_send_w_and_wait
-    movlw 0
-    spi_send_w_and_wait
-
-    movlw 0
-    spi_send_w_and_wait
-    movlw 0
-    spi_send_w_and_wait
-
-    movlw 0
-    spi_send_w_and_wait
-    movlw 0
-    spi_send_w_and_wait
-
-    ; unset CS
-    banksel SPI_CS_PORT
-    bsf SPI_CS_PORT, SPI_CS_BIT
-
-    return
 
 END

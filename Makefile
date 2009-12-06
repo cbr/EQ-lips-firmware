@@ -1,6 +1,7 @@
 BIN_NAME=equa_prog.hex
 
 SRCS=src/equa_prog.asm \
+	src/numpot.asm \
 	src/common/global.asm  \
 	src/common/delay.asm  \
 	src/common/eeprom.asm  \
@@ -23,8 +24,11 @@ LD=gplink
 IMG2GPASM=utils/img2gpasm.sh
 
 AS_FLAGS=-pp16f886
+UNASM_FLAGS=-pp16f886
 LINK_SCRIPT=16f886.lkr
 LD_FLAGS= -c -ainhx32 -m -s$(LINK_SCRIPT)
+
+UNASM_NAME=$(BIN_NAME:.hex=.unasm)
 
 OBJS=$(patsubst %.asm,$(OBJ_DIR)/%.o, $(SRCS))
 DEPENDS=$(patsubst %.asm,$(OBJ_DIR)/%.d, $(SRCS))
@@ -40,7 +44,11 @@ all: make_dir image $(BIN_NAME)
 
 .PHONY:prog
 prog: all
-	pk2cmd -B/usr/share/pk2 -PPIC16F886 -F$(BIN_NAME) -M
+	pk2cmd -B/usr/share/pk2 -PPIC16F886 -F$(BIN_NAME) -M -W
+
+.PHONY:unasm
+unasm: all
+	gpdasm $(UNASM_FLAGS) $(BIN_NAME) > $(UNASM_NAME)
 
 $(BIN_NAME): $(OBJS)
 	$(LD) -o$@ $(LD_FLAGS) $^

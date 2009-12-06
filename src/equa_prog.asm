@@ -15,8 +15,10 @@
 #include <lcd.inc>
 #include <encoder.inc>
 #include <delay.inc>
+#include <std.inc>
 #include <menu.inc>
 #include <spi.inc>
+#include <numpot.inc>
 ; -----------------------------------------------------------------------
 ; Variable declaration
 
@@ -87,8 +89,45 @@ start:
     ; enable interrupt
     interrupt_enable
 
-
 #if 1
+#define INIT_VAL    0x7F
+    NUMPOT_SET_ONE_VALUE 0x0, INIT_VAL
+    NUMPOT_SET_ONE_VALUE 0x1, INIT_VAL
+    NUMPOT_SET_ONE_VALUE 0x2, INIT_VAL
+    NUMPOT_SET_ONE_VALUE 0x3, INIT_VAL
+    NUMPOT_SET_ONE_VALUE 0x4, INIT_VAL
+    NUMPOT_SET_ONE_VALUE 0x5, INIT_VAL
+    NUMPOT_SET_ONE_VALUE 0x6, INIT_VAL
+    NUMPOT_SET_ONE_VALUE 0x7, INIT_VAL
+    NUMPOT_SET_ONE_VALUE 0x8, INIT_VAL
+    NUMPOT_SET_ONE_VALUE 0x9, INIT_VAL
+    NUMPOT_SET_ONE_VALUE 0xA, INIT_VAL
+    NUMPOT_SET_ONE_VALUE 0xB, INIT_VAL
+#if 0
+    NUMPOT_SET_ONE_VALUE 0x0, 0x32
+    NUMPOT_SET_ONE_VALUE 0x1, 0x32
+    NUMPOT_SET_ONE_VALUE 0x2, 0x32
+    NUMPOT_SET_ONE_VALUE 0x3, 0x4B
+    NUMPOT_SET_ONE_VALUE 0x4, 0x7F
+    NUMPOT_SET_ONE_VALUE 0x5, 0x64
+    NUMPOT_SET_ONE_VALUE 0x6, 0x4B
+    NUMPOT_SET_ONE_VALUE 0x7, 0x32
+    NUMPOT_SET_ONE_VALUE 0x8, 0x32
+    NUMPOT_SET_ONE_VALUE 0x9, 0x32
+#endif
+    NUMPOT_SET_ONE_VALUE 0xA, 0xFF
+    NUMPOT_SET_ONE_VALUE 0xB, 0xFF
+
+;; spi_test:
+    call numpot_send_all
+
+    ;; goto spi_test
+
+
+#endif
+
+
+#if 0
 spi_test:
     movlw 0x13
     movwf param1
@@ -135,7 +174,7 @@ loop_spi_dec
 #endif
 
 
-#if 0
+#if 1
     ;; *** TEST MENU ***
     menu_start
     menu_entry st_eqprog
