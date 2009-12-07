@@ -100,8 +100,9 @@ lcd_init:
 
     return
 
-; Clear the entire LCD
-; no parameters
+;;; Clear the entire LCD
+;;; Changed registers : param1
+;;;	Local: var1, var2
 lcd_clear:
     global lcd_clear
     movlw 4 ; number of page

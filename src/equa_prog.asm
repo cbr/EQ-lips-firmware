@@ -1,4 +1,58 @@
 ; -----------------------------------------------------------------------
+;;; Main screen show the following information
+;;; - equalizer
+;;;   - 10 bands -> 1 band is 4/5 pixel wide -> show all presets in half a screen
+;;; - tremolo
+;;;   - 1 amplitude (depth)
+;;;   - 1 type (none / sinus(moste difficult) / triangle / square(easier)) -> draw the shape
+;;;   - 1 vitesse
+;;;  (- 1 slope)
+;;; - global gain
+;;; - current preset (if any, otherwise something like '--')
+;;; - current element detailed info
+;;; It is hard to put everything one one screen
+;;;  -> use two screen (gain with eq)
+;;;
+;;; +--------------+---------------+
+;;; +MEM       EQ    X   X   X   X +
+;;; + Text Value     XXX XX  X   X +
+;;; +                XXXXXX XXX  X +
+;;; +(trem resume)   XXXXXXXXXX  X +
+;;; +--------------+---------------+
+;;;
+;;; +--------------+---------------+
+;;; +                              +
+;;; +                              +
+;;; +                              +
+;;; +                              +
+;;; +--------------+---------------+
+;;;
+;;; +--------------+---------------+
+;;; +                              +
+;;; +                              +
+;;; +                              +
+;;; +                              +
+;;; +--------------+---------------+
+;;;
+;;; Memory
+;;;  - One preset size is 14/15 bytes (eq, trem and gain)
+;;;  - Solution 1
+;;;    - Y user settings with X (X <= Y) preset configured in factory
+;;;    - The X first user settings can be reset to factory settings
+;;;    -> simpler (especially with X=Y)
+;;;  - Solution 2
+;;;    - X factory settings: read only
+;;;    - Y user settings: read/write
+;;;    -> more complete but more difficult to use
+;;; => Prefered solution is solution 1 with X=Y
+;;;  - Global context menu:
+;;;   - Switch to trem/eq (if not enough space on one main screen)
+;;;   - Memorize program (even when no modification are realized)
+;;;   - Switch preset (when an active preset is selected)
+;;;   - Reset one preset (when an active preset is selected)
+;;;   - Reset all presets
+;;;
+;;;
 #include <cpu.inc>
 
 

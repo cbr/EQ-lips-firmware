@@ -1,13 +1,13 @@
 #define MENU_ACTION_UNDEF           0x00
 #define MENU_ACTION_INIT            0x01
-#define MENU_ACTION_SELECT_CHANGE   0x02
+#define MENU_ACTION_FOCUS_CHANGE   0x02
 #define MENU_INIT_LAST_VALUE        0xFF
 
-;#define SIMPLE_SELECT
+;#define SIMPLE_FOCUS
 
-#ifdef SIMPLE_SELECT
-#define MENU_SELECT_CHAR            '>'
-#define MENU_UNSELECT_CHAR          ' '
+#ifdef SIMPLE_FOCUS
+#define MENU_FOCUS_CHAR            '>'
+#define MENU_UNFOCUS_CHAR          ' '
 #define MENU_STRING_POS_X           2
 #else
 #define MENU_STRING_POS_X           0
@@ -16,10 +16,14 @@
     extern menu_last_value
     VARIABLE MENU_NB_ENTRY
 
+;;;
+;;; This macro start a new dialog screen
+;;; Changed registers: menu_value, menu_last_value, menu_action, param1
+;;;
 menu_start macro
     VARIABLE MENU_NB_ENTRY=0
     local menu_start_quit
-    local menu_start_select_change
+    local menu_start_focus_change
     call lcd_clear
     ;; init variable
     movlw MENU_INIT_LAST_VALUE
@@ -34,15 +38,15 @@ menu_start macro
     ;; define return label for 'end' macro
     ;; (An xcoff symbol is used, because of relocatable code)
     .DEF LABEL_MENU_START, global, value=$
-menu_start_select_change:
+menu_start_focus_change:
     ;; Check if encoder value is equal to current menu value
     movf encoder_value, W
     subwf menu_value, W
     btfsc STATUS, Z
     goto menu_start_quit
     ;; not equal !
-    ;; -> change selection
-    movlw MENU_ACTION_SELECT_CHANGE
+    ;; -> change focus
+    movlw MENU_ACTION_FOCUS_CHANGE
     movwf menu_action
     movf encoder_value, W
     movwf menu_value
@@ -50,30 +54,34 @@ menu_start_quit:
     endm
 
 
+;;;
+;;; This macro end e dialog screen
+;;; Changed registers: menu_last_value, menu_action
+;;;
 menu_end macro
     local menu_end_undef
     local menu_end_init
-    local menu_end_select_change
+    local menu_end_focus_change
     ;; *** Check current action
     ;; INIT
     movlw MENU_ACTION_INIT
     subwf menu_action, W
     btfsc STATUS, Z
     goto menu_end_init
-    ;; SELECT_CHANGE
-    movlw MENU_ACTION_SELECT_CHANGE
+    ;; FOCUS_CHANGE
+    movlw MENU_ACTION_FOCUS_CHANGE
     subwf menu_action, W
     btfsc STATUS, Z
-    goto menu_end_select_change
+    goto menu_end_focus_change
     ;; Other unknown actions
     goto menu_end_undef
 
 menu_end_init:
     ;; todo to be put in 'end' when the number of entry is known !
     encoder_set_value 0, 0, MENU_NB_ENTRY-1
-    ;; At init, we also manage a selection change
+    ;; At init, we also manage a focus change
     ;; -> no goto
-menu_end_select_change:
+menu_end_focus_change:
     ;; Store last value
     movf menu_value, W
     movwf menu_last_value
@@ -86,25 +94,29 @@ menu_end_undef:
     endm
 
 
-
+;;;
+;;; This macro add a menu entry into a dialog screen
+;;; string: label of the menu entry
+;;; Changed registers: param1, param2, param3, param4
+;;;
 menu_entry macro string
-    local menu_entry_end_select
+    local menu_entry_end_focus
     local menu_entry_init
     local menu_entry_undef
-    local menu_entry_select_change
-    local menu_entry_draw_select
-    local menu_entry_draw_unselect
+    local menu_entry_focus_change
+    local menu_entry_draw_focus
+    local menu_entry_draw_unfocus
     ;; *** Check current action
     ;; INIT
     movlw MENU_ACTION_INIT
     subwf menu_action, W
     btfsc STATUS, Z
     goto menu_entry_init
-    ;; SELECT_CHANGE
-    movlw MENU_ACTION_SELECT_CHANGE
+    ;; FOCUS_CHANGE
+    movlw MENU_ACTION_FOCUS_CHANGE
     subwf menu_action, W
     btfsc STATUS, Z
-    goto menu_entry_select_change
+    goto menu_entry_focus_change
     ;; Other unknown actions
     goto menu_entry_undef
 
@@ -122,43 +134,43 @@ menu_entry_init:
     movwf param4
 
     call lcd_loc_string
-    ;; At end of init, we manage the selection, so
+    ;; At end of init, we manage the focus, so
     ;; we continue :
-menu_entry_select_change:
-    ;; New selected entry ?
+menu_entry_focus_change:
+    ;; New focused entry ?
     movlw MENU_NB_ENTRY
     movwf param2
     subwf menu_value, W
     btfsc STATUS, Z
-    goto menu_entry_draw_select
-    ;; Last selected entry ?
+    goto menu_entry_draw_focus
+    ;; Last focused entry ?
     movlw MENU_NB_ENTRY
     subwf menu_last_value, W
     btfsc STATUS, Z
-    goto menu_entry_draw_unselect
-    goto menu_entry_end_select
-#ifdef SIMPLE_SELECT
-menu_entry_draw_unselect:
+    goto menu_entry_draw_unfocus
+    goto menu_entry_end_focus
+#ifdef SIMPLE_FOCUS
+menu_entry_draw_unfocus:
     movlw 0
     movwf param1
     call lcd_locate
-    movlw MENU_UNSELECT_CHAR
+    movlw MENU_UNFOCUS_CHAR
     movwf param1
     call lcd_char
-    goto menu_entry_end_select
-menu_entry_draw_select:
+    goto menu_entry_end_focus
+menu_entry_draw_focus:
     movlw 0
     movwf param1
     call lcd_locate
-    movlw MENU_SELECT_CHAR
+    movlw MENU_FOCUS_CHAR
     movwf param1
     call lcd_char
-    goto menu_entry_end_select
+    goto menu_entry_end_focus
 #else
-menu_entry_draw_unselect:
-menu_entry_draw_select:
-    ;; draw the selection rectangle with XOR
-    ;; (So, the same operation can select and also deselect)
+menu_entry_draw_unfocus:
+menu_entry_draw_focus:
+    ;; draw the focus rectangle with XOR
+    ;; (So, the same operation can focus and also unfocus)
     movlw 0
     movwf param1
     lshift_f param2, LCD_CHAR_HEIGH_SHIFT
@@ -171,8 +183,7 @@ menu_entry_draw_select:
     bsf param5, LCD_XOR
     call lcd_rectangle
 #endif
-menu_entry_end_select:
-
+menu_entry_end_focus:
 
 menu_entry_undef:
     VARIABLE MENU_NB_ENTRY=MENU_NB_ENTRY+1
