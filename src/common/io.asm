@@ -30,9 +30,17 @@ io_configure:
     banksel 0
     return
 
+;;; Configure LCD IO data as output
 io_config_lcd_data_output:
     global io_config_lcd_data_output
-    banksel TRISA
+#ifdef LCD_ALL_BIT_IN_SAME_REG
+    banksel LCD_DATA_TRIS
+    movlw 0
+    movwf LCD_DATA_TRIS
+#else
+    ;; All TRIS are one the same bank, so we
+    ;; just select the first one
+    banksel LCD_DATA_0_TRIS
     bcf LCD_DATA_0_TRIS, LCD_DATA_0_BIT
     bcf LCD_DATA_1_TRIS, LCD_DATA_1_BIT
     bcf LCD_DATA_2_TRIS, LCD_DATA_2_BIT
@@ -41,12 +49,21 @@ io_config_lcd_data_output:
     bcf LCD_DATA_5_TRIS, LCD_DATA_5_BIT
     bcf LCD_DATA_6_TRIS, LCD_DATA_6_BIT
     bcf LCD_DATA_7_TRIS, LCD_DATA_7_BIT
+#endif
     banksel 0
     return
 
+;;; Configure LCD IO data as input
 io_config_lcd_data_input:
     global io_config_lcd_data_input
-    banksel TRISA
+#ifdef LCD_ALL_BIT_IN_SAME_REG
+    banksel LCD_DATA_TRIS
+    movlw 0xFF
+    movwf LCD_DATA_TRIS
+#else
+    ;; All TRIS are one the same bank, so we
+    ;; just select the first one
+    banksel LCD_DATA_0_TRIS
     bsf LCD_DATA_0_TRIS, LCD_DATA_0_BIT
     bsf LCD_DATA_1_TRIS, LCD_DATA_1_BIT
     bsf LCD_DATA_2_TRIS, LCD_DATA_2_BIT
@@ -55,6 +72,7 @@ io_config_lcd_data_input:
     bsf LCD_DATA_5_TRIS, LCD_DATA_5_BIT
     bsf LCD_DATA_6_TRIS, LCD_DATA_6_BIT
     bsf LCD_DATA_7_TRIS, LCD_DATA_7_BIT
+#endif
     banksel 0
     return
 

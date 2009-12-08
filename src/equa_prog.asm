@@ -15,9 +15,16 @@
 ;;;
 ;;; +--------------+---------------+
 ;;; +MEM       EQ    X   X   X   X +
-;;; + Text Value     XXX XX  X   X +
-;;; +                XXXXXX XXX  X +
+;;; + Param label:   XXX XX  X   X +
+;;; +    Value       XXXXXX XXX  X +
 ;;; +(trem resume)   XXXXXXXXXX  X +
+;;; +--------------+---------------+
+;;;
+;;; +--------------+---------------+
+;;; +MEM      TREM   typ   depth % +
+;;; + Param label:                 +
+;;; +    Value           bpm       +
+;;; +  (eq resume)                 +
 ;;; +--------------+---------------+
 ;;;
 ;;; +--------------+---------------+
