@@ -611,6 +611,10 @@ set_lcd_data:
     ; configure gpio
     call io_config_lcd_data_output
 
+#ifdef LCD_ALL_BIT_IN_SAME_REG
+    movf param1, W
+    movwf LCD_DATA_PORT
+#else
     ; set lcd_data
     set_lcd_data_bit 0, param1
     set_lcd_data_bit 1, param1
@@ -620,6 +624,7 @@ set_lcd_data:
     set_lcd_data_bit 5, param1
     set_lcd_data_bit 6, param1
     set_lcd_data_bit 7, param1
+#endif
     return
 
 
@@ -634,6 +639,10 @@ get_lcd_data:
     ; clear param1
     clrf param1
 
+#ifdef LCD_ALL_BIT_IN_SAME_REG
+    movf LCD_DATA_PORT, W
+    movwf param1
+#else
     ; set each bit according to IO
     get_lcd_data_bit 0
     get_lcd_data_bit 1
@@ -643,11 +652,16 @@ get_lcd_data:
     get_lcd_data_bit 5
     get_lcd_data_bit 6
     get_lcd_data_bit 7
+#endif
 
     return
 
 lcd_test_io_on:
     global lcd_test_io_on
+#ifdef LCD_ALL_BIT_IN_SAME_REG
+    movlw 0xFF
+    movwf LCD_DATA_PORT
+#else
     bsf LCD_DATA_0_PORT, LCD_DATA_0_BIT
     bsf LCD_DATA_1_PORT, LCD_DATA_1_BIT
     bsf LCD_DATA_2_PORT, LCD_DATA_2_BIT
@@ -656,12 +670,12 @@ lcd_test_io_on:
     bsf LCD_DATA_5_PORT, LCD_DATA_5_BIT
     bsf LCD_DATA_6_PORT, LCD_DATA_6_BIT
     bsf LCD_DATA_7_PORT, LCD_DATA_7_BIT
-#if 1
+#endif
+
     bsf LCD_E1_PORT, LCD_E1_BIT
     bsf LCD_E2_PORT, LCD_E2_BIT
     bsf LCD_WR_PORT, LCD_WR_BIT
     bsf LCD_A0_PORT, LCD_A0_BIT
-#endif
 
     goto $
     ; never return !
@@ -669,6 +683,10 @@ lcd_test_io_on:
 
 lcd_test_io_off:
     global lcd_test_io_off
+#ifdef LCD_ALL_BIT_IN_SAME_REG
+    movlw 0x00
+    movwf LCD_DATA_PORT
+#else
     bcf LCD_DATA_0_PORT, LCD_DATA_0_BIT
     bcf LCD_DATA_1_PORT, LCD_DATA_1_BIT
     bcf LCD_DATA_2_PORT, LCD_DATA_2_BIT
@@ -677,6 +695,8 @@ lcd_test_io_off:
     bcf LCD_DATA_5_PORT, LCD_DATA_5_BIT
     bcf LCD_DATA_6_PORT, LCD_DATA_6_BIT
     bcf LCD_DATA_7_PORT, LCD_DATA_7_BIT
+#endif
+
     bcf LCD_E1_PORT, LCD_E1_BIT
     bcf LCD_E2_PORT, LCD_E2_BIT
     bcf LCD_WR_PORT, LCD_WR_BIT
@@ -688,36 +708,14 @@ lcd_test_io_off:
 
 lcd_test_io_blink:
     global lcd_test_io_blink
-    bsf LCD_DATA_0_PORT, LCD_DATA_0_BIT
-    bsf LCD_DATA_1_PORT, LCD_DATA_1_BIT
-    bsf LCD_DATA_2_PORT, LCD_DATA_2_BIT
-    bsf LCD_DATA_3_PORT, LCD_DATA_3_BIT
-    bsf LCD_DATA_4_PORT, LCD_DATA_4_BIT
-    bsf LCD_DATA_5_PORT, LCD_DATA_5_BIT
-    bsf LCD_DATA_6_PORT, LCD_DATA_6_BIT
-    bsf LCD_DATA_7_PORT, LCD_DATA_7_BIT
-    bsf LCD_E1_PORT, LCD_E1_BIT
-    bsf LCD_E2_PORT, LCD_E2_BIT
-    bsf LCD_WR_PORT, LCD_WR_BIT
-    bsf LCD_A0_PORT, LCD_A0_BIT
+    call lcd_test_io_on
 
 #ifdef LCD_DELAY
     movlw 0xFF
     call delay_wait
 #endif
 
-    bcf LCD_DATA_0_PORT, LCD_DATA_0_BIT
-    bcf LCD_DATA_1_PORT, LCD_DATA_1_BIT
-    bcf LCD_DATA_2_PORT, LCD_DATA_2_BIT
-    bcf LCD_DATA_3_PORT, LCD_DATA_3_BIT
-    bcf LCD_DATA_4_PORT, LCD_DATA_4_BIT
-    bcf LCD_DATA_5_PORT, LCD_DATA_5_BIT
-    bcf LCD_DATA_6_PORT, LCD_DATA_6_BIT
-    bcf LCD_DATA_7_PORT, LCD_DATA_7_BIT
-    bcf LCD_E1_PORT, LCD_E1_BIT
-    bcf LCD_E2_PORT, LCD_E2_BIT
-    bcf LCD_WR_PORT, LCD_WR_BIT
-    bcf LCD_A0_PORT, LCD_A0_BIT
+    call lcd_test_io_off
 
 #ifdef LCD_DELAY
     movlw 0xFF
