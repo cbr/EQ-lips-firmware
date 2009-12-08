@@ -20,14 +20,20 @@ BYTE_SIZE=8
 function reverseBitsInByte
 {
     VALUE=$1
-    printf "0x%02X" "$(((VALUE * 0x0202020202 & 0x010884422010) % 1023))"
+    #printf "0x%02X" "$(((VALUE * 0x0202020202 & 0x010884422010) % 1023))"
+    RES=0
+    for bitNum in `seq 0 7`
+    do
+	RES="$(( RES | (((VALUE >> bitNum) & 1) << (7-bitNum)) ))"
+    done
+    printf "0x%02X" "$RES"
 }
+
 
 #convert -rotate 90 -negate $IN_FILE $OUT_FILE.mono
 convert -rotate 90 $IN_FILE $OUT_FILE.mono
 TEMP=`hexdump  -e '8/1 "0x%02X "' -e '"\n"' -v $OUT_FILE.mono`
 TEMP_ARRAY=( `echo $TEMP | tr '\n' ' '` )
-
 rm -f $OUT_FILE
 for pos_y in `seq 0 $((HEIGHT / BYTE_SIZE - 1))`
 do
