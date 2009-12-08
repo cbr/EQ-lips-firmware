@@ -80,6 +80,7 @@
 #include <menu.inc>
 #include <spi.inc>
 #include <numpot.inc>
+#include <edit_eq.inc>
 ; -----------------------------------------------------------------------
 ; Variable declaration
 
@@ -151,6 +152,10 @@ start:
     interrupt_enable
 
 #if 1
+    call edit_eq_show
+#endif
+
+#if 0
 #define INIT_VAL    0x7F
     NUMPOT_SET_ONE_VALUE 0x0, INIT_VAL
     NUMPOT_SET_ONE_VALUE 0x1, INIT_VAL

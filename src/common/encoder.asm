@@ -11,6 +11,12 @@
 #define ENCODER_DEFAULT_MIN_VALUE 0x00
 #define ENCODER_DEFAULT_MAX_VALUE 0x15
 
+    UDATA
+encoder_min_value RES 1 ; encoder minimum value
+    global encoder_min_value
+encoder_max_value RES 1 ; encoder maximum value
+    global encoder_max_value
+
 PROG CODE
 
 ; init encoder
@@ -33,9 +39,12 @@ encoder_init:
     movlw ENCODER_DEFAULT_VALUE
     movwf encoder_value
     movlw ENCODER_DEFAULT_MIN_VALUE
+    banksel encoder_min_value
     movwf encoder_min_value
     movlw ENCODER_DEFAULT_MAX_VALUE
+    banksel encoder_max_value
     movwf encoder_max_value
+    banksel 0
 
     return
 

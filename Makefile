@@ -2,6 +2,7 @@ BIN_NAME=equa_prog.hex
 
 SRCS=src/equa_prog.asm \
 	src/numpot.asm \
+	src/edit_eq.asm \
 	src/common/global.asm  \
 	src/common/delay.asm  \
 	src/common/eeprom.asm  \
@@ -44,7 +45,7 @@ all: make_dir image $(BIN_NAME)
 
 .PHONY:prog
 prog: all
-	pk2cmd -B/usr/share/pk2 -PPIC16F886 -F$(BIN_NAME) -M -W
+	pk2cmd -B/usr/share/pk2 -PPIC16F886 -F$(BIN_NAME) -M #-W
 
 .PHONY:unasm
 unasm: all

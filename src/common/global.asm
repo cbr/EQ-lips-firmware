@@ -1,4 +1,4 @@
-; Variables declaration
+;;; Variables declaration
  UDATA_SHR
 w_saved      RES 1 ; variable used for context saving
     global w_saved
@@ -18,10 +18,6 @@ param5       RES 1 ; parameter 5 of functions
     global param5;
 encoder_value RES 1 ; encoder value
     global encoder_value;
-encoder_min_value RES 1 ; encoder minimum value
-    global encoder_min_value;
-encoder_max_value RES 1 ; encoder maximum value
-    global encoder_max_value;
 encoder_last_value RES 1 ; encoder last value TODO to be removed, for test only !
     global encoder_last_value;
 menu_value RES 1 ; current menu value (selected entry)

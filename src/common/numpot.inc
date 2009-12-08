@@ -1,3 +1,4 @@
+
 NUMPOT_SET_ONE_VALUE macro potnumber, value
       movlw potnumber
       movwf param1
@@ -6,8 +7,11 @@ NUMPOT_SET_ONE_VALUE macro potnumber, value
       call numpot_set_one_value
       endm
 
-#ifndef LCD_M
-    ; Functions
+#ifndef NUMPOT_M
+    ;; Variables
+    extern potvalues
+
+    ;; Functions
     extern numpot_send_all
     extern numpot_set_one_value
 #endif

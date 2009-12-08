@@ -1,5 +1,8 @@
 #define ENCODER_STABLE_STATE_NB     3
 
+    extern encoder_min_value
+    extern encoder_max_value
+
 encoder_it macro
 
 #if (ENC_A_PORT != ENC_B_PORT)
@@ -54,6 +57,7 @@ encoder_it_continue:
 encoder_rotate_cw:
     ;; Test if not already max value
     movf encoder_value, W
+    banksel encoder_max_value
     subwf encoder_max_value, W
     btfsc STATUS, Z
     goto encoder_ack_it_enc
@@ -63,6 +67,7 @@ encoder_rotate_cw:
 encoder_rotate_ccw:
     ;; Test if not already min value
     movf encoder_value, W
+    banksel encoder_min_value
     subwf encoder_min_value, W
     btfsc STATUS, Z
     goto encoder_ack_it_enc
@@ -71,6 +76,7 @@ encoder_rotate_ccw:
 
 
 encoder_ack_it_enc:
+    banksel 0
     ; ack it
     movf ENC_A_PORT, F
 #ifdef RABIF
@@ -93,8 +99,11 @@ encoder_set_value macro current_value, value_min, value_max
     movlw current_value
     movwf encoder_value
     movlw value_min
+    banksel encoder_min_value
     movwf encoder_min_value
     movlw value_max
+    banksel encoder_max_value
     movwf encoder_max_value
     interrupt_enable
+    banksel 0
     endm

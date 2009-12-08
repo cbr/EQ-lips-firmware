@@ -1,6 +1,6 @@
 ; Manages SPI-chained MPC420XX numeric potentiometers
 
-#define LCD_M
+#define NUMPOT_M
 
 #include <cpu.inc>
 #include <global.inc>
@@ -8,6 +8,7 @@
 #include <spi.inc>
 #include <delay.inc>
 #include <std.inc>
+#include <numpot.inc>
 
 ;;; Number of chained chips.
 #define NUMPOT_NB_CHIP              0x06
@@ -24,6 +25,7 @@
 
     UDATA
 potvalues           RES NUMPOT_NB_POT_BY_CHIP*NUMPOT_NB_CHIP
+    global potvalues
 remaining_chip      RES 1
 num_pot             RES 1
 num_pot_in_cmd      RES 1
