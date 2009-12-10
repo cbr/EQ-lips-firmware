@@ -1,8 +1,8 @@
 BIN_NAME=equa_prog.hex
 
 SRCS=src/equa_prog.asm \
-	src/numpot.asm \
 	src/edit_eq.asm \
+	src/common/numpot.asm \
 	src/common/global.asm  \
 	src/common/delay.asm  \
 	src/common/eeprom.asm  \

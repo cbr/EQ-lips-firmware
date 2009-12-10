@@ -243,10 +243,10 @@ loop_spi_dec
 #if 1
     ;; *** TEST MENU ***
     menu_start
-    menu_entry st_eqprog
+    menu_entry st_eqprog, 0
     ;; menu_entry st_de
-    menu_entry st_eqprog
-    menu_entry st_de
+    menu_entry st_eqprog, 2
+    menu_entry st_de, 3
     menu_end
     goto $
     ;; movlw 0

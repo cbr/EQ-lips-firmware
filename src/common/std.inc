@@ -6,3 +6,11 @@ lshift_f macro reg, value
     endif
     endm
 
+rshift_f macro reg, value
+    if (value != 0)
+        bcf STATUS, C
+        rrf reg, F
+        rshift_f reg, (value-1)
+    endif
+    endm
+

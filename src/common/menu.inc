@@ -3,12 +3,12 @@
 #define MENU_ACTION_FOCUS_CHANGE   0x02
 #define MENU_INIT_LAST_VALUE        0xFF
 
-;#define SIMPLE_FOCUS
+#define SIMPLE_FOCUS
 
 #ifdef SIMPLE_FOCUS
 #define MENU_FOCUS_CHAR            '>'
 #define MENU_UNFOCUS_CHAR          ' '
-#define MENU_STRING_POS_X           2
+#define MENU_STRING_POS_X           1
 #else
 #define MENU_STRING_POS_X           0
 #endif
@@ -97,9 +97,10 @@ menu_end_undef:
 ;;;
 ;;; This macro add a menu entry into a dialog screen
 ;;; string: label of the menu entry
+;;; pos: y position of menu entry
 ;;; Changed registers: param1, param2, param3, param4
 ;;;
-menu_entry macro string
+menu_entry macro string, pos
     local menu_entry_end_focus
     local menu_entry_init
     local menu_entry_undef
@@ -124,7 +125,7 @@ menu_entry_init:
     ;; Print string
     movlw MENU_STRING_POS_X
     movwf param1
-    movlw MENU_NB_ENTRY
+    movlw pos
     movwf param2
 
 
@@ -137,9 +138,11 @@ menu_entry_init:
     ;; At end of init, we manage the focus, so
     ;; we continue :
 menu_entry_focus_change:
+    ;; Store menu entry position
+    movlw pos
+    movwf param2
     ;; New focused entry ?
     movlw MENU_NB_ENTRY
-    movwf param2
     subwf menu_value, W
     btfsc STATUS, Z
     goto menu_entry_draw_focus
@@ -188,3 +191,8 @@ menu_entry_end_focus:
 menu_entry_undef:
     VARIABLE MENU_NB_ENTRY=MENU_NB_ENTRY+1
     endm
+
+
+#ifndef MENU_M
+    extern menu_draw_eq_band
+#endif
