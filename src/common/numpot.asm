@@ -10,6 +10,8 @@
 #include <std.inc>
 #include <numpot.inc>
 
+#define NUMPOT_INVERT_VALUES
+
 ;;; Number of chained chips.
 #define NUMPOT_NB_CHIP              0x06
 
@@ -22,6 +24,9 @@
 
 ;;; Command spi value of MPC420XX
 #define NUMPOT_SPI_COMMAND          0x10
+
+;;; Max value
+#define NUMPOT_MAX_VALUE            0xFF
 
     UDATA
 potvalues           RES NUMPOT_NB_POT_BY_CHIP*NUMPOT_NB_CHIP
@@ -122,6 +127,10 @@ numpot_send_all_next_chip:
     ;; Get pot value (in W)
     movwf FSR
     movf INDF, W
+#ifdef NUMPOT_INVERT_VALUES
+    ;; Values are inverted
+    sublw NUMPOT_MAX_VALUE
+#endif
 
     ;; Send pot value
     spi_send_w_and_wait
