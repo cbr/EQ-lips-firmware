@@ -17,6 +17,44 @@
     ;; extern menu_last_value
     VARIABLE MENU_NB_ENTRY
 
+;;; Macro which manage event dispatching for menu element
+;;; parameters: label for different event
+menu_event_dispatch macro label_init, label_focus, label_unfocus, label_undef
+    ;; *** Check current action
+    ;; INIT
+    movlw MENU_ACTION_INIT
+    subwf menu_action, W
+    btfsc STATUS, Z
+    goto label_init
+
+    ;; ** Following events are  for specific entry
+    ;; -> Check if it applies to current entry
+    movlw MENU_NB_ENTRY
+    subwf menu_value, W
+    btfss STATUS, Z
+    ;; not applied to current entry
+    goto label_undef
+
+    ;; FOCUS
+    movlw MENU_ACTION_FOCUS
+    subwf menu_action, W
+    btfsc STATUS, Z
+    goto label_focus
+    ;; UNFOCUS
+    movlw MENU_ACTION_UNFOCUS
+    subwf menu_action, W
+    btfsc STATUS, Z
+    goto label_unfocus
+    ;; Other unknown actions
+    goto label_undef
+    endm
+
+#ifndef menu_number
+#define menu_number 0
+#else
+#define menu_number (menu_number+1)
+#endif
+
 ;;;
 ;;; This macro start a new dialog screen
 ;;; Changed registers: menu_value, menu_last_value, menu_action, param1
@@ -26,7 +64,7 @@ menu_start macro
     local menu_start_quit
     local menu_start_check_focus_change
     local menu_start_end_return
-    call lcd_clear
+    call_other_page lcd_clear
     ;; init variable
     ;; movlw MENU_INIT_LAST_VALUE
     ;; movwf menu_last_value
@@ -39,8 +77,10 @@ menu_start macro
     goto menu_start_quit
     ;; define return label for 'end' macro
     ;; (An xcoff symbol is used, because of relocatable code)
-    .DEF LABEL_MENU_START, global, value=$
+    ;; .DEF LABEL_MENU_START, global, value=$
+    ;; .DEF LABEL_MENU_START, extern, value=$
 menu_start_end_return:
+menu_start_end_return_#v(menu_number)
     ;; Check if an action is already defined
     movf menu_action, W
     sublw MENU_ACTION_UNDEF
@@ -51,6 +91,7 @@ menu_start_end_return:
 menu_start_check_focus_change:
     ;; Check if encoder value is equal to current menu value
     movf encoder_value, W
+    banksel menu_value
     subwf menu_value, W
     btfsc STATUS, Z
     goto menu_start_quit
@@ -94,8 +135,10 @@ menu_end_init:
 menu_end_unfocus:
     ;; After unfocus, manage focus
     movf encoder_value, W
+    banksel menu_value
     movwf menu_value
     movlw MENU_ACTION_FOCUS
+    banksel menu_action
     movwf menu_action
     goto menu_end_quit
 menu_end_undef:
@@ -103,7 +146,7 @@ menu_end_undef:
     movlw MENU_ACTION_UNDEF
     movwf menu_action
 menu_end_quit:
-    goto LABEL_MENU_START
+    goto menu_start_end_return_#v(menu_number)
     endm
 
 
@@ -118,33 +161,8 @@ menu_entry macro string, pos
     local menu_entry_undef
     local menu_entry_focus
     local menu_entry_unfocus
-    ;; *** Check current action
-    ;; INIT
-    movlw MENU_ACTION_INIT
-    subwf menu_action, W
-    btfsc STATUS, Z
-    goto menu_entry_init
 
-    ;; ** Following events are  for specific entry
-    ;; -> Check if it applies to current entry
-    movlw MENU_NB_ENTRY
-    subwf menu_value, W
-    btfss STATUS, Z
-    ;; not applied to current entry
-    goto menu_entry_undef
-
-    ;; FOCUS
-    movlw MENU_ACTION_FOCUS
-    subwf menu_action, W
-    btfsc STATUS, Z
-    goto menu_entry_focus
-    ;; UNFOCUS
-    movlw MENU_ACTION_UNFOCUS
-    subwf menu_action, W
-    btfsc STATUS, Z
-    goto menu_entry_unfocus
-    ;; Other unknown actions
-    goto menu_entry_undef
+    menu_event_dispatch menu_entry_init, menu_entry_focus, menu_entry_unfocus, menu_entry_undef
 
 menu_entry_init:
     ;; Print string
@@ -159,7 +177,7 @@ menu_entry_init:
     movlw high string
     movwf param4
 
-    call lcd_loc_string
+    call_other_page lcd_loc_string
     goto menu_entry_undef
 
 #ifdef SIMPLE_FOCUS
@@ -168,10 +186,10 @@ menu_entry_unfocus:
     movwf param1
     movlw pos
     movwf param2
-    call lcd_locate
+    call_other_page lcd_locate
     movlw MENU_UNFOCUS_CHAR
     movwf param1
-    call lcd_char
+    call_other_page lcd_char
     goto menu_entry_undef
 menu_entry_focus:
     ;; Current entry
@@ -179,10 +197,10 @@ menu_entry_focus:
     movwf param1
     movlw pos
     movwf param2
-    call lcd_locate
+    call_other_page lcd_locate
     movlw MENU_FOCUS_CHAR
     movwf param1
-    call lcd_char
+    call_other_page lcd_char
     goto menu_entry_undef
 #else
 menu_entry_unfocus:
@@ -202,10 +220,67 @@ menu_entry_focus:
     movlw LCD_CHAR_HEIGH
     movwf param4
     bsf param5, LCD_XOR
-    call lcd_rectangle
+    call_other_page lcd_rectangle
 #endif
 
 menu_entry_undef:
+    VARIABLE MENU_NB_ENTRY=MENU_NB_ENTRY+1
+    endm
+
+
+;;;
+;;; This macro manage an entry element got eq band
+;;; pos_x: band x position
+;;; value_addr: address of eq value
+;;;
+menu_eq macro pos_x, value_addr
+    local menu_eq_init
+    local menu_eq_undef
+    local menu_eq_focus
+    local menu_eq_unfocus
+
+    menu_event_dispatch menu_eq_init, menu_eq_focus, menu_eq_unfocus, menu_eq_undef
+
+menu_eq_init:
+    movlw pos_x
+    movwf param1
+    movlw value_addr
+    movwf FSR
+    movf INDF, W
+    movwf param2
+    call_other_page menu_draw_eq_band
+
+    goto menu_eq_undef
+
+menu_eq_unfocus:
+    goto menu_eq_undef
+menu_eq_focus:
+    goto menu_eq_undef
+
+menu_eq_undef:
+    VARIABLE MENU_NB_ENTRY=MENU_NB_ENTRY+1
+    endm
+
+;;;
+;;; This macro is a template (exemple) for menu entry element
+;;;
+menu_template macro
+    local menu_template_init
+    local menu_template_undef
+    local menu_template_focus
+    local menu_template_unfocus
+
+    menu_event_dispatch menu_template_init, menu_template_focus, menu_template_unfocus, menu_template_undef
+
+menu_template_init:
+    goto menu_template_undef
+
+menu_template_unfocus:
+    goto menu_template_undef
+menu_template_focus:
+    goto menu_template_undef
+
+menu_template_undef:
     VARIABLE MENU_NB_ENTRY=MENU_NB_ENTRY+1
     endm
 

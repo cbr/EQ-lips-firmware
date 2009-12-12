@@ -14,3 +14,8 @@ rshift_f macro reg, value
     endif
     endm
 
+call_other_page macro label
+    pagesel label
+    call label
+    pagesel $
+    endm

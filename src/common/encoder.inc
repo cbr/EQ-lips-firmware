@@ -45,7 +45,7 @@ encoder_it_continue:
 
 #else
     movlw 0xFF
-    call delay_wait
+    call_other_page delay_wait
 #endif
 
     btfss ENC_A_PORT, ENC_A_BIT

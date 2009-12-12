@@ -17,7 +17,7 @@ encoder_min_value RES 1 ; encoder minimum value
 encoder_max_value RES 1 ; encoder maximum value
     global encoder_max_value
 
-PROG CODE
+COMMON CODE
 
 ; init encoder
 ;   no param

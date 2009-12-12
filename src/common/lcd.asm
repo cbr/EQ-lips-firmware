@@ -7,6 +7,7 @@
 #include <global.inc>
 #include <io.inc>
 #include <delay.inc>
+#include <std.inc>
 #include <lcd.inc>
 
 
@@ -47,7 +48,7 @@ get_lcd_data_bit macro num_bit
     endm
 
 ; relocatable code
-PROG CODE
+COMMON CODE
 
 
 ; Init LCD

@@ -1,16 +1,16 @@
 BIN_NAME=equa_prog.hex
 
-SRCS=src/equa_prog.asm \
-	src/edit_eq.asm \
-	src/common/numpot.asm \
+SRCS=src/common/numpot.asm \
 	src/common/global.asm  \
 	src/common/delay.asm  \
-	src/common/eeprom.asm  \
 	src/common/encoder.asm  \
 	src/common/io.asm  \
-	src/common/spi.asm \
 	src/common/lcd.asm \
-	src/common/menu.asm
+	src/common/menu.asm \
+	src/common/spi.asm \
+	src/common/eeprom.asm  \
+	src/equa_prog.asm \
+	src/edit_eq.asm \
 
 IMGS=src/common/font.xcf
 

@@ -27,9 +27,9 @@ SHAREBANK  NAME=gprnobnk START=0x170    END=0x17F
 SHAREBANK  NAME=gprnobnk START=0x1F0    END=0x1FF
 
 SECTION    NAME=STARTUP  ROM=vectors    // Reset and interrupt vectors
-SECTION    NAME=PROG1    ROM=page0      // ROM code space - page0
-SECTION    NAME=PROG2    ROM=page1      // ROM code space - page1
-SECTION    NAME=PROG3    ROM=page2      // ROM code space - page2
-SECTION    NAME=PROG4    ROM=page3      // ROM code space - page3
+SECTION    NAME=PROG    ROM=page0      // ROM code space - page0
+SECTION    NAME=COMMON    ROM=page1      // ROM code space - page1
+//SECTION    NAME=PROG3    ROM=page2      // ROM code space - page2
+//SECTION    NAME=PROG4    ROM=page3      // ROM code space - page3
 SECTION    NAME=IDLOCS   ROM=.idlocs    // ID locations
 SECTION    NAME=DEEPROM  ROM=eedata     // Data EEPROM

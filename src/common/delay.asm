@@ -2,7 +2,7 @@
 delay      RES 1 ; variable used for context saving
 
 ; relocatable code
-PROG CODE
+COMMON CODE
 
 ; wait for w cycles
 delay_wait:

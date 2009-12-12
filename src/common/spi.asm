@@ -8,7 +8,7 @@
 #include <delay.inc>
 #include <spi.inc>
 
-PROG CODE
+COMMON CODE
 
 ; init spi
 ;   no param
@@ -34,6 +34,7 @@ spi_init:
     banksel SSPCON
     movlw (1 << SSPEN)
     movwf SSPCON
+    banksel 0
     return
 
 

@@ -7,6 +7,9 @@
 #include <std.inc>
 #include <lcd.inc>
 #include <menu.inc>
+#include <encoder.inc>
+#include <interrupt.inc>
+#include <numpot.inc>
 
     UDATA
 edit_eq_tmp      RES 1
@@ -14,10 +17,30 @@ edit_eq_tmp      RES 1
 
 ; relocatable code
 PROG CODE
+st_toto:
+    dt "TOTO", 0
 edit_eq_show:
     global edit_eq_show
+#if 1
+    menu_start
+    menu_eq (0x5*0 + 0x3E), potvalues
+    menu_eq (0x5*1 + 0x3E), potvalues+1
+    menu_eq (0x5*2 + 0x3E), potvalues+2
+    menu_eq (0x5*3 + 0x3E), potvalues+3
+    menu_eq (0x5*4 + 0x3E), potvalues+4
+    menu_eq (0x5*5 + 0x3E), potvalues+5
+    menu_eq (0x5*6 + 0x3E), potvalues+6
+    menu_eq (0x5*7 + 0x3E), potvalues+7
+    menu_eq (0x5*8 + 0x3E), potvalues+8
+#if 1
+    menu_eq (0x5*9 + 0x3E), potvalues+9
+    menu_eq (0x5*0xB + 0x3E), potvalues+0xA
+#endif
+    menu_end
+
+#else
     ;; Erase screen
-    call lcd_clear
+    call_other_page lcd_clear
 
     ;; position
     movlw (0x5*0 + 0x3E)
@@ -25,7 +48,7 @@ edit_eq_show:
     ;; value
     movlw 0xFF
     movwf param2
-    call menu_draw_eq_band
+    call_other_page menu_draw_eq_band
 
     ;; position
     movlw (0x5*1 + 0x3E)
@@ -33,7 +56,7 @@ edit_eq_show:
     ;; value
     movlw 0x89
     movwf param2
-    call menu_draw_eq_band
+    call_other_page menu_draw_eq_band
 
     ;; position
     movlw (0x5*2 + 0x3E)
@@ -41,7 +64,7 @@ edit_eq_show:
     ;; value
     movlw 0x81
     movwf param2
-    call menu_draw_eq_band
+    call_other_page menu_draw_eq_band
 
     ;; position
     movlw (0x5*3 + 0x3E)
@@ -49,7 +72,7 @@ edit_eq_show:
     ;; value
     movlw 0x80
     movwf param2
-    call menu_draw_eq_band
+    call_other_page menu_draw_eq_band
 
     ;; position
     movlw (0x5*4 + 0x3E)
@@ -57,7 +80,7 @@ edit_eq_show:
     ;; value
     movlw 0x7F
     movwf param2
-    call menu_draw_eq_band
+    call_other_page menu_draw_eq_band
 
     ;; position
     movlw (0x5*5 + 0x3E)
@@ -65,7 +88,7 @@ edit_eq_show:
     ;; value
     movlw 0x77
     movwf param2
-    call menu_draw_eq_band
+    call_other_page menu_draw_eq_band
 
     ;; position
     movlw (0x5*6 + 0x3E)
@@ -73,8 +96,8 @@ edit_eq_show:
     ;; value
     movlw 0x00
     movwf param2
-    call menu_draw_eq_band
-
+    call_other_page menu_draw_eq_band
+#endif
     ;; goto $
     ;; Draw eq
 END

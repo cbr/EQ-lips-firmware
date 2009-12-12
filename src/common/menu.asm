@@ -12,7 +12,6 @@
 #define MENU_EQ_VALUE_TO_LCD_SHT    0x03
 #define MENU_EQ_MAX_INPUT           0xFF
 
-
     UDATA
     global menu_last_value
 menu_last_value         RES 1
@@ -21,7 +20,7 @@ menu_var1               RES 1
 
 
 ; relocatable code
-PROG CODE
+COMMON CODE
 
 ;;; Draw eq band rectangle value
 ;;; param1: band x position

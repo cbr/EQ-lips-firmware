@@ -35,25 +35,25 @@
 lcd_recv_cmd_1 macro
     bsf param2, LCD_COMMAND
     bsf param2, LCD_FIRST_CHIP
-    call lcd_read
+    call_other_page lcd_read
     endm
 
 lcd_recv_cmd_2 macro
     bsf param2, LCD_COMMAND
     bcf param2, LCD_FIRST_CHIP
-    call lcd_read
+    call_other_page lcd_read
     endm
 
 lcd_recv_data_1 macro
     bcf param2, LCD_COMMAND
     bsf param2, LCD_FIRST_CHIP
-    call lcd_read
+    call_other_page lcd_read
     endm
 
 lcd_recv_data_2 macro
     bcf param2, LCD_COMMAND
     bcf param2, LCD_FIRST_CHIP
-    call lcd_read
+    call_other_page lcd_read
     endm
 
 
@@ -62,7 +62,7 @@ lcd_send_data_1 macro value
     movwf param1
     bcf param2, LCD_COMMAND
     bsf param2, LCD_FIRST_CHIP
-    call lcd_write
+    call_other_page lcd_write
     endm
 
 lcd_send_data_2 macro value
@@ -70,7 +70,7 @@ lcd_send_data_2 macro value
     movwf param1
     bcf param2, LCD_COMMAND
     bcf param2, LCD_FIRST_CHIP
-    call lcd_write
+    call_other_page lcd_write
     endm
 
 lcd_send_cmd_1 macro cmd, value
@@ -78,7 +78,7 @@ lcd_send_cmd_1 macro cmd, value
     movwf param1
     bsf param2, LCD_COMMAND
     bsf param2, LCD_FIRST_CHIP
-    call lcd_write
+    call_other_page lcd_write
     endm
 
 lcd_send_cmd_2 macro cmd, value
@@ -86,7 +86,7 @@ lcd_send_cmd_2 macro cmd, value
     movwf param1
     bsf param2, LCD_COMMAND
     bcf param2, LCD_FIRST_CHIP
-    call lcd_write
+    call_other_page lcd_write
     endm
 
 

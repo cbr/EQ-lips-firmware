@@ -3,7 +3,7 @@
 #include <io.inc>
 
 ; relocatable code
-PROG CODE
+COMMON CODE
 
     ; configure ios
 io_configure:

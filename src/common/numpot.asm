@@ -32,7 +32,7 @@ num_pot_in_cmd      RES 1
 tmp                 RES 1
 
 ; relocatable code
-PROG CODE
+COMMON CODE
 
 numpot_send_chained_values macro command, num_pot_in_chip, nb_chip
     ;; send cmd
