@@ -23,18 +23,18 @@ edit_eq_show:
     global edit_eq_show
 #if 1
     menu_start
-    menu_eq (0x5*0 + 0x3E), potvalues
-    menu_eq (0x5*1 + 0x3E), potvalues+1
-    menu_eq (0x5*2 + 0x3E), potvalues+2
-    menu_eq (0x5*3 + 0x3E), potvalues+3
-    menu_eq (0x5*4 + 0x3E), potvalues+4
-    menu_eq (0x5*5 + 0x3E), potvalues+5
-    menu_eq (0x5*6 + 0x3E), potvalues+6
-    menu_eq (0x5*7 + 0x3E), potvalues+7
-    menu_eq (0x5*8 + 0x3E), potvalues+8
+    menu_eq (0x5*0 + 0x3D), potvalues
+    menu_eq (0x5*1 + 0x3D), potvalues+1
+    menu_eq (0x5*2 + 0x3D), potvalues+2
+    menu_eq (0x5*3 + 0x3D), potvalues+3
+    menu_eq (0x5*4 + 0x3D), potvalues+4
+    menu_eq (0x5*5 + 0x3D), potvalues+5
+    menu_eq (0x5*6 + 0x3D), potvalues+6
+    menu_eq (0x5*7 + 0x3D), potvalues+7
+    menu_eq (0x5*8 + 0x3D), potvalues+8
 #if 1
-    menu_eq (0x5*9 + 0x3E), potvalues+9
-    menu_eq (0x5*0xB + 0x3E), potvalues+0xA
+    menu_eq (0x5*9 + 0x3D), potvalues+9
+    menu_eq (0x5*0xB + 0x3D), potvalues+0xA
 #endif
     menu_end
 
@@ -43,7 +43,7 @@ edit_eq_show:
     call_other_page lcd_clear
 
     ;; position
-    movlw (0x5*0 + 0x3E)
+    movlw (0x5*0 + 0x3D)
     movwf param1
     ;; value
     movlw 0xFF
@@ -51,7 +51,7 @@ edit_eq_show:
     call_other_page menu_draw_eq_band
 
     ;; position
-    movlw (0x5*1 + 0x3E)
+    movlw (0x5*1 + 0x3D)
     movwf param1
     ;; value
     movlw 0x89
@@ -59,7 +59,7 @@ edit_eq_show:
     call_other_page menu_draw_eq_band
 
     ;; position
-    movlw (0x5*2 + 0x3E)
+    movlw (0x5*2 + 0x3D)
     movwf param1
     ;; value
     movlw 0x81
@@ -67,7 +67,7 @@ edit_eq_show:
     call_other_page menu_draw_eq_band
 
     ;; position
-    movlw (0x5*3 + 0x3E)
+    movlw (0x5*3 + 0x3D)
     movwf param1
     ;; value
     movlw 0x80
@@ -75,7 +75,7 @@ edit_eq_show:
     call_other_page menu_draw_eq_band
 
     ;; position
-    movlw (0x5*4 + 0x3E)
+    movlw (0x5*4 + 0x3D)
     movwf param1
     ;; value
     movlw 0x7F
@@ -83,7 +83,7 @@ edit_eq_show:
     call_other_page menu_draw_eq_band
 
     ;; position
-    movlw (0x5*5 + 0x3E)
+    movlw (0x5*5 + 0x3D)
     movwf param1
     ;; value
     movlw 0x77
@@ -91,7 +91,7 @@ edit_eq_show:
     call_other_page menu_draw_eq_band
 
     ;; position
-    movlw (0x5*6 + 0x3E)
+    movlw (0x5*6 + 0x3D)
     movwf param1
     ;; value
     movlw 0x00

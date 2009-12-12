@@ -8,6 +8,7 @@
 #include <global.inc>
 
 #define MENU_EQ_BAND_WIDTH          0x04
+#define MENU_EQ_BAND_FOCUS_WIDTH    0x05
 #define MENU_EQ_ZERO_VALUE          0x80
 #define MENU_EQ_VALUE_TO_LCD_SHT    0x03
 #define MENU_EQ_MAX_INPUT           0xFF
@@ -72,4 +73,31 @@ menu_draw_eq_rect:
     call lcd_rectangle
     return
 
+;;; Draw eq band focus
+;;; param1: band x position
+menu_draw_focus_eq_band:
+    global menu_draw_focus_eq_band
+    ;; save param
+    movf param1, W
+    movwf menu_var1
+    ;; draw left vertical line
+    clrf param2
+    movlw 1
+    movwf param3
+    movlw LCD_HEIGH
+    movwf param4
+    bsf param5, LCD_XOR
+    call lcd_rectangle
+    ;; draw right vertical line
+    movf menu_var1, W
+    addlw MENU_EQ_BAND_FOCUS_WIDTH
+    movwf param1
+    clrf param2
+    movlw 1
+    movwf param3
+    movlw LCD_HEIGH
+    movwf param4
+    bsf param5, LCD_XOR
+    call lcd_rectangle
+    return
 END

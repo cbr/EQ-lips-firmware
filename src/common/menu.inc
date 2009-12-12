@@ -253,8 +253,10 @@ menu_eq_init:
     goto menu_eq_undef
 
 menu_eq_unfocus:
-    goto menu_eq_undef
 menu_eq_focus:
+    movlw pos_x
+    movwf param1
+    call_other_page menu_draw_focus_eq_band
     goto menu_eq_undef
 
 menu_eq_undef:
@@ -287,4 +289,5 @@ menu_template_undef:
 
 #ifndef MENU_M
     extern menu_draw_eq_band
+    extern menu_draw_focus_eq_band
 #endif
