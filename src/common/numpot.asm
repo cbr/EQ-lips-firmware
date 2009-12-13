@@ -84,8 +84,8 @@ numpot_send_all_old:
     return
 
 
-    ;;; send all values to all chips
-    ;;; used variables: var1
+;;; send all values to all chips
+;;; used variables: var1
 numpot_send_all:
     global numpot_send_all
 
@@ -145,6 +145,7 @@ numpot_send_all_next_chip:
 
     ;; next pot in chips
     banksel num_pot_in_cmd
+    bcf STATUS, C
     rlf num_pot_in_cmd, F
     banksel num_pot
     incf num_pot, F

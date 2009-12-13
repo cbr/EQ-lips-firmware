@@ -6,16 +6,16 @@
 #include <lcd.inc>
 #include <std.inc>
 #include <global.inc>
+#include <menu.inc>
 
 #define MENU_EQ_BAND_WIDTH          0x04
 #define MENU_EQ_BAND_FOCUS_WIDTH    0x05
 #define MENU_EQ_ZERO_VALUE          0x80
 #define MENU_EQ_VALUE_TO_LCD_SHT    0x03
-#define MENU_EQ_MAX_INPUT           0xFF
 
     UDATA
-    global menu_last_value
-menu_last_value         RES 1
+menu_eq_last_value         RES 1
+    global menu_eq_last_value
 menu_var1               RES 1
 
 

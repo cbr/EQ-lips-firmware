@@ -96,12 +96,6 @@ encoder_other_it:
     endm
 
 
-#ifndef ENCODER_M
-    ; Functions
-    extern encoder_init
-#endif
-
-
 encoder_set_value macro current_value, value_min, value_max
     interrupt_disable
     movlw current_value
@@ -120,3 +114,11 @@ encoder_set_value macro current_value, value_min, value_max
 encoder_ack_sw macro
     clrf encoder_sw
     endm
+
+#ifndef ENCODER_M
+    ; Functions
+    extern encoder_init
+    extern encoder_set_value
+#endif
+
+

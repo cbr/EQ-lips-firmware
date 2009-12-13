@@ -6,6 +6,7 @@
 #include <global.inc>
 #include <io.inc>
 #include <delay.inc>
+#include <interrupt.inc>
 
 #define ENCODER_DEFAULT_VALUE 0x9
 #define ENCODER_DEFAULT_MIN_VALUE 0x00
@@ -52,5 +53,24 @@ encoder_init:
 
     return
 
+
+;;;
+;;; param1: current_value
+;;; param2: value_min
+;;; param3: value_max
+encoder_set_value:
+    global encoder_set_value
+    interrupt_disable
+    movf param1, W
+    movwf encoder_value
+    movf param2, W
+    banksel encoder_min_value
+    movwf encoder_min_value
+    movf param3, W
+    banksel encoder_max_value
+    movwf encoder_max_value
+    interrupt_enable
+    banksel 0
+    return
 
 END

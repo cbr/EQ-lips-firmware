@@ -23,19 +23,19 @@ edit_eq_show:
     global edit_eq_show
 #if 1
     menu_start
-    menu_eq (0x5*0 + 0x3D), potvalues
-    menu_eq (0x5*1 + 0x3D), potvalues+1
-    menu_eq (0x5*2 + 0x3D), potvalues+2
-    menu_eq (0x5*3 + 0x3D), potvalues+3
-    menu_eq (0x5*4 + 0x3D), potvalues+4
-    menu_eq (0x5*5 + 0x3D), potvalues+5
-    menu_eq (0x5*6 + 0x3D), potvalues+6
-    menu_eq (0x5*7 + 0x3D), potvalues+7
-    menu_eq (0x5*8 + 0x3D), potvalues+8
-#if 1
-    menu_eq (0x5*9 + 0x3D), potvalues+9
-    menu_eq (0x5*0xB + 0x3D), potvalues+0xA
-#endif
+st_eqprog:
+    menu_entry st_toto, 0
+    menu_eq (0x5*0 + 0x3D), potvalues, numpot_send_all
+    menu_eq (0x5*1 + 0x3D), potvalues+1, numpot_send_all
+    menu_eq (0x5*2 + 0x3D), potvalues+2, numpot_send_all
+    menu_eq (0x5*3 + 0x3D), potvalues+3, numpot_send_all
+    menu_eq (0x5*4 + 0x3D), potvalues+4, numpot_send_all
+    menu_eq (0x5*5 + 0x3D), potvalues+5, numpot_send_all
+    menu_eq (0x5*6 + 0x3D), potvalues+6, numpot_send_all
+    menu_eq (0x5*7 + 0x3D), potvalues+7, numpot_send_all
+    menu_eq (0x5*8 + 0x3D), potvalues+8, numpot_send_all
+    menu_eq (0x5*9 + 0x3D), potvalues+9, numpot_send_all
+    menu_eq (0x5*0xB + 0x3D), potvalues+0xA, numpot_send_all
     menu_end
 
 #else
