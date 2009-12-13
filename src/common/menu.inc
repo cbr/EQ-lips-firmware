@@ -2,6 +2,7 @@
 #define MENU_ACTION_INIT            0x01
 #define MENU_ACTION_FOCUS           0x02
 #define MENU_ACTION_UNFOCUS         0x03
+#define MENU_ACTION_SELECT          0x04
 #define MENU_INIT_LAST_VALUE        0xFF
 
 ;; #define SIMPLE_FOCUS
@@ -19,7 +20,7 @@
 
 ;;; Macro which manage event dispatching for menu element
 ;;; parameters: label for different event
-menu_event_dispatch macro label_init, label_focus, label_unfocus, label_undef
+menu_event_dispatch macro label_init, label_focus, label_unfocus, label_select, label_undef
     ;; *** Check current action
     ;; INIT
     movlw MENU_ACTION_INIT
@@ -45,6 +46,11 @@ menu_event_dispatch macro label_init, label_focus, label_unfocus, label_undef
     subwf menu_action, W
     btfsc STATUS, Z
     goto label_unfocus
+    ;; SELECT
+    movlw MENU_ACTION_SELECT
+    subwf menu_action, W
+    btfsc STATUS, Z
+    goto label_select
     ;; Other unknown actions
     goto label_undef
     endm
@@ -64,6 +70,7 @@ menu_start macro
     local menu_start_quit
     local menu_start_check_focus_change
     local menu_start_end_return
+    local menu_start_check_select
     call_other_page lcd_clear
     ;; init variable
     ;; movlw MENU_INIT_LAST_VALUE
@@ -94,11 +101,27 @@ menu_start_check_focus_change:
     banksel menu_value
     subwf menu_value, W
     btfsc STATUS, Z
-    goto menu_start_quit
+    ;; equal, focus has not changed
+    goto menu_start_check_select
     ;; not equal !
     ;; -> change focus
     movlw MENU_ACTION_UNFOCUS
     movwf menu_action
+    goto menu_start_quit
+
+menu_start_check_select:
+    ;; Check if encoder switch is not 0
+    movf encoder_sw, F
+    btfsc STATUS, Z
+    ;; equalt to 0 -> next event
+    goto menu_start_quit
+    ;; the encoder switch has been pressed
+    movlw MENU_ACTION_SELECT
+    movwf menu_action
+    ;; reset encoder_sw
+    encoder_ack_sw
+    goto menu_start_quit
+
 menu_start_quit:
     endm
 
@@ -162,7 +185,7 @@ menu_entry macro string, pos
     local menu_entry_focus
     local menu_entry_unfocus
 
-    menu_event_dispatch menu_entry_init, menu_entry_focus, menu_entry_unfocus, menu_entry_undef
+    menu_event_dispatch menu_entry_init, menu_entry_focus, menu_entry_unfocus, menu_entry_undef, menu_entry_undef
 
 menu_entry_init:
     ;; Print string
@@ -238,8 +261,9 @@ menu_eq macro pos_x, value_addr
     local menu_eq_undef
     local menu_eq_focus
     local menu_eq_unfocus
+    local menu_eq_select
 
-    menu_event_dispatch menu_eq_init, menu_eq_focus, menu_eq_unfocus, menu_eq_undef
+    menu_event_dispatch menu_eq_init, menu_eq_focus, menu_eq_unfocus, menu_eq_select, menu_eq_undef
 
 menu_eq_init:
     movlw pos_x
@@ -259,6 +283,12 @@ menu_eq_focus:
     call_other_page menu_draw_focus_eq_band
     goto menu_eq_undef
 
+menu_eq_select:
+    movlw pos_x
+    movwf param1
+    call_other_page menu_draw_select
+    goto menu_eq_undef
+
 menu_eq_undef:
     VARIABLE MENU_NB_ENTRY=MENU_NB_ENTRY+1
     endm
@@ -271,8 +301,9 @@ menu_template macro
     local menu_template_undef
     local menu_template_focus
     local menu_template_unfocus
+    local menu_template_select
 
-    menu_event_dispatch menu_template_init, menu_template_focus, menu_template_unfocus, menu_template_undef
+    menu_event_dispatch menu_template_init, menu_template_focus, menu_template_unfocus, menu_template_select, menu_template_undef
 
 menu_template_init:
     goto menu_template_undef
@@ -280,6 +311,8 @@ menu_template_init:
 menu_template_unfocus:
     goto menu_template_undef
 menu_template_focus:
+    goto menu_template_undef
+menu_template_select:
     goto menu_template_undef
 
 menu_template_undef:
@@ -290,4 +323,5 @@ menu_template_undef:
 #ifndef MENU_M
     extern menu_draw_eq_band
     extern menu_draw_focus_eq_band
+    extern menu_draw_select
 #endif

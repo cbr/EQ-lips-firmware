@@ -3,9 +3,42 @@
     extern encoder_min_value
     extern encoder_max_value
 
+filter_io macro port_register, port_mask, counter
+    local encoder_it_wait_stable
+    local encoder_it_continue
+    ; test if rising edge
+    ; wait until edge value is stable
+encoder_it_wait_stable:
+    banksel 0
+    ; init counter
+    movlw counter
+    movwf interrupt_var_2
+    ; read reference value
+    movf port_register, W
+    movwf interrupt_var_1
+    movlw port_mask
+    andwf interrupt_var_1, F
+encoder_it_continue:
+    ; read value to compare to reference value
+    movlw port_mask
+    andwf port_register, W
+    ; compare to reference value
+    subwf interrupt_var_1, W
+    ; if bit Z of status is not set, the value is different from the reference, so we restart
+    btfss STATUS, Z
+    goto encoder_it_wait_stable
+
+    decfsz interrupt_var_2, F
+    goto encoder_it_continue
+    endm
+
 encoder_it macro
 
 #if (ENC_A_PORT != ENC_B_PORT)
+#error config_error
+#endif
+
+#if (ENC_SW_PORT != ENC_B_PORT)
 #error config_error
 #endif
 
@@ -16,43 +49,18 @@ encoder_it macro
     btfss INTCON, RBIF
 #endif
     goto encoder_other_it
+    filter_io ENC_A_PORT, (1 << ENC_A_BIT | 1 << ENC_B_BIT | 1 << ENC_SW_BIT), ENCODER_STABLE_STATE_NB
 
-    ; test if rising edge
-    ; wait until edge value is stable
-#if 1
-encoder_it_wait_stable:
-    banksel 0
-    ; init counter
-    movlw ENCODER_STABLE_STATE_NB
-    movwf interrupt_var_2
-    ; read reference value
-    movf ENC_A_PORT, W
-    movwf interrupt_var_1
-    movlw (1 << ENC_A_BIT | 1 << ENC_B_BIT)
-    andwf interrupt_var_1, F
-encoder_it_continue:
-    ; read value to compare to reference value
-    movlw (1 << ENC_A_BIT | 1 << ENC_B_BIT)
-    andwf ENC_A_PORT, W
-    ; compare to reference value
-    subwf interrupt_var_1, W
-    ; if bit Z of status is not set, the value is different from the reference, so we restart
-    btfss STATUS, Z
-    goto encoder_it_wait_stable
+    ;; Check encoder switch
+    btfss ENC_SW_PORT, ENC_SW_BIT
+    incf encoder_sw, F
 
-    decfsz interrupt_var_2, F
-    goto encoder_it_continue
-
-#else
-    movlw 0xFF
-    call_other_page delay_wait
-#endif
-
-    btfss ENC_A_PORT, ENC_A_BIT
+    ;; Check if encoder rotation need to be reevaluated
+    btfsc ENC_A_PORT, ENC_A_BIT
     goto encoder_ack_it_enc
 
     ; test enc_b
-    btfsc ENC_B_PORT, ENC_B_BIT
+    btfss ENC_B_PORT, ENC_B_BIT
     goto encoder_rotate_ccw
 encoder_rotate_cw:
     ;; Test if not already max value
@@ -106,4 +114,9 @@ encoder_set_value macro current_value, value_min, value_max
     movwf encoder_max_value
     interrupt_enable
     banksel 0
+    endm
+
+;;; Reinitialize encoder switch counter
+encoder_ack_sw macro
+    clrf encoder_sw
     endm

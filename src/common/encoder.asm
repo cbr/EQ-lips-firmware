@@ -28,6 +28,8 @@ encoder_init:
     ; Activate interrupt for ENC_A
     banksel IOCB
     bsf IOCB, ENC_A_BIT
+    ; Activate interrupt for ENC_SW
+    bsf IOCB, ENC_SW_BIT
     ; Activate interrupt for PORTA/PORTB change
     banksel 0
 #ifdef RABIE
@@ -35,6 +37,8 @@ encoder_init:
 #else
     bsf INTCON, RBIE
 #endif
+    ;; init encoder_sw counter
+    clrf encoder_sw
     ; Set default encoder values
     movlw ENCODER_DEFAULT_VALUE
     movwf encoder_value

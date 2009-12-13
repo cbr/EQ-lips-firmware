@@ -23,6 +23,7 @@ io_configure:
     bcf LCD_A0_TRIS, LCD_A0_BIT
     bsf ENC_A_TRIS, ENC_A_BIT
     bsf ENC_B_TRIS, ENC_B_BIT
+    bsf ENC_SW_TRIS, ENC_SW_BIT
     bcf SPI_CS_TRIS, SPI_CS_BIT
 
     bcf TEST_TRIS, TEST_BIT

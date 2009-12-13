@@ -8,6 +8,7 @@
     extern param4
     extern param5
 
+    extern encoder_sw
     extern encoder_value
     extern encoder_last_value
     extern menu_value

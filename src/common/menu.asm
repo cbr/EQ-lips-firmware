@@ -100,4 +100,20 @@ menu_draw_focus_eq_band:
     bsf param5, LCD_XOR
     call lcd_rectangle
     return
+
+;;; Draw the selection/deselection rectangle
+;;; of eq band
+;;; param1: band x position
+menu_draw_select:
+    global menu_draw_select
+    incf param1, F
+    clrf param2
+    movlw MENU_EQ_BAND_WIDTH
+    movwf param3
+    movlw LCD_HEIGH
+    movwf param4
+    bsf param5, LCD_XOR
+    call lcd_rectangle
+    return
+
 END

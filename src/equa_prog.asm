@@ -118,6 +118,10 @@ st_eqprog:
     dt "-= EQ_PROG =-", 0
 st_de:
     dt "DE", 0
+st_0:
+    dt "0", 0
+st_1:
+    dt "1", 0
 
 start:
 
@@ -147,6 +151,24 @@ start:
 
     ; enable interrupt
     interrupt_enable
+#if 0
+    call_other_page lcd_clear
+
+test_switch:
+    movlw 1
+    movwf param1
+    movlw 1
+    movwf param2
+    call_other_page lcd_locate
+
+    movf encoder_sw, W
+    movwf param1
+    clrf param2
+    call_other_page lcd_int
+
+    goto test_switch
+    ;; goto $
+#endif
 
 #if 1
 #define INIT_VAL    0x7F
