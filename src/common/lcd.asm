@@ -138,8 +138,7 @@ loop_pages:
 
     bcf param2, LCD_COMMAND
 loop_column:
-    movlw 0
-    movwf param1
+    clrf param1
     bsf param2, LCD_FIRST_CHIP
     call lcd_write
     bcf param2, LCD_FIRST_CHIP
@@ -822,8 +821,7 @@ lcd_loc_string:
     ;; *** Draw string
     ;; init position counter (in var5)
     banksel var5
-    movlw 0
-    movwf var5
+    clrf var5
 lcd_loc_string_loop:
     ;; locate
     movf var3, W
@@ -908,8 +906,7 @@ lcd_string:
     ;; *** Draw string
     ;; init position counter (in var5)
     banksel var5
-    movlw 0
-    movwf var5
+    clrf var5
 lcd_string_loop:
 #if 0
     ;; start read_modify_write
@@ -1104,8 +1101,7 @@ lcd_char_loop:
     incf EEADR, F
     btfss STATUS, Z
     goto loop_char_end_loop
-    movlw 0
-    movwf EEADR
+    clrf EEADR
     incf EEADRH, F
 loop_char_end_loop:
     banksel 0

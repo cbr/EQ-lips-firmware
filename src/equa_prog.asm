@@ -265,10 +265,8 @@ loop_spi_dec
     menu_entry st_de, 3
     menu_end
     goto $
-    ;; movlw 0
-    ;; movwf param1
-    ;; movlw 0
-    ;; movwf param2
+    ;; clrf param1
+    ;; clrf param2
     ;; movlw LCD_WIDTH
     ;; movwf param3
     ;; movlw 9
@@ -305,8 +303,7 @@ loop_spi_dec
     ;; *** TEST FONT PRINTING ***
     movlw 0x08
     movwf param1
-    movlw 0
-    movwf param2
+    clrf param2
 
 
     movlw low st_eqprog
@@ -381,10 +378,8 @@ loop_draw:
     btfsc STATUS, Z
     goto loop_draw
 
-    movlw 0
-    movwf param1
-    movlw 0
-    movwf param2
+    clrf param1
+    clrf param2
     movlw 10
     movwf param3
     movlw LCD_HEIGH
@@ -392,10 +387,8 @@ loop_draw:
     bcf param5, LCD_SET_PIXEL
     call_other_page lcd_rectangle
 
-    movlw 0
-    movwf param1
-    movlw 0
-    movwf param2
+    clrf param1
+    clrf param2
     movlw 10
     movwf param3
     movf encoder_value, W

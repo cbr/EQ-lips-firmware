@@ -22,8 +22,7 @@ eeprom_write:
     movf param1, W
     banksel EEADR
     movwf EEADR
-    movlw 0
-    movwf EEADRH
+    clrf EEADRH
     ; Put data in register
     banksel param2
     movf param2, W
@@ -73,8 +72,7 @@ eeprom_read:
     movf param1, W;
     banksel EEADR
     movwf EEADR
-    movlw 0
-    movwf EEADRH
+    clrf EEADRH
     ; Select read eeprom
     banksel EECON1
     bcf EECON1, EEPGD

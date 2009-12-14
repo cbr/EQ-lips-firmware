@@ -223,8 +223,7 @@ menu_entry_init:
 
 #ifdef SIMPLE_FOCUS
 menu_entry_unfocus:
-    movlw 0
-    movwf param1
+    clrf param1
     movlw pos
     movwf param2
     call_other_page lcd_locate
@@ -234,8 +233,7 @@ menu_entry_unfocus:
     goto menu_entry_undef
 menu_entry_focus:
     ;; Current entry
-    movlw 0
-    movwf param1
+    clrf param1
     movlw pos
     movwf param2
     call_other_page lcd_locate
@@ -249,8 +247,7 @@ menu_entry_focus:
     ;; draw the focus rectangle with XOR
     ;; (So, the same operation can focus and also unfocus)
     ;; Current entry
-    movlw 0
-    movwf param1
+    clrf param1
     movlw pos
     movwf param2
     lshift_f param2, LCD_CHAR_HEIGH_SHIFT

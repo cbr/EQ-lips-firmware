@@ -36,8 +36,7 @@ io_config_lcd_data_output:
     global io_config_lcd_data_output
 #ifdef LCD_ALL_BIT_IN_SAME_REG
     banksel LCD_DATA_TRIS
-    movlw 0
-    movwf LCD_DATA_TRIS
+    clrf LCD_DATA_TRIS
 #else
     ;; All TRIS are one the same bank, so we
     ;; just select the first one

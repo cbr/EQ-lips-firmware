@@ -90,8 +90,7 @@ numpot_send_all:
     global numpot_send_all
 
     banksel num_pot
-    movlw 0
-    movwf num_pot
+    clrf num_pot
     banksel num_pot_in_cmd
     movlw 1
     movwf num_pot_in_cmd
