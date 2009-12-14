@@ -110,11 +110,11 @@ edit_eq_save:
     ;; set param1 to the start of bank in eeprom
     lshift_f param1, EDIT_EQ_BANK_EESIZE_SHT
     ;; Prepare current value counter
-    clrf edit_eq_tmp, F
+    clrf edit_eq_tmp
 
 edit_eq_save_loop:
     ;; Calculate value addr
-    movlw numpot_values
+    movlw potvalues
     addwf edit_eq_tmp, W
     ;; Derefenrence value
     movwf FSR
@@ -122,13 +122,13 @@ edit_eq_save_loop:
     ;; Put value in param2
     movwf param2
     ;; Store in eeprom
-    call_other_bank eeprom_write
+    call_other_page eeprom_write
     ;; next value
     incf param1, F
     incf edit_eq_tmp, F
     ;; loop in order to store all values
     movf edit_eq_tmp, W
-    subwl NUMPOT_NB_POT * NUMPOT_NB_VAL_IN_POT
+    sublw (NUMPOT_NB_CHIP * NUMPOT_NB_POT_BY_CHIP)
     btfss STATUS, Z
     goto edit_eq_save_loop
 
@@ -140,16 +140,16 @@ edit_eq_load:
     ;; set param1 to the start of bank in eeprom
     lshift_f param1, EDIT_EQ_BANK_EESIZE_SHT
     ;; Prepare current value counter
-    clrf edit_eq_tmp, F
+    clrf edit_eq_tmp
 
 edit_eq_load_loop:
     ;; Calculate value addr
-    movlw numpot_values
+    movlw potvalues
     addwf edit_eq_tmp, W
     ;; Prepare pointer
     movwf FSR
     ;; Get value from eeprom
-    call_other_bank eeprom_read
+    call_other_page eeprom_read
     ;; Store in numpot memory
     movf INDF, W
 
@@ -158,7 +158,7 @@ edit_eq_load_loop:
     incf edit_eq_tmp, F
     ;; loop in order to store all values
     movf edit_eq_tmp, W
-    subwl NUMPOT_NB_POT * NUMPOT_NB_VAL_IN_POT
+    sublw (NUMPOT_NB_CHIP * NUMPOT_NB_POT_BY_CHIP)
     btfss STATUS, Z
     goto edit_eq_load_loop
 
