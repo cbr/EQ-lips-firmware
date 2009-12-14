@@ -6,59 +6,56 @@
 #include <global.inc>
 #include <delay.inc>
 #include <eeprom.inc>
-
+#include <interrupt.inc>
 
 
 PROG CODE
 
 
 
-; write byte into eeprom
-;   param1: addr in eeprom
-;   param2: byte to write
+;;; write byte into eeprom
+;;;   param1: addr in eeprom
+;;;   param2: byte to write
 eeprom_write:
     global eeprom_write
-    ; Set addr
+    ;; Set addr
     movf param1, W
     banksel EEADR
     movwf EEADR
     movlw 0
     movwf EEADRH
-    ; Put data in register
+    ;; Put data in register
     banksel param2
     movf param2, W
     banksel EEADR
     movwf EEDAT
-    ; configure write
+    ;; configure write
     banksel EECON1
     bcf EECON1, EEPGD
     bsf EECON1, WREN
-    ;Disable IT.
-eeprom_write_disable_it:
-    bcf INTCON, GIE
-    btfsc INTCON, GIE    ;SEE AN576
-    goto eeprom_write_disable_it
-    ; realize write operations cycle
+    ;;Disable IT.
+    interrupt_disable
+    ;; realize write operations cycle
     movlw 0x55
     movwf EECON2
     movlw 0xAA
     movwf EECON2
-    ; Set WR bit to begin write
+    ;; Set WR bit to begin write
     bsf EECON1, WR
-    ; Enable IT
-    bsf INTCON, GIE
+    ;; Enable IT
+    interrupt_enable
 
-    ; Bank 0
+    ;; Bank 0
     banksel 0x00
 
-    ; wait end of write
+    ;; wait end of write
 eeprom_write_wait_end:
     btfss PIR2, EEIF
     goto eeprom_write_wait_end
 
     bcf PIR2, EEIF
 
-    ; Disable writes
+    ;; Disable writes
     bcf EECON1, WREN
 
     return
@@ -69,20 +66,20 @@ eeprom_write_wait_end:
 eeprom_read:
     global eeprom_read
 
-    ; Set addr
+    ;; Set addr
     movf param1, W;
     banksel EEADR
     movwf EEADR
     movlw 0
     movwf EEADRH
-    ; Select read eeprom
+    ;; Select read eeprom
     banksel EECON1
     bcf EECON1, EEPGD
     bsf EECON1, RD
-    ; Get data
+    ;; Get data
     banksel EEDAT
     movf EEDAT, W
-    ; bank 0
+    ;; bank 0
     banksel 0x00
 
     return
