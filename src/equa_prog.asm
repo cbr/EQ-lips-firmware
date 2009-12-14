@@ -259,10 +259,10 @@ loop_spi_dec
 #if 1
     ;; *** TEST MENU ***
     menu_start
-    menu_entry st_eqprog, 0
-    ;; menu_entry st_de
-    menu_entry st_eqprog, 2
-    menu_entry st_de, 3
+    menu_button st_eqprog, 0, 0
+    ;; menu_button st_de
+    menu_button st_eqprog, 2, 0
+    menu_button st_de, 3, 0
     menu_end
     goto $
     ;; clrf param1

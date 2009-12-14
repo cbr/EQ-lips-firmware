@@ -22,7 +22,8 @@
 
 ;;; Macro which manage event dispatching for menu element
 ;;; parameters: label for different event
-menu_event_dispatch macro label_init, label_focus, label_unfocus, label_select, label_undef
+menu_event_dispatch macro label_init, label_focus, label_unfocus, label_select
+    local menu_event_dispatch_end
     ;; *** Check current action
     ;; INIT
     movlw MENU_ACTION_INIT
@@ -36,7 +37,7 @@ menu_event_dispatch macro label_init, label_focus, label_unfocus, label_select, 
     subwf menu_value, W
     btfss STATUS, Z
     ;; not applied to current entry
-    goto label_undef
+    goto menu_event_dispatch_end
 
     ;; FOCUS
     movlw MENU_ACTION_FOCUS
@@ -54,7 +55,7 @@ menu_event_dispatch macro label_init, label_focus, label_unfocus, label_select, 
     btfsc STATUS, Z
     goto label_select
     ;; Other unknown actions
-    goto label_undef
+menu_event_dispatch_end:
     endm
 
 #ifndef menu_number
@@ -192,20 +193,22 @@ menu_end_quit:
 
 
 ;;;
-;;; This macro add a menu entry into a dialog screen
-;;; string: label of the menu entry
-;;; pos: y position of menu entry
+;;; This macro add a menu button into a dialog screen
+;;; string: label of the menu button
+;;; pos: y position of menu button
 ;;; Changed registers: param1, param2, param3, param4
 ;;;
-menu_entry macro string, pos
-    local menu_entry_init
-    local menu_entry_undef
-    local menu_entry_focus
-    local menu_entry_unfocus
+menu_button macro string, pos, on_select_function
+    local menu_button_init
+    local menu_button_undef
+    local menu_button_focus
+    local menu_button_unfocus
+    local menu_button_select
 
-    menu_event_dispatch menu_entry_init, menu_entry_focus, menu_entry_unfocus, menu_entry_undef, menu_entry_undef
+    menu_event_dispatch menu_button_init, menu_button_focus, menu_button_unfocus, menu_button_select
+    goto menu_button_undef
 
-menu_entry_init:
+menu_button_init:
     ;; Print string
     movlw MENU_STRING_POS_X
     movwf param1
@@ -219,10 +222,10 @@ menu_entry_init:
     movwf param4
 
     call_other_page lcd_loc_string
-    goto menu_entry_undef
+    goto menu_button_undef
 
 #ifdef SIMPLE_FOCUS
-menu_entry_unfocus:
+menu_button_unfocus:
     clrf param1
     movlw pos
     movwf param2
@@ -230,9 +233,9 @@ menu_entry_unfocus:
     movlw MENU_UNFOCUS_CHAR
     movwf param1
     call_other_page lcd_char
-    goto menu_entry_undef
-menu_entry_focus:
-    ;; Current entry
+    goto menu_button_undef
+menu_button_focus:
+    ;; Current button
     clrf param1
     movlw pos
     movwf param2
@@ -240,13 +243,13 @@ menu_entry_focus:
     movlw MENU_FOCUS_CHAR
     movwf param1
     call_other_page lcd_char
-    goto menu_entry_undef
+    goto menu_button_undef
 #else
-menu_entry_unfocus:
-menu_entry_focus:
+menu_button_unfocus:
+menu_button_focus:
     ;; draw the focus rectangle with XOR
     ;; (So, the same operation can focus and also unfocus)
-    ;; Current entry
+    ;; Current button
     clrf param1
     movlw pos
     movwf param2
@@ -260,8 +263,13 @@ menu_entry_focus:
     bsf param5, LCD_XOR
     call_other_page lcd_rectangle
 #endif
+    goto menu_button_undef
 
-menu_entry_undef:
+menu_button_select:
+    call_other_page on_select_function
+    goto menu_button_undef
+
+menu_button_undef:
     VARIABLE MENU_NB_ENTRY=MENU_NB_ENTRY+1
     endm
 
@@ -351,16 +359,27 @@ menu_eq_manage_selection_quit:
 ;;; pos_x: band x position
 ;;; value_addr: address of eq value
 ;;; on_value_change_func: function called when the eq band value is changed
+;;; need_refresh_func: function called to need if refresh is needed. At return if W = 1, refresh is needed
 ;;;
-menu_eq macro pos_x, value_addr, on_value_change_func
+menu_eq macro pos_x, value_addr, on_value_change_func, need_refresh_func
     local menu_eq_init
     local menu_eq_undef
     local menu_eq_focus
     local menu_eq_unfocus
     local menu_eq_select
+    local menu_eq_refresh
 
-    menu_event_dispatch menu_eq_init, menu_eq_focus, menu_eq_unfocus, menu_eq_select, menu_eq_undef
+    menu_event_dispatch menu_eq_init, menu_eq_focus, menu_eq_unfocus, menu_eq_select
 
+    ;; no event found
+    ;; check if refresh is needed
+    call_other_page need_refresh_func
+    sublw 1
+    btfsc STATUS, Z
+    ;; refresh needed
+    goto menu_eq_refresh
+    ;; no refresh needed
+    goto menu_eq_undef
 menu_eq_init:
     movlw pos_x
     movwf param1
@@ -383,6 +402,15 @@ menu_eq_select:
     menu_eq_manage_selection pos_x, value_addr, on_value_change_func
     goto menu_eq_undef
 
+menu_eq_refresh:
+    movlw pos_x
+    movwf param1
+    movlw value_addr
+    movwf FSR
+    movf INDF, W
+    movwf param2
+    call_other_page menu_refresh_eq_band
+
 menu_eq_undef:
     VARIABLE MENU_NB_ENTRY=MENU_NB_ENTRY+1
     endm
@@ -397,8 +425,8 @@ menu_template macro
     local menu_template_unfocus
     local menu_template_select
 
-    menu_event_dispatch menu_template_init, menu_template_focus, menu_template_unfocus, menu_template_select, menu_template_undef
-
+    menu_event_dispatch menu_template_init, menu_template_focus, menu_template_unfocus, menu_template_select
+    goto menu_template_undef
 menu_template_init:
     goto menu_template_undef
 
@@ -418,6 +446,7 @@ menu_template_undef:
     extern menu_eq_last_value
 
     extern menu_draw_eq_band
+    extern menu_refresh_eq_band
     extern menu_draw_focus_eq_band
     extern menu_draw_select
 #endif

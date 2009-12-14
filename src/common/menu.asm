@@ -17,6 +17,7 @@
 menu_eq_last_value         RES 1
     global menu_eq_last_value
 menu_var1               RES 1
+menu_var2               RES 1
 
 
 
@@ -71,6 +72,40 @@ menu_draw_eq_rect:
     bsf param5, LCD_SET_PIXEL
 
     call lcd_rectangle
+    return
+
+;;; Refresh band
+;;; param1: band x position
+;;; param2: band value
+menu_refresh_eq_band:
+    global menu_refresh_eq_band
+    ;; save params
+    banksel menu_var1
+    movf param1, W
+    movwf menu_var1
+    banksel menu_var2
+    movf param2, W
+    movwf menu_var2
+
+    ;; erase
+    clrf param2
+    movlw MENU_EQ_BAND_FOCUS_WIDTH
+    movwf param3
+    movlw LCD_HEIGH
+    movwf param4
+    bcf param5, LCD_XOR
+    bcf param5, LCD_SET_PIXEL
+    call lcd_rectangle
+
+    ;; draw the band
+    banksel menu_var1
+    movf menu_var1, W
+    movwf param1
+    banksel menu_var2
+    movf menu_var2, W
+    movwf param2
+    call menu_draw_eq_band
+
     return
 
 ;;; Draw eq band focus
