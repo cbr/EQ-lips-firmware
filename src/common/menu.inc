@@ -8,7 +8,7 @@
 #define MENU_EQ_MAX_INPUT           0xFF
 
 
-;; #define SIMPLE_FOCUS
+#define SIMPLE_FOCUS
 
 #ifdef SIMPLE_FOCUS
 #define MENU_FOCUS_CHAR            '>'
@@ -281,6 +281,7 @@ menu_button_undef:
 ;;; on_value_change_func: function called when the eq band value is changed
 ;;;
 menu_eq_manage_selection macro pos_x, value_addr, on_value_change_func
+    ;; To be cleanup
 #if 0
     local menu_eq_manage_selection_loop
     local menu_eq_manage_selection_quit
