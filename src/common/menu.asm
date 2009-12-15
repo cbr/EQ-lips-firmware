@@ -7,6 +7,7 @@
 #include <std.inc>
 #include <global.inc>
 #include <menu.inc>
+#include <encoder.inc>
 
 #define MENU_EQ_BAND_WIDTH          0x04
 #define MENU_EQ_BAND_FOCUS_WIDTH    0x05
@@ -77,6 +78,7 @@ menu_draw_eq_rect:
 ;;; Refresh band
 ;;; param1: band x position
 ;;; param2: band value
+;;; Changed registers: menu_var1, menu_var2
 menu_refresh_eq_band:
     global menu_refresh_eq_band
     ;; save params
@@ -110,6 +112,7 @@ menu_refresh_eq_band:
 
 ;;; Draw eq band focus
 ;;; param1: band x position
+;;; Changed registers: menu_var1
 menu_draw_focus_eq_band:
     global menu_draw_focus_eq_band
     ;; save param
@@ -150,5 +153,89 @@ menu_draw_select:
     bsf param5, LCD_XOR
     call lcd_rectangle
     return
+
+
+;;;
+;;; Manage eq band selection: change value with encoder and return from selection
+;;; when encoder sw is pressed
+;;; param1: band x position
+;;; param2: address of eq value
+;;; Changed registers: menu_var1
+;;;
+menu_eq_manage_selection_func:
+    global menu_eq_manage_selection_func
+
+    ;; Save params
+    movf param1, W
+    movwf menu_var1
+    ;; FSR is not used by called functions, so it can be directly set
+    movf param2, W
+    movwf FSR
+
+    ;; Draw selection
+    movwf param1
+    call_other_page menu_draw_select
+    ;; mem current value
+    ;; FSR has been set at the beginning of function
+    movf INDF, W
+    movwf menu_eq_last_value
+    ;; configure encoder
+    movwf param1
+    clrf param2
+    movlw MENU_EQ_MAX_INPUT
+    movwf param3
+    call_other_page encoder_set_value
+
+menu_eq_manage_selection_loop:
+    ;; Check events
+
+menu_eq_manage_selection_check_sw:
+    ;; Check if encoder switch is not 0
+    movf encoder_sw, F
+    btfsc STATUS, Z
+    ;; equal to 0 -> next event
+    goto menu_eq_manage_selection_check_rot
+    ;; the encoder switch has been pressed
+    ;; draw eq as unselect
+    movf menu_var1, W
+    movwf param1
+    call_other_page menu_draw_select
+    ;; reset encoder_sw
+    encoder_ack_sw
+    ;; quit selection
+    goto menu_eq_manage_selection_quit
+
+menu_eq_manage_selection_check_rot:
+    ;; check if encoder value has changed
+    movf menu_eq_last_value, W
+    subwf encoder_value, W
+    btfsc STATUS, Z
+    ;; values are equal -> nothing to do
+    goto menu_eq_manage_selection_loop
+    ;; values are not equal
+    ;; -> manage changes
+    ;; ***************
+    ;; undraw band
+    movf menu_var1, W
+    movwf param1
+    movf menu_eq_last_value, W
+    movwf param2
+    call_other_page menu_draw_eq_band
+    ;; draw new band and memorize
+    ;; FSR has been set at the beginning of function
+    movf menu_var1, W
+    movwf param1
+    movf encoder_value, W
+    movwf menu_eq_last_value
+    movwf INDF
+    movwf param2
+    call_other_page menu_draw_eq_band
+    ;; ***************
+    goto menu_eq_manage_selection_loop
+
+menu_eq_manage_selection_quit:
+
+    return
+
 
 END

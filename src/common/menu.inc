@@ -281,6 +281,7 @@ menu_button_undef:
 ;;; on_value_change_func: function called when the eq band value is changed
 ;;;
 menu_eq_manage_selection macro pos_x, value_addr, on_value_change_func
+#if 0
     local menu_eq_manage_selection_loop
     local menu_eq_manage_selection_quit
     local menu_eq_manage_selection_check_sw
@@ -351,7 +352,15 @@ menu_eq_manage_selection_check_rot:
     goto menu_eq_manage_selection_loop
 
 menu_eq_manage_selection_quit:
-
+#else
+    ;; Implementation with function
+    movlw pos_x
+    movwf param1
+    movlw value_addr
+    movwf param2
+    call_other_page menu_eq_manage_selection_func
+    call_other_page on_value_change_func
+#endif
     endm
 
 ;;;
@@ -449,4 +458,5 @@ menu_template_undef:
     extern menu_refresh_eq_band
     extern menu_draw_focus_eq_band
     extern menu_draw_select
+    extern menu_eq_manage_selection_func
 #endif
