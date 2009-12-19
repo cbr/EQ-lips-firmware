@@ -130,8 +130,8 @@ start:
     BCF  STATUS,RP1 ;
     movlw 0x0F
     andwf OSCCON, 1
-    ;movlw 0x70 ; 8 MHz
-    movlw 0x30 ; 500kHz
+    movlw 0x70 ; 8 MHz
+    ;; movlw 0x30 ; 500kHz
     ;movlw 0x00 ; 31kHz
     iorwf OSCCON, 1
     BCF  STATUS,RP0 ;Bank 0
