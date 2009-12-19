@@ -173,7 +173,6 @@ menu_eq_manage_selection_func:
     movwf FSR
 
     ;; Draw selection
-    movwf param1
     call_other_page menu_draw_select
     ;; mem current value
     ;; FSR has been set at the beginning of function
