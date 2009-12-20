@@ -14,6 +14,8 @@ SRCS=src/common/numpot.asm \
 
 IMGS=src/common/font.xcf
 
+OTHER_GEN_INC=src/common/numpot_mapping.inc
+
 DEPEND_FILE=mkdepend
 
 OBJ_DIR=obj
@@ -23,6 +25,7 @@ AS=gpasm
 LD=gplink
 
 IMG2GPASM=utils/img2gpasm.sh
+NUMPOT_MAPPING=utils/numpot_mapping.py
 
 AS_FLAGS=-pp16f886
 UNASM_FLAGS=-pp16f886
@@ -41,7 +44,7 @@ UNIQ_INC_DIR=$(shell echo $(INC_DIR) | tr ' ' \\n | uniq)
 INC_IMGS=$(addsuffix .inc,$(basename $(IMGS)))
 
 .PHONY: all
-all: make_dir image $(BIN_NAME)
+all: make_dir image $(OTHER_GEN_INC) $(BIN_NAME)
 
 .PHONY:prog
 prog: all
@@ -63,7 +66,7 @@ make_dir:
 
 .PHONY: clean
 clean:
-	rm -f $(OBJS) $(BIN_NAME) $(DEPEND_FILE) $(DEPENDS) $(INC_IMGS)
+	rm -f $(OBJS) $(BIN_NAME) $(DEPEND_FILE) $(DEPENDS) $(INC_IMGS) $(OTHER_GEN_INC)
 
 .PHONY: depend
 depend: make_dir $(DEPENDS)
@@ -77,6 +80,9 @@ $(OBJ_DIR)/%.d: %.asm
 
 %.inc: %.xcf
 	$(IMG2GPASM) $< $@ 64 32 8
+
+src/common/numpot_mapping.inc:
+	$(NUMPOT_MAPPING) > $@
 
 ifneq ($(strip $(wildcard $(DEPEND_FILE))),)
 include $(DEPEND_FILE)
