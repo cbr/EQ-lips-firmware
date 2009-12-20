@@ -11,8 +11,9 @@
 
 #define MENU_EQ_BAND_WIDTH          0x04
 #define MENU_EQ_BAND_FOCUS_WIDTH    0x05
-#define MENU_EQ_ZERO_VALUE          0x80
-#define MENU_EQ_VALUE_TO_LCD_SHT    0x03
+
+#define MENU_EQ_ZERO_VALUE          0x10
+#define MENU_EQ_VALUE_TO_LCD_SHT    0x00
 
     UDATA
 menu_eq_last_value         RES 1
@@ -54,8 +55,8 @@ menu_draw_eq_pos:
 
 menu_draw_eq_neg:
     ;; Get the opposite value to get the heigh of rectangle...
-    sublw MENU_EQ_MAX_INPUT
     movwf param4
+    comf param4, F
     ;; ... but lcd heigh is smaller than the eq resolution.
     ;; So the value is divided (=shifted) to get the heigh of rectangle
     rshift_f param4, MENU_EQ_VALUE_TO_LCD_SHT

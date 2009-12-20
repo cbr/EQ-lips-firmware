@@ -171,7 +171,7 @@ test_switch:
 #endif
 
 #if 1
-#define INIT_VAL    0x7F
+#define INIT_VAL    0x10
     NUMPOT_SET_ONE_VALUE 0x0, INIT_VAL
     NUMPOT_SET_ONE_VALUE 0x1, INIT_VAL
     NUMPOT_SET_ONE_VALUE 0x2, INIT_VAL

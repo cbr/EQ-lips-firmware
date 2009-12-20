@@ -9,6 +9,8 @@
 #include <delay.inc>
 #include <std.inc>
 #include <numpot.inc>
+#include <flash.inc>
+#define NUMPOT_MAPPING
 
 #define NUMPOT_INVERT_VALUES
 
@@ -116,11 +118,13 @@ numpot_send_all_next_chip:
     ;; Get pot value (in W)
     movwf FSR
     movf INDF, W
+#ifdef NUMPOT_MAPPING
+    get_flash_data_w numpot_mapping
+#endif
 #ifdef NUMPOT_INVERT_VALUES
     ;; Values are inverted
     sublw NUMPOT_MAX_VALUE
 #endif
-
     ;; Send pot value
     spi_send_w_and_wait
 
@@ -161,4 +165,10 @@ numpot_set_one_value:
     movf param2, W
     movwf INDF
     return
-END
+
+#ifdef NUMPOT_MAPPING
+numpot_mapping:
+#include <numpot_mapping.inc>
+#endif
+
+    END

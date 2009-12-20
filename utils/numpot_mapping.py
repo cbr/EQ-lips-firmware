@@ -41,7 +41,7 @@ for i in range(0, NB_VALUE):
         num_val_in_line=0
 
     if (num_val_in_line == 0):
-        sys.stdout.write("dt ")
+        sys.stdout.write("    dt ")
     else:
         sys.stdout.write(", ")
 

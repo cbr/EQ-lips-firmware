@@ -5,7 +5,7 @@
 #define MENU_ACTION_SELECT          0x04
 #define MENU_INIT_LAST_VALUE        0xFF
 
-#define MENU_EQ_MAX_INPUT           0xFF
+#define MENU_EQ_MAX_INPUT           0x1F
 
 
 #define SIMPLE_FOCUS

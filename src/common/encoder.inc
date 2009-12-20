@@ -1,4 +1,4 @@
-#define ENCODER_STABLE_STATE_NB     0x30
+#define ENCODER_STABLE_STATE_NB     0x40
 
     extern encoder_min_value
     extern encoder_max_value

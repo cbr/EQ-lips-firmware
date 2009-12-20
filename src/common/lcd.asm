@@ -934,7 +934,6 @@ lcd_string_loop:
     bsf EECON1, RD
     nop
     nop
-    banksel 0
     ;; verify if last char
     banksel EEDAT
     movf EEDAT, W
