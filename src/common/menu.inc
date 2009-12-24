@@ -266,6 +266,10 @@ menu_button_focus:
     goto menu_button_undef
 
 menu_button_select:
+    movlw pos
+    movwf param1
+    call_other_page menu_button_select_func
+    ;; call on event function
     call_other_page on_select_function
     goto menu_button_undef
 
@@ -460,4 +464,5 @@ menu_template_undef:
     extern menu_draw_focus_eq_band
     extern menu_draw_select
     extern menu_eq_manage_selection_func
+    extern menu_button_select_func
 #endif
