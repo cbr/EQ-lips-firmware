@@ -61,9 +61,14 @@ edit_eq_need_refresh_last:
 
 edit_eq_show:
     global edit_eq_show
-#if 1
+#if 0
+    movlw high st_load
+    movwf param1
+    movlw low st_load
+    movwf param2
+    call_other_page std_strlen
+#endif
     menu_start
-st_eqprog:
     menu_button st_load, 0, edit_eq_load
     menu_button st_save, 1, edit_eq_save
     menu_eq (0x5*0 + 0x3D), potvalues, numpot_send_all, edit_eq_need_refresh
@@ -79,68 +84,6 @@ st_eqprog:
     menu_eq (0x5*0xB + 0x3D), potvalues+0xA, numpot_send_all, edit_eq_need_refresh_last
     menu_end
 
-#else
-    ;; Erase screen
-    call_other_page lcd_clear
-
-    ;; position
-    movlw (0x5*0 + 0x3D)
-    movwf param1
-    ;; value
-    movlw 0xFF
-    movwf param2
-    call_other_page menu_draw_eq_band
-
-    ;; position
-    movlw (0x5*1 + 0x3D)
-    movwf param1
-    ;; value
-    movlw 0x89
-    movwf param2
-    call_other_page menu_draw_eq_band
-
-    ;; position
-    movlw (0x5*2 + 0x3D)
-    movwf param1
-    ;; value
-    movlw 0x81
-    movwf param2
-    call_other_page menu_draw_eq_band
-
-    ;; position
-    movlw (0x5*3 + 0x3D)
-    movwf param1
-    ;; value
-    movlw 0x80
-    movwf param2
-    call_other_page menu_draw_eq_band
-
-    ;; position
-    movlw (0x5*4 + 0x3D)
-    movwf param1
-    ;; value
-    movlw 0x7F
-    movwf param2
-    call_other_page menu_draw_eq_band
-
-    ;; position
-    movlw (0x5*5 + 0x3D)
-    movwf param1
-    ;; value
-    movlw 0x77
-    movwf param2
-    call_other_page menu_draw_eq_band
-
-    ;; position
-    movlw (0x5*6 + 0x3D)
-    movwf param1
-    ;; value
-    movlw 0x00
-    movwf param2
-    call_other_page menu_draw_eq_band
-#endif
-    ;; goto $
-    ;; Draw eq
 
 ;;; Save current eq values in eeprom
 ;;; param1: bank number

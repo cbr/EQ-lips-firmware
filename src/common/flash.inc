@@ -1,7 +1,7 @@
 ;;; Get flash data from a label and an offset stored in a register
 ;;; base_addr: base address label
 ;;; offset_register: register in which offset is stored
-get_flash_data_reg macro base_addr, offset_register
+flash_get_data_reg macro base_addr, offset_register
     ;;  set base_addr to read
     banksel EEADR
     movlw high base_addr
@@ -17,6 +17,14 @@ get_flash_data_reg macro base_addr, offset_register
     addwf EEADR, F
     btfsc STATUS, C
     incf EEADRH, F
+
+    ;;  read  flash
+    banksel EECON1
+    bsf EECON1, EEPGD
+    bsf EECON1, RD
+    nop
+    nop
+
     ;; get data
     banksel EEDAT
     movf EEDAT, W
@@ -25,7 +33,7 @@ get_flash_data_reg macro base_addr, offset_register
 
 ;;; Get flash data from a label and an offset stored in W
 ;;; base_addr: base address label
-get_flash_data_w macro base_addr
+flash_get_data_w macro base_addr
     banksel EEADR
     ;; reset hight order bits of pointer
     clrf EEADRH
@@ -54,3 +62,7 @@ get_flash_data_w macro base_addr
     movf EEDAT, W
 
     endm
+
+#ifndef FLASH_M
+    extern flash_get_data
+#endif

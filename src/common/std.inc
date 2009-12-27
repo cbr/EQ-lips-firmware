@@ -19,3 +19,7 @@ call_other_page macro label
     call label
     pagesel $
     endm
+
+#ifndef STD_M
+    extern std_strlen
+#endif

@@ -119,7 +119,7 @@ numpot_send_all_next_chip:
     movwf FSR
     movf INDF, W
 #ifdef NUMPOT_MAPPING
-    get_flash_data_w numpot_mapping
+    flash_get_data_w numpot_mapping
 #endif
 #ifdef NUMPOT_INVERT_VALUES
     ;; Values are inverted
