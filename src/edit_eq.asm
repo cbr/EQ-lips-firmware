@@ -7,6 +7,8 @@
 #include <std.inc>
 #include <lcd.inc>
 #include <menu.inc>
+#include <menu_button.inc>
+#include <menu_eq.inc>
 #include <encoder.inc>
 #include <interrupt.inc>
 #include <numpot.inc>

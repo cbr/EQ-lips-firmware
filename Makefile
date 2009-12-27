@@ -7,6 +7,8 @@ SRCS=src/common/numpot.asm \
 	src/common/io.asm  \
 	src/common/lcd.asm \
 	src/common/menu.asm \
+	src/common/menu_button.asm \
+	src/common/menu_eq.asm \
 	src/common/spi.asm \
 	src/common/eeprom.asm  \
 	src/equa_prog.asm \

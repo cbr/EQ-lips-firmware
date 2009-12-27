@@ -34,13 +34,13 @@ get_flash_data_w macro base_addr
 
     ;; add low order bits of base address
     movlw low base_addr
-    addwf EEADR
+    addwf EEADR, F
     ;; Check if high order bits need to be inc
     btfsc STATUS, C
     incf EEADRH, F
     ;; add high order bits of base address
     movlw high base_addr
-    addwf EEADRH
+    addwf EEADRH, F
 
     ;;  read  flash
     banksel EECON1

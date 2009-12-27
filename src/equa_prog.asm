@@ -78,6 +78,7 @@
 #include <delay.inc>
 #include <std.inc>
 #include <menu.inc>
+#include <menu_button.inc>
 #include <spi.inc>
 #include <numpot.inc>
 #include <edit_eq.inc>
