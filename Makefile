@@ -53,7 +53,7 @@ all: make_dir image $(OTHER_GEN_INC) $(BIN_NAME)
 
 .PHONY:prog
 prog: all
-	pk2cmd -B/usr/share/pk2 -PPIC16F886 -F$(BIN_NAME) -M #-W
+	pk2cmd -B/usr/share/pk2 -PPIC16F886 -F$(BIN_NAME) -M -Z #-W
 
 .PHONY:unasm
 unasm: all

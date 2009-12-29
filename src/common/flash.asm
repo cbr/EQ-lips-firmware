@@ -19,6 +19,7 @@ COMMON CODE
 ;;; param1: addrl of null terminated string
 ;;; param2: addrh of null terminated string
 ;;; param3: offset
+;;; changed registers: EEADR, EEADRH, EECON1
 flash_get_data:
     global flash_get_data
     ;;  set base_addr to read

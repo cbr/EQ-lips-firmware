@@ -4,7 +4,7 @@
 ;;; pos: y position of menu edit
 ;;; Changed registers: param1, param2, param3, param4
 ;;;
-menu_edit macro string, pos, on_select_function
+menu_edit macro string, pos, min_value, max_value, value_addr, on_value_change_func
     local menu_edit_init
     local menu_edit_undef
     local menu_edit_focus
@@ -20,14 +20,19 @@ menu_edit_init:
     movwf param1
     movlw pos
     movwf param2
-
-
     movlw low string
     movwf param3
     movlw high string
     movwf param4
-
     call_other_page lcd_loc_string
+
+    ;; Print value
+    movlw value_addr
+    movwf FSR
+    movf INDF, W
+    movwf param1
+    clrf param2
+    call_other_page lcd_int
     goto menu_edit_undef
 
 
@@ -53,11 +58,25 @@ menu_edit_focus:
     goto menu_edit_undef
 
 menu_edit_select:
-    movlw pos
+    ;; configure encoder
+    movf value_addr, W
     movwf param1
-    call_other_page menu_edit_select_func
-    ;; call on event function
-    call_other_page on_select_function
+    movlw min_value
+    movwf param2
+    movlw max_value
+    movwf param3
+    call_other_page encoder_set_value
+    ;; call function which manage edit
+    movlw high string
+    movwf param1
+    movlw low string
+    movwf param2
+    movlw pos
+    movwf param3
+    movlw value_addr
+    movwf param4
+    call_other_page menu_edit_manage_selection
+    call_other_page on_value_change_func
     goto menu_edit_undef
 
 menu_edit_undef:
@@ -65,5 +84,5 @@ menu_edit_undef:
     endm
 
 #ifndef MENU_EDIT_M
-    extern menu_edit_select_func
+    extern menu_edit_manage_selection
 #endif

@@ -9,12 +9,13 @@
 #include <menu.inc>
 #include <menu_button.inc>
 #include <menu_eq.inc>
+#include <menu_edit.inc>
 #include <encoder.inc>
 #include <interrupt.inc>
 #include <numpot.inc>
 #include <eeprom.inc>
 
-#define EDIT_EQ_BANK_EESIZE_SHT     0x05
+#define EDIT_EQ_BANK_EESIZE_SHT     0x04
 
     UDATA
 edit_eq_tmp      RES 1
@@ -23,6 +24,8 @@ edit_eq_refresh  RES 1
 
 ; relocatable code
 EQ_PROG CODE
+st_bank:
+    dt "BANK: ", 0
 st_load:
     dt "LOAD", 0
 st_save:
@@ -30,15 +33,17 @@ st_save:
 
 edit_eq_save:
     global edit_eq_save
-    movlw 0
+    movf current_bank, W
     movwf param1
+    decf param1, F
     call edit_eq_save_bank
     return
 
 edit_eq_load:
     global edit_eq_save
-    movlw 0
+    movf current_bank, W
     movwf param1
+    decf param1, F
     call edit_eq_load_bank
     call_other_page numpot_send_all
     movlw 1
@@ -68,9 +73,12 @@ edit_eq_show:
     movwf param2
     call_other_page std_strlen
 #endif
+    movlw 1
+    movwf current_bank
     menu_start
-    menu_button st_load, 0, edit_eq_load
-    menu_button st_save, 1, edit_eq_save
+    menu_edit st_bank, 0, 1, 0x10, current_bank, edit_eq_bank_change
+    menu_button st_load, 1, edit_eq_load
+    menu_button st_save, 2, edit_eq_save
     menu_eq (0x5*0 + 0x3D), potvalues, numpot_send_all, edit_eq_need_refresh
     menu_eq (0x5*1 + 0x3D), potvalues+1, numpot_send_all, edit_eq_need_refresh
     menu_eq (0x5*2 + 0x3D), potvalues+2, numpot_send_all, edit_eq_need_refresh
@@ -143,6 +151,11 @@ edit_eq_load_bank_loop:
     btfss STATUS, Z
     goto edit_eq_load_bank_loop
 
+    return
+
+;;; function called when bank have to be changed
+edit_eq_bank_change:
+    ;; nothing to do
     return
 
 END

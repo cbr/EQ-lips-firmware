@@ -15,6 +15,7 @@ COMMON CODE
 ;;; Return in W the length of the string given in parameter
 ;;; param1: addrl of null terminated string
 ;;; param2: addrh of null terminated string
+;;; changed registers: param3
 std_strlen:
     global std_strlen
     clrf param3
