@@ -62,7 +62,11 @@ menu_event_dispatch_end:
 #endif
 
 ;;;
-;;; This macro start a new dialog screen
+;;; This macro define the begining of a new dialog screen.
+;;; A dialog is constantly looping between the 'menu_start'
+;;; and the 'menu_end' macro. In 'menu_start' the action
+;;; (or event) to be managed is evaluated. Actions are separated
+;;; in two categories : states and sub-states.
 ;;; Changed registers: menu_value, menu_action, param1
 ;;;
 menu_start macro
