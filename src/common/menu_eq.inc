@@ -1,75 +1,4 @@
 #define MENU_EQ_MAX_INPUT           0x1F
-
-#if 0
-;;;
-;;; Manage eq band selection: change value with encoder and return from selection
-;;; when encoder sw is pressed
-;;; pos_x: band x position
-;;; value_addr: address of eq value
-;;; on_value_change_func: function called when the eq band value is changed
-;;;
-menu_eq_manage_selection macro pos_x, value_addr, on_value_change_func
-    ;; Implementation with function
-    movlw pos_x
-    movwf param1
-    movlw value_addr
-    movwf param2
-    call_other_page menu_eq_manage_selection_func
-    call_other_page on_value_change_func
-    endm
-#else
-;;;
-;;; Manage entering in selection sub state of eq band
-;;; pos_x: band x position
-;;; value_addr: address of eq value
-;;;
-menu_eq_manage_select macro pos_x, value_addr
-    ;; Implementation with function
-    movlw pos_x
-    movwf param1
-    movlw value_addr
-    movwf param2
-    call_other_page menu_eq_manage_select_func
-    endm
-
-;;;
-;;; Manage entering in selection sub state of eq band
-;;; pos_x: band x position
-;;; value_addr: address of eq value
-;;;
-menu_eq_manage_unselect macro pos_x
-    ;; Implementation with function
-    movlw pos_x
-    movwf param1
-    call_other_page menu_eq_manage_unselect_func
-    endm
-
-
-;;;
-;;; Manage encoder value change during selection sub state
-;;; pos_x: band x position
-;;; value_addr: address of eq value
-;;; on_value_change_func: function called when the eq band value is changed
-;;;
-menu_eq_manage_select_value_change macro pos_x, value_addr, on_value_change_func
-    ;; Implementation with function
-    movlw pos_x
-    movwf param1
-    movlw value_addr
-    movwf param2
-    call_other_page menu_eq_manage_select_value_change_func
-    call_other_page on_value_change_func
-    endm
-
-;;;
-;;; Manage selection exiting
-;;;
-menu_eq_manage_select_switch macro
-    menu_leave_selection
-    endm
-
-#endif
-
 ;;;
 ;;; This macro manage an entry element got eq band
 ;;; pos_x: band x position
@@ -118,23 +47,30 @@ menu_eq_focus:
     goto menu_eq_undef
 
 menu_eq_select:
-#if 0
-    menu_eq_manage_selection pos_x, value_addr, on_value_change_func
-#else
-    menu_eq_manage_select pos_x, value_addr
-#endif
+    movlw pos_x
+    movwf param1
+    movlw value_addr
+    movwf param2
+    call_other_page menu_eq_manage_select
     goto menu_eq_undef
 
 menu_eq_unselect:
-    menu_eq_manage_unselect pos_x
+    movlw pos_x
+    movwf param1
+    call_other_page menu_eq_manage_unselect
     goto menu_eq_undef
 
 menu_eq_select_value_change:
-    menu_eq_manage_select_value_change pos_x, value_addr, on_value_change_func
+    movlw pos_x
+    movwf param1
+    movlw value_addr
+    movwf param2
+    call_other_page menu_eq_manage_select_value_change
+    call_other_page on_value_change_func
     goto menu_eq_undef
 
 menu_eq_select_switch:
-    menu_eq_manage_select_switch
+    menu_leave_selection
     goto menu_eq_undef
 
 menu_eq_refresh:
@@ -158,11 +94,7 @@ menu_eq_undef:
     extern menu_draw_eq_band
     extern menu_refresh_eq_band
     extern menu_draw_focus_eq_band
-#if 0
-    extern menu_eq_manage_selection_func
-#else
-    extern menu_eq_manage_select_func
-    extern menu_eq_manage_unselect_func
-    extern menu_eq_manage_select_value_change_func
-#endif
+    extern menu_eq_manage_select
+    extern menu_eq_manage_unselect
+    extern menu_eq_manage_select_value_change
 #endif

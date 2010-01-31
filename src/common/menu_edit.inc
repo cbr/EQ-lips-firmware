@@ -10,8 +10,11 @@ menu_edit macro string, pos, min_value, max_value, value_addr, on_value_change_f
     local menu_edit_focus
     local menu_edit_unfocus
     local menu_edit_select
+    local menu_edit_unselect
+    local menu_edit_select_switch
+    local menu_edit_select_value_change
 
-    menu_event_dispatch menu_edit_init, menu_edit_focus, menu_edit_unfocus, menu_edit_select, menu_edit_undef, menu_edit_undef, menu_edit_undef
+    menu_event_dispatch menu_edit_init, menu_edit_focus, menu_edit_unfocus, menu_edit_select, menu_edit_unselect, menu_edit_select_value_change, menu_edit_select_switch
     goto menu_edit_undef
 
 menu_edit_init:
@@ -65,8 +68,31 @@ menu_edit_select:
     movwf param2
     movlw max_value
     movwf param3
-    call_other_page encoder_set_value
-    ;; call function which manage edit
+    call_other_page menu_selection_encoder_configure
+    ;; draw selection rectangle: the code is shared with unselect event, so
+    ;; continue with unselect event:
+
+menu_edit_unselect:
+    ;; calculate size of string
+    movlw high string
+    movwf param1
+    movlw low string
+    movwf param2
+    call_other_page std_strlen
+    ;; store in param1
+    movwf param1
+
+    ;; draw selection rectangle
+    movlw pos
+    movwf param2
+    call_other_page menu_edit_draw_select
+    goto menu_edit_undef
+
+menu_edit_select_switch:
+    menu_leave_selection
+    goto menu_edit_undef
+
+menu_edit_select_value_change:
     movlw high string
     movwf param1
     movlw low string
@@ -75,7 +101,7 @@ menu_edit_select:
     movwf param3
     movlw value_addr
     movwf param4
-    call_other_page menu_edit_manage_selection
+    call_other_page menu_edit_manage_select_value_change
     call_other_page on_value_change_func
     goto menu_edit_undef
 
@@ -84,5 +110,6 @@ menu_edit_undef:
     endm
 
 #ifndef MENU_EDIT_M
-    extern menu_edit_manage_selection
+    extern menu_edit_draw_select
+    extern menu_edit_manage_select_value_change
 #endif
