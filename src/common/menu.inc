@@ -3,7 +3,11 @@
 #define MENU_ACTION_FOCUS           0x02
 #define MENU_ACTION_UNFOCUS         0x03
 #define MENU_ACTION_SELECT          0x04
+#define MENU_ACTION_UNSELECT        0x05
 #define MENU_INIT_LAST_VALUE        0xFF
+
+#define MENU_STATE_NONE             0x00
+#define MENU_STATE_SELECT           0x01
 
 #define SIMPLE_FOCUS
 
@@ -19,7 +23,7 @@
 
 ;;; Macro which manage event dispatching for menu element
 ;;; parameters: label for different event
-menu_event_dispatch macro label_init, label_focus, label_unfocus, label_select
+menu_event_dispatch macro label_init, label_focus, label_unfocus, label_select, label_unselect
     local menu_event_dispatch_end
     ;; *** Check current action
     ;; INIT
@@ -51,6 +55,11 @@ menu_event_dispatch macro label_init, label_focus, label_unfocus, label_select
     subwf menu_action, W
     btfsc STATUS, Z
     goto label_select
+    ;; UNSELECT
+    movlw MENU_ACTION_UNSELECT
+    subwf menu_action, W
+    btfsc STATUS, Z
+    goto label_unselect
     ;; Other unknown actions
 menu_event_dispatch_end:
     endm
@@ -75,10 +84,17 @@ menu_start macro
     local menu_start_check_focus_change
     local menu_start_end_return
     local menu_start_check_select
+    local menu_start_state_select_check_event
+    local menu_start_state_none_check_event
+    local menu_start_check_leave_select
     call_other_page lcd_clear
-    ;; init variable
-    movlw 0x00
-    movwf menu_value
+    ;; init variables
+    banksel menu_value
+    clrf menu_value
+    banksel menu_state
+    clrf menu_state
+    banksel menu_leave_state
+    clrf menu_leave_state
 
     ;; Action to realize is 'init' the first time
     movlw MENU_ACTION_INIT
@@ -97,6 +113,30 @@ menu_start_end_return_#v(menu_number)
     goto menu_start_quit
 
     ;; No action defined
+    ;; Check current menu state
+    banksel menu_state
+    movf menu_state, W
+    sublw MENU_STATE_SELECT
+    btfss STATUS, Z
+    ;; Select state not active
+    goto menu_start_state_none_check_event
+    ;; Select state active
+    ;; **** STATE SELECT ****
+menu_start_state_select_check_event:
+menu_start_check_leave_select:
+    movf menu_leave_state, W
+    btfsc STATUS, Z
+    goto menu_start_check_enc_change
+    clrf menu_leave_state
+    movlw MENU_ACTION_UNSELECT
+    movwf menu_action
+    goto menu_start_quit
+
+menu_start_check_enc_change:
+    goto menu_start_quit
+
+    ;; **** STATE NONE ****
+menu_start_state_none_check_event:
 menu_start_check_focus_change:
     ;; Check if encoder value is equal to current menu value
     movf encoder_value, W
@@ -120,6 +160,10 @@ menu_start_check_select:
     ;; the encoder switch has been pressed
     movlw MENU_ACTION_SELECT
     movwf menu_action
+    ;; Change state
+    movlw MENU_STATE_SELECT
+    banksel menu_state
+    movwf menu_state
     ;; reset encoder_sw
     encoder_ack_sw
     goto menu_start_quit
@@ -149,8 +193,8 @@ menu_end macro
     subwf menu_action, W
     btfsc STATUS, Z
     goto menu_end_unfocus
-    ;; SELECT
-    movlw MENU_ACTION_SELECT
+    ;; UNSELECT
+    movlw MENU_ACTION_UNSELECT
     subwf menu_action, W
     btfsc STATUS, Z
     goto menu_end_select
@@ -180,6 +224,10 @@ menu_end_select:
     movlw MENU_NB_ENTRY-1
     movwf param3
     call_other_page encoder_set_value
+    ;; Change state to none
+    movlw MENU_STATE_NONE
+    banksel menu_state
+    movwf menu_state
     ;; reset action
     movlw MENU_ACTION_UNDEF
     movwf menu_action
@@ -192,6 +240,13 @@ menu_end_quit:
     goto menu_start_end_return_#v(menu_number)
     endm
 
+;;; This macro ask to leave the selection sub state of a menu.
+;;; On the next event loop the event MENU_ACTION_UNSELECT will
+;;; be active.
+menu_leave_selection macro
+    movlw 1
+    movwf menu_leave_state
+    endm
 
 ;;;
 ;;; This macro is a template (exemple) for menu entry element
@@ -202,8 +257,9 @@ menu_template macro
     local menu_template_focus
     local menu_template_unfocus
     local menu_template_select
+    local menu_template_unselect
 
-    menu_event_dispatch menu_template_init, menu_template_focus, menu_template_unfocus, menu_template_select
+    menu_event_dispatch menu_template_init, menu_template_focus, menu_template_unfocus, menu_template_select, menu_template_unselect
     goto menu_template_undef
 menu_template_init:
     goto menu_template_undef
@@ -214,6 +270,8 @@ menu_template_focus:
     goto menu_template_undef
 menu_template_select:
     goto menu_template_undef
+menu_template_unselect:
+    goto menu_template_undef
 
 menu_template_undef:
     VARIABLE MENU_NB_ENTRY=MENU_NB_ENTRY+1
@@ -221,5 +279,6 @@ menu_template_undef:
 
 
 #ifndef MENU_M
-
+    extern menu_state
+    extern menu_leave_state
 #endif

@@ -11,6 +11,10 @@
 
     UDATA
 menu_var1               RES 1
+menu_state              RES 1
+    global menu_state
+menu_leave_state        RES 1
+    global menu_leave_state
 
 ;;; relocatable code
 COMMON CODE
