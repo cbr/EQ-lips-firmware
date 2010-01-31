@@ -19,7 +19,6 @@
 
     UDATA
 edit_eq_tmp      RES 1
-edit_eq_refresh  RES 1
 
 
 ; relocatable code
@@ -46,22 +45,7 @@ edit_eq_load:
     decf param1, F
     call edit_eq_load_bank
     call_other_page numpot_send_all
-    movlw 1
-    banksel edit_eq_refresh
-    movwf edit_eq_refresh
-    return
-
-edit_eq_need_refresh:
-    global edit_eq_need_refresh
-    banksel edit_eq_refresh
-    movf edit_eq_refresh, W
-    return
-
-edit_eq_need_refresh_last:
-    global edit_eq_need_refresh_last
-    banksel edit_eq_refresh
-    movf edit_eq_refresh, W
-    clrf edit_eq_refresh
+    menu_ask_refresh
     return
 
 edit_eq_show:
@@ -80,17 +64,17 @@ edit_eq_show:
     menu_edit st_bank, 0, 1, 0x10, current_bank, edit_eq_load
     menu_button st_load, 1, edit_eq_load
     menu_button st_save, 2, edit_eq_save
-    menu_eq (0x5*0 + 0x3D), potvalues, numpot_send_all, edit_eq_need_refresh
-    menu_eq (0x5*1 + 0x3D), potvalues+1, numpot_send_all, edit_eq_need_refresh
-    menu_eq (0x5*2 + 0x3D), potvalues+2, numpot_send_all, edit_eq_need_refresh
-    menu_eq (0x5*3 + 0x3D), potvalues+3, numpot_send_all, edit_eq_need_refresh
-    menu_eq (0x5*4 + 0x3D), potvalues+4, numpot_send_all, edit_eq_need_refresh
-    menu_eq (0x5*5 + 0x3D), potvalues+5, numpot_send_all, edit_eq_need_refresh
-    menu_eq (0x5*6 + 0x3D), potvalues+6, numpot_send_all, edit_eq_need_refresh
-    menu_eq (0x5*7 + 0x3D), potvalues+7, numpot_send_all, edit_eq_need_refresh
-    menu_eq (0x5*8 + 0x3D), potvalues+8, numpot_send_all, edit_eq_need_refresh
-    menu_eq (0x5*9 + 0x3D), potvalues+9, numpot_send_all, edit_eq_need_refresh
-    menu_eq (0x5*0xB + 0x3D), potvalues+0xA, numpot_send_all, edit_eq_need_refresh_last
+    menu_eq (0x5*0 + 0x3D), potvalues, numpot_send_all
+    menu_eq (0x5*1 + 0x3D), potvalues+1, numpot_send_all
+    menu_eq (0x5*2 + 0x3D), potvalues+2, numpot_send_all
+    menu_eq (0x5*3 + 0x3D), potvalues+3, numpot_send_all
+    menu_eq (0x5*4 + 0x3D), potvalues+4, numpot_send_all
+    menu_eq (0x5*5 + 0x3D), potvalues+5, numpot_send_all
+    menu_eq (0x5*6 + 0x3D), potvalues+6, numpot_send_all
+    menu_eq (0x5*7 + 0x3D), potvalues+7, numpot_send_all
+    menu_eq (0x5*8 + 0x3D), potvalues+8, numpot_send_all
+    menu_eq (0x5*9 + 0x3D), potvalues+9, numpot_send_all
+    menu_eq (0x5*0xB + 0x3D), potvalues+0xA, numpot_send_all
     menu_end
 
 

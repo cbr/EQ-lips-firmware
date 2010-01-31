@@ -10,8 +10,9 @@ menu_button macro string, pos, on_select_function
     local menu_button_focus
     local menu_button_unfocus
     local menu_button_select
+    local menu_button_unselect
 
-    menu_event_dispatch menu_button_init_or_refresh, menu_button_focus, menu_button_unfocus, menu_button_select, menu_button_undef, menu_button_undef, menu_button_undef, menu_button_init_or_refresh
+    menu_event_dispatch menu_button_init_or_refresh, menu_button_focus, menu_button_unfocus, menu_button_select, menu_button_unselect, menu_button_undef, menu_button_undef, menu_button_init_or_refresh
     goto menu_button_undef
 
 menu_button_init_or_refresh:
@@ -75,9 +76,12 @@ menu_button_select:
     movlw pos
     movwf param1
     call_other_page menu_button_select_func
+    menu_leave_selection
+    goto menu_button_undef
+
+menu_button_unselect:
     ;; call on event function
     call_other_page on_select_function
-    menu_leave_selection
     goto menu_button_undef
 
 menu_button_undef:

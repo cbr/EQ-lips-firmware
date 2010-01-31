@@ -113,9 +113,11 @@ menu_start macro
     local menu_start_check_focus_change
     local menu_start_end_return
     local menu_start_check_select
+    local menu_start_state_check_event
     local menu_start_state_select_check_event
     local menu_start_state_none_check_event
     local menu_start_check_leave_select
+    local menu_start_check_refresh
     call_other_page lcd_clear
     ;; init variables
     banksel menu_value
@@ -142,6 +144,20 @@ menu_start_end_return_#v(menu_number)
     goto menu_start_quit
 
     ;; No action defined
+
+    ;; **** ALL STATE ****
+menu_start_check_refresh:
+    movf menu_state_asked_action, W
+    sublw MENU_STATE_ASK_ACTION_REFRESH
+    btfss STATUS, Z
+    goto menu_start_state_check_event
+    clrf menu_state_asked_action
+    movlw MENU_ACTION_REFRESH
+    movwf menu_action
+    goto menu_start_quit
+
+menu_start_state_check_event:
+    ;; **** specific STATE ? ****
     ;; Check current menu state
     banksel menu_state
     movf menu_state, W
@@ -152,15 +168,6 @@ menu_start_end_return_#v(menu_number)
     ;; Select state active
     ;; **** STATE SELECT ****
 menu_start_state_select_check_event:
-menu_start_check_refresh_select:
-    movf menu_state_asked_action, W
-    sublw MENU_STATE_ASK_ACTION_REFRESH
-    btfss STATUS, Z
-    goto menu_start_check_leave_select
-    clrf menu_state_asked_action
-    movlw MENU_ACTION_REFRESH
-    movwf menu_action
-    goto menu_start_quit
 
 menu_start_check_leave_select:
     movf menu_state_asked_action, W
