@@ -1,0 +1,15 @@
+* General
+** Improve encoder filtering (hard or soft ?)
+** Use more implicit validation is menus
+** Automatic eqs redraw when navigating among banks
+
+
+* Gui
+** Context label and value
+** Swith Eq/Tremolo
+* Bank selection menu element
+** String length
+* Tremolo
+** Timer
+** Change gain
+
