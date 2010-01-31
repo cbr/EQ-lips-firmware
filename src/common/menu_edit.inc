@@ -11,7 +11,7 @@ menu_edit macro string, pos, min_value, max_value, value_addr, on_value_change_f
     local menu_edit_unfocus
     local menu_edit_select
 
-    menu_event_dispatch menu_edit_init, menu_edit_focus, menu_edit_unfocus, menu_edit_select, menu_edit_undef
+    menu_event_dispatch menu_edit_init, menu_edit_focus, menu_edit_unfocus, menu_edit_select, menu_edit_undef, menu_edit_undef, menu_edit_undef
     goto menu_edit_undef
 
 menu_edit_init:

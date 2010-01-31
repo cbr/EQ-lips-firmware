@@ -154,6 +154,7 @@ menu_eq_draw_select:
     return
 
 
+#if 0
 ;;;
 ;;; Manage eq band selection: change value with encoder and return from selection
 ;;; when encoder sw is pressed
@@ -234,4 +235,89 @@ menu_eq_manage_selection_check_rot:
 menu_eq_manage_selection_quit:
 
     return
+#else
+;;;
+;;; Manage eq band selection: change value with encoder and return from selection
+;;; when encoder sw is pressed
+;;; param1: band x position
+;;; param2: address of eq value
+;;; Changed registers: menu_eq_var1
+;;;
+menu_eq_manage_select_func:
+    global menu_eq_manage_select_func
+
+    ;; Save params
+    movf param1, W
+    movwf menu_eq_var1
+    ;; FSR is not used by called functions, so it can be directly set
+    movf param2, W
+    movwf FSR
+
+    ;; Draw selection
+    call_other_page menu_eq_draw_select
+    ;; mem current value
+    ;; FSR has been set at the beginning of function
+    movf INDF, W
+    movwf menu_eq_last_value
+    ;; configure encoder
+    movwf param1
+    clrf param2
+    movlw MENU_EQ_MAX_INPUT
+    movwf param3
+    call_other_page menu_selection_encoder_configure
+    return
+
+;;;
+;;; Manage eq band selection: change value with encoder and return from selection
+;;; when encoder sw is pressed
+;;; param1: band x position
+;;; Changed registers:
+;;;
+menu_eq_manage_unselect_func:
+    global menu_eq_manage_unselect_func
+    ;; draw eq as unselect
+    call_other_page menu_eq_draw_select
+    return
+
+;;;
+;;; Manage eq band selection: change value with encoder and return from selection
+;;; when encoder sw is pressed
+;;; param1: band x position
+;;; param2: address of eq value
+;;; Changed registers: menu_eq_var1
+;;;
+menu_eq_manage_select_value_change_func:
+    global menu_eq_manage_select_value_change_func
+
+    ;; Save params
+    movf param1, W
+    banksel menu_eq_var1
+    movwf menu_eq_var1
+    ;; FSR is not used by called functions, so it can be directly set
+    movf param2, W
+    movwf FSR
+
+    ;; undraw band
+    ;; (param1 is already set)
+    banksel menu_eq_last_value
+    movf menu_eq_last_value, W
+    movwf param2
+    call_other_page menu_draw_eq_band
+    ;; draw new band and memorize
+    banksel menu_eq_var1
+    movf menu_eq_var1, W
+    movwf param1
+    banksel menu_select_value
+    movf menu_select_value, W
+    banksel menu_eq_last_value
+    movwf menu_eq_last_value
+    ;; FSR has been set at the beginning of function
+    movwf INDF
+    movwf param2
+    call_other_page menu_draw_eq_band
+
+    return
+
+#endif
+
 END

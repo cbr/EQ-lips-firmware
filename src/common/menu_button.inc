@@ -11,7 +11,7 @@ menu_button macro string, pos, on_select_function
     local menu_button_unfocus
     local menu_button_select
 
-    menu_event_dispatch menu_button_init, menu_button_focus, menu_button_unfocus, menu_button_select, menu_button_undef
+    menu_event_dispatch menu_button_init, menu_button_focus, menu_button_unfocus, menu_button_select, menu_button_undef, menu_button_undef, menu_button_undef
     goto menu_button_undef
 
 menu_button_init:
