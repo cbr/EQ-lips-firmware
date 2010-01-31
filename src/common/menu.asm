@@ -13,8 +13,8 @@
 menu_var1               RES 1
 menu_state              RES 1
     global menu_state
-menu_leave_state        RES 1
-    global menu_leave_state
+menu_state_asked_action        RES 1
+    global menu_state_asked_action
 menu_select_value       RES 1
     global menu_select_value
 ;;; relocatable code

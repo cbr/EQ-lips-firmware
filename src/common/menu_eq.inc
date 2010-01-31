@@ -17,8 +17,8 @@ menu_eq macro pos_x, value_addr, on_value_change_func, need_refresh_func
     local menu_eq_select_value_change
     local menu_eq_select_switch
 
-    menu_event_dispatch menu_eq_init, menu_eq_focus, menu_eq_unfocus, menu_eq_select, menu_eq_unselect, menu_eq_select_value_change, menu_eq_select_switch
-
+    menu_event_dispatch menu_eq_init, menu_eq_focus, menu_eq_unfocus, menu_eq_select, menu_eq_unselect, menu_eq_select_value_change, menu_eq_select_switch, menu_eq_refresh
+#if 0
     ;; no event found
     ;; check if refresh is needed
     call_other_page need_refresh_func
@@ -27,6 +27,7 @@ menu_eq macro pos_x, value_addr, on_value_change_func, need_refresh_func
     ;; refresh needed
     goto menu_eq_refresh
     ;; no refresh needed
+#endif
     goto menu_eq_undef
 menu_eq_init:
     movlw pos_x

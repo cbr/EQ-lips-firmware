@@ -6,7 +6,12 @@
 #define MENU_ACTION_UNSELECT            0x05
 #define MENU_ACTION_SELECT_VALUE_CHANGE 0x06
 #define MENU_ACTION_SELECT_SWITCH       0x07
+#define MENU_ACTION_REFRESH             0x08
 #define MENU_INIT_LAST_VALUE            0xFF
+
+#define MENU_STATE_ASK_ACTION_NONE      0x00
+#define MENU_STATE_ASK_ACTION_LEAVE     0x01
+#define MENU_STATE_ASK_ACTION_REFRESH   0x02
 
 #define MENU_STATE_NONE                 0x00
 #define MENU_STATE_SELECT               0x01
@@ -24,9 +29,10 @@
 
 ;;; Macro which manage event dispatching for menu element
 ;;; parameters: label for different event
-menu_event_dispatch macro label_init, label_focus, label_unfocus, label_select, label_unselect, label_select_value_change, label_select_switch
+menu_event_dispatch macro label_init, label_focus, label_unfocus, label_select, label_unselect, label_select_value_change, label_select_switch, label_refresh
     local menu_event_dispatch_end
-    ;; *** Check current action
+    local menu_event_not_current_entry
+    ;; *** Check action for all entries
     ;; INIT
     movlw MENU_ACTION_INIT
     subwf menu_action, W
@@ -39,7 +45,7 @@ menu_event_dispatch macro label_init, label_focus, label_unfocus, label_select, 
     subwf menu_value, W
     btfss STATUS, Z
     ;; not applied to current entry
-    goto menu_event_dispatch_end
+    goto menu_event_not_current_entry
 
     ;; FOCUS
     movlw MENU_ACTION_FOCUS
@@ -71,6 +77,17 @@ menu_event_dispatch macro label_init, label_focus, label_unfocus, label_select, 
     subwf menu_action, W
     btfsc STATUS, Z
     goto label_select_switch
+
+    goto menu_event_dispatch_end
+
+    ;; ** Following events are for all entries execpt the current one
+menu_event_not_current_entry:
+    ;; REFRESH
+    movlw MENU_ACTION_REFRESH
+    subwf menu_action, W
+    btfsc STATUS, Z
+    goto label_refresh
+
 
     ;; Other unknown actions
 menu_event_dispatch_end:
@@ -105,8 +122,8 @@ menu_start macro
     clrf menu_value
     banksel menu_state
     clrf menu_state
-    banksel menu_leave_state
-    clrf menu_leave_state
+    banksel menu_state_asked_action
+    clrf menu_state_asked_action
 
     ;; Action to realize is 'init' the first time
     movlw MENU_ACTION_INIT
@@ -135,11 +152,22 @@ menu_start_end_return_#v(menu_number)
     ;; Select state active
     ;; **** STATE SELECT ****
 menu_start_state_select_check_event:
+menu_start_check_refresh_select:
+    movf menu_state_asked_action, W
+    sublw MENU_STATE_ASK_ACTION_REFRESH
+    btfss STATUS, Z
+    goto menu_start_check_leave_select
+    clrf menu_state_asked_action
+    movlw MENU_ACTION_REFRESH
+    movwf menu_action
+    goto menu_start_quit
+
 menu_start_check_leave_select:
-    movf menu_leave_state, W
-    btfsc STATUS, Z
+    movf menu_state_asked_action, W
+    sublw MENU_STATE_ASK_ACTION_LEAVE
+    btfss STATUS, Z
     goto menu_start_check_select_enc_change
-    clrf menu_leave_state
+    clrf menu_state_asked_action
     movlw MENU_ACTION_UNSELECT
     movwf menu_action
     goto menu_start_quit
@@ -284,8 +312,15 @@ menu_end_quit:
 ;;; On the next event loop the event MENU_ACTION_UNSELECT will
 ;;; be active.
 menu_leave_selection macro
-    movlw 1
-    movwf menu_leave_state
+    movlw MENU_STATE_ASK_ACTION_LEAVE
+    movwf menu_state_asked_action
+    endm
+
+;;; This macro ask to refresh all menu entries except the current one,
+;;; on next event loop
+menu_ask_refresh macro
+    movlw MENU_STATE_ASK_ACTION_REFRESH
+    movwf menu_state_asked_action
     endm
 
 ;;;
@@ -323,6 +358,6 @@ menu_template_undef:
 #ifndef MENU_M
     extern menu_state
     extern menu_select_value
-    extern menu_leave_state
+    extern menu_state_asked_action
     extern menu_selection_encoder_configure
 #endif

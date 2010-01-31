@@ -5,16 +5,16 @@
 ;;; Changed registers: param1, param2, param3, param4
 ;;;
 menu_button macro string, pos, on_select_function
-    local menu_button_init
+    local menu_button_init_or_refresh
     local menu_button_undef
     local menu_button_focus
     local menu_button_unfocus
     local menu_button_select
 
-    menu_event_dispatch menu_button_init, menu_button_focus, menu_button_unfocus, menu_button_select, menu_button_undef, menu_button_undef, menu_button_undef
+    menu_event_dispatch menu_button_init_or_refresh, menu_button_focus, menu_button_unfocus, menu_button_select, menu_button_undef, menu_button_undef, menu_button_undef, menu_button_init_or_refresh
     goto menu_button_undef
 
-menu_button_init:
+menu_button_init_or_refresh:
     ;; Print string
     movlw MENU_STRING_POS_X
     movwf param1

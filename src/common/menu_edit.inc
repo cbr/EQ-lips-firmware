@@ -5,7 +5,7 @@
 ;;; Changed registers: param1, param2, param3, param4
 ;;;
 menu_edit macro string, pos, min_value, max_value, value_addr, on_value_change_func
-    local menu_edit_init
+    local menu_edit_init_or_refresh
     local menu_edit_undef
     local menu_edit_focus
     local menu_edit_unfocus
@@ -14,10 +14,10 @@ menu_edit macro string, pos, min_value, max_value, value_addr, on_value_change_f
     local menu_edit_select_switch
     local menu_edit_select_value_change
 
-    menu_event_dispatch menu_edit_init, menu_edit_focus, menu_edit_unfocus, menu_edit_select, menu_edit_unselect, menu_edit_select_value_change, menu_edit_select_switch
+    menu_event_dispatch menu_edit_init_or_refresh, menu_edit_focus, menu_edit_unfocus, menu_edit_select, menu_edit_unselect, menu_edit_select_value_change, menu_edit_select_switch, menu_edit_init_or_refresh
     goto menu_edit_undef
 
-menu_edit_init:
+menu_edit_init_or_refresh:
     ;; Print string
     movlw MENU_STRING_POS_X
     movwf param1
