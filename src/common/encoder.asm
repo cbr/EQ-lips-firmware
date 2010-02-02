@@ -17,6 +17,10 @@ encoder_min_value RES 1 ; encoder minimum value
     global encoder_min_value
 encoder_max_value RES 1 ; encoder maximum value
     global encoder_max_value
+encoder_reg_last_value RES 1 ; register B last value
+    global encoder_reg_last_value
+encoder_reg_current_value RES 1 ; register B current value
+    global encoder_reg_current_value
 
 COMMON CODE
 
