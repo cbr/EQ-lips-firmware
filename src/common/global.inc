@@ -14,5 +14,4 @@
     extern menu_value
     extern menu_action
     extern interrupt_var_1
-    extern interrupt_var_2
     extern current_bank

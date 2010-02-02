@@ -28,8 +28,6 @@ menu_action RES 1 ; current menu action (event)
     global menu_action;
 interrupt_var_1 RES 1 ; variable used by ISR
     global interrupt_var_1;
-interrupt_var_2 RES 1 ; variable used by ISR
-    global interrupt_var_2;
 current_bank       RES 1 ; Currently selected memory bank
     global current_bank;
 END
