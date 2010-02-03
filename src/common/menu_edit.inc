@@ -1,10 +1,35 @@
+#define MENU_EDIT_NO_PRINT_VAL      0xFF
+
 ;;;
-;;; This macro add a menu edit into a dialog screen
+;;; This macro add a menu edit into a dialog screen.
+;;; The value managed by edit is printed just after the string.
 ;;; string: label of the menu edit
 ;;; pos: y position of menu edit
 ;;; Changed registers: param1, param2, param3, param4
 ;;;
 menu_edit macro string, pos, min_value, max_value, value_addr, on_value_change_func
+    menu_edit_comon string, pos, min_value, max_value, value_addr, on_value_change_func, 1
+    endm
+
+;;;
+;;; This macro add a menu edit into a dialog screen.
+;;; The value managed by edit is not printed.
+;;; string: label of the menu edit
+;;; pos: y position of menu edit
+;;; Changed registers: param1, param2, param3, param4
+;;;
+menu_edit_no_show macro string, pos, min_value, max_value, value_addr, on_value_change_func
+    menu_edit_comon string, pos, min_value, max_value, value_addr, on_value_change_func, 0
+    endm
+
+;;;
+;;; This macro add a menu edit into a dialog screen.
+;;; Simplier alias macro can be used instead : menu_edit, menu_edit_no_show
+;;; string: label of the menu edit
+;;; pos: y position of menu edit
+;;; Changed registers: param1, param2, param3, param4
+;;;
+menu_edit_comon macro string, pos, min_value, max_value, value_addr, on_value_change_func, print_value
     local menu_edit_init_or_refresh
     local menu_edit_undef
     local menu_edit_focus
@@ -28,7 +53,7 @@ menu_edit_init_or_refresh:
     movlw high string
     movwf param4
     call_other_page lcd_loc_string
-
+#if print_value == 1
     ;; Print value
     movlw value_addr
     movwf FSR
@@ -37,7 +62,7 @@ menu_edit_init_or_refresh:
     clrf param2
     call_other_page lcd_int
     goto menu_edit_undef
-
+#endif
 
 menu_edit_unfocus:
     clrf param1
@@ -97,7 +122,11 @@ menu_edit_select_value_change:
     movwf param1
     movlw low string
     movwf param2
+#if print_value == 1
     movlw pos
+#else
+    movlw MENU_EDIT_NO_PRINT_VAL
+#endif
     movwf param3
     movlw value_addr
     movwf param4

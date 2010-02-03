@@ -37,6 +37,13 @@ menu_edit_manage_select_value_change:
     movwf param1
 
     banksel menu_edit_var1
+    ;; Check if y position is equal to MENU_EDIT_NO_PRINT_VAL
+    movlw MENU_EDIT_NO_PRINT_VAL
+    subwf menu_edit_var1, W
+    btfsc STATUS, Z
+    ;; equal -> do not print
+    goto menu_edit_manage_select_value_change_after_print
+    ;; not equal -> print value
     movf menu_edit_var1, W
     movwf param2
     call lcd_locate
@@ -46,6 +53,7 @@ menu_edit_manage_select_value_change:
     movwf param1
     call lcd_int
     ;; ***************
+menu_edit_manage_select_value_change_after_print:
     menu_ask_refresh
     return
 
