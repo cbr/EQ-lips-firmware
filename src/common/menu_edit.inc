@@ -7,8 +7,8 @@
 ;;; pos: y position of menu edit
 ;;; Changed registers: param1, param2, param3, param4
 ;;;
-menu_edit macro string, pos, min_value, max_value, value_addr, on_value_change_func
-    menu_edit_comon string, pos, min_value, max_value, value_addr, on_value_change_func, 1
+menu_edit macro string, pos, min_value, max_value, value_addr, on_value_change_func, on_valid_value_func
+    menu_edit_comon string, pos, min_value, max_value, value_addr, on_value_change_func, on_valid_value_func, 1
     endm
 
 ;;;
@@ -18,8 +18,8 @@ menu_edit macro string, pos, min_value, max_value, value_addr, on_value_change_f
 ;;; pos: y position of menu edit
 ;;; Changed registers: param1, param2, param3, param4
 ;;;
-menu_edit_no_show macro string, pos, min_value, max_value, value_addr, on_value_change_func
-    menu_edit_comon string, pos, min_value, max_value, value_addr, on_value_change_func, 0
+menu_edit_no_show macro string, pos, min_value, max_value, value_addr, on_value_change_func, on_valid_value_func
+    menu_edit_comon string, pos, min_value, max_value, value_addr, on_value_change_func, on_valid_value_func, 0
     endm
 
 ;;;
@@ -29,7 +29,7 @@ menu_edit_no_show macro string, pos, min_value, max_value, value_addr, on_value_
 ;;; pos: y position of menu edit
 ;;; Changed registers: param1, param2, param3, param4
 ;;;
-menu_edit_comon macro string, pos, min_value, max_value, value_addr, on_value_change_func, print_value
+menu_edit_comon macro string, pos, min_value, max_value, value_addr, on_value_change_func, on_valid_value_func, print_value
     local menu_edit_init_or_refresh
     local menu_edit_undef
     local menu_edit_focus
@@ -111,6 +111,10 @@ menu_edit_unselect:
     movlw pos
     movwf param2
     call_other_page menu_edit_draw_select
+#if on_valid_value_func == 0
+#else
+    call_other_page on_valid_value_func
+#endif
     goto menu_edit_undef
 
 menu_edit_select_switch:
@@ -131,7 +135,10 @@ menu_edit_select_value_change:
     movlw value_addr
     movwf param4
     call_other_page menu_edit_manage_select_value_change
+#if on_value_change_func == 0
+#else
     call_other_page on_value_change_func
+#endif
     goto menu_edit_undef
 
 menu_edit_undef:
