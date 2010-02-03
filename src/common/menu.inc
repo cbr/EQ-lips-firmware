@@ -33,11 +33,14 @@ menu_event_dispatch macro label_init, label_focus, label_unfocus, label_select, 
     local menu_event_dispatch_end
     local menu_event_not_current_entry
     ;; *** Check action for all entries
+#if label_init == 0
+#else
     ;; INIT
     movlw MENU_ACTION_INIT
     subwf menu_action, W
     btfsc STATUS, Z
     goto label_init
+#endif
 
     ;; ** Following events are  for specific entry
     ;; -> Check if it applies to current entry
@@ -47,47 +50,72 @@ menu_event_dispatch macro label_init, label_focus, label_unfocus, label_select, 
     ;; not applied to current entry
     goto menu_event_not_current_entry
 
+#if label_focus == 0
+#else
     ;; FOCUS
     movlw MENU_ACTION_FOCUS
     subwf menu_action, W
     btfsc STATUS, Z
     goto label_focus
+#endif
+
+#if label_unfocus == 0
+#else
     ;; UNFOCUS
     movlw MENU_ACTION_UNFOCUS
     subwf menu_action, W
     btfsc STATUS, Z
     goto label_unfocus
+#endif
+
+#if label_select == 0
+#else
     ;; SELECT
     movlw MENU_ACTION_SELECT
     subwf menu_action, W
     btfsc STATUS, Z
     goto label_select
+#endif
+
+#if label_unselect == 0
+#else
     ;; UNSELECT
     movlw MENU_ACTION_UNSELECT
     subwf menu_action, W
     btfsc STATUS, Z
     goto label_unselect
+#endif
+
+#if label_select_value_change == 0
+#else
     ;; SELECT_VALUE_CHANGE
     movlw MENU_ACTION_SELECT_VALUE_CHANGE
     subwf menu_action, W
     btfsc STATUS, Z
     goto label_select_value_change
+#endif
+
+#if label_select_switch == 0
+#else
     ;; SELECT_SWITCH
     movlw MENU_ACTION_SELECT_SWITCH
     subwf menu_action, W
     btfsc STATUS, Z
     goto label_select_switch
+#endif
 
     goto menu_event_dispatch_end
 
     ;; ** Following events are for all entries execpt the current one
 menu_event_not_current_entry:
+#if label_refresh == 0
+#else
     ;; REFRESH
     movlw MENU_ACTION_REFRESH
     subwf menu_action, W
     btfsc STATUS, Z
     goto label_refresh
-
+#endif
 
     ;; Other unknown actions
 menu_event_dispatch_end:
