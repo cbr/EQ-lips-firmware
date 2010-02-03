@@ -12,7 +12,7 @@ menu_button macro string, pos, on_select_function
     local menu_button_select
     local menu_button_unselect
 
-    menu_event_dispatch menu_button_init_or_refresh, menu_button_focus, menu_button_unfocus, menu_button_select, menu_button_unselect, menu_button_undef, menu_button_undef, menu_button_init_or_refresh
+    menu_event_dispatch menu_button_init_or_refresh, menu_button_focus, menu_button_unfocus, menu_button_select, menu_button_unselect, 0, 0, menu_button_init_or_refresh
     goto menu_button_undef
 
 menu_button_init_or_refresh:
