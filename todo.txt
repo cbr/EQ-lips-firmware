@@ -1,6 +1,9 @@
 * General
-** Improve encoder filtering (hard or soft ?)
 ** Use more implicit validation is menus
+** Manage timer
+** API for timer
+** Multiplication
+** Generic fading
 
 * Gui
 ** Context label and value
