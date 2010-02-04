@@ -36,6 +36,12 @@ menu_edit_manage_select_value_change:
     ;; and store in param1
     movwf param1
 
+    ;; Memorize value
+    banksel menu_select_value
+    movf menu_select_value, W
+    ;; FSR has been set at the beginning of function
+    movwf INDF
+
     banksel menu_edit_var1
     ;; Check if y position is equal to MENU_EDIT_NO_PRINT_VAL
     movlw MENU_EDIT_NO_PRINT_VAL
@@ -48,8 +54,6 @@ menu_edit_manage_select_value_change:
     movwf param2
     call lcd_locate
     movf menu_select_value, W
-    ;; FSR has been set at the beginning of function
-    movwf INDF
     movwf param1
     call lcd_int
     ;; ***************

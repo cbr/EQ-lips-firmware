@@ -14,7 +14,7 @@
 #include <interrupt.inc>
 #include <numpot.inc>
 #include <eeprom.inc>
-#include <menu_label.inc>
+;; #include <menu_label.inc>
 
 #define EDIT_EQ_BANK_EESIZE_SHT     0x04
 
@@ -66,7 +66,7 @@ edit_eq_show:
     menu_button st_load, 1, edit_eq_load
     menu_button st_save, 2, edit_eq_save
 #endif
-    menu_label_int 0, current_bank
+    ;; menu_label_int 0, current_bank
     menu_edit st_bank, 1, 1, 0x10, current_bank, edit_eq_load, 0
     menu_edit_no_show st_save, 2, 1, 0x10, current_bank, edit_eq_refreh, edit_eq_save
     menu_eq (0x5*0 + 0x3D), potvalues, numpot_send_all
