@@ -38,7 +38,7 @@ menu_edit_comon macro string, pos, min_value, max_value, value_addr, on_value_ch
     local menu_edit_unselect
     local menu_edit_select_switch
     local menu_edit_select_value_change
-
+    local menu_edit_select_unselect_draw
     menu_event_dispatch menu_edit_init_or_refresh, menu_edit_focus, menu_edit_unfocus, menu_edit_select, menu_edit_unselect, menu_edit_select_value_change, menu_edit_select_switch, menu_edit_init_or_refresh
     goto menu_edit_undef
 
@@ -95,9 +95,17 @@ menu_edit_select:
     movwf param3
     call_other_page menu_selection_encoder_configure
     ;; draw selection rectangle: the code is shared with unselect event, so
-    ;; continue with unselect event:
+    ;; continue with select/unselect drawing part
+    goto menu_edit_select_unselect_draw
 
 menu_edit_unselect:
+    ;; Call value valid function callback
+#if on_valid_value_func == 0
+#else
+    call_other_page on_valid_value_func
+#endif
+
+menu_edit_select_unselect_draw:
     ;; calculate size of string
     movlw high string
     movwf param1
@@ -111,10 +119,6 @@ menu_edit_unselect:
     movlw pos
     movwf param2
     call_other_page menu_edit_draw_select
-#if on_valid_value_func == 0
-#else
-    call_other_page on_valid_value_func
-#endif
     goto menu_edit_undef
 
 menu_edit_select_switch:
