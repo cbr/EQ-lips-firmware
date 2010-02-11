@@ -257,6 +257,13 @@ LUM0808NA:
 ;;; relocatable code
 COMMON CODE
 
+math_add_1616s:
+    global math_add_1616s
+    return
+
+math_sub_1616u:
+    global math_sub_1616s
+    return
 ;;;
 ;;; 16/16 Bit Signed Fixed Point Divide 16/16 -> 16.16
 ;;;
