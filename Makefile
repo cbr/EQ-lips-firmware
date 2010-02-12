@@ -21,10 +21,7 @@ IMGS=src/common/font.xcf
 
 OTHER_GEN_INC=src/common/numpot_mapping.inc
 
-DEPEND_FILE=mkdepend
-
 OBJ_DIR=obj
-DEPEND_DIR=depend
 
 AS=gpasm
 LD=gplink
@@ -40,7 +37,6 @@ LD_FLAGS= -c -ainhx32 -m -s$(LINK_SCRIPT)
 UNASM_NAME=$(BIN_NAME:.hex=.unasm)
 
 OBJS=$(patsubst %.asm,$(OBJ_DIR)/%.o, $(SRCS))
-DEPENDS=$(patsubst %.asm,$(OBJ_DIR)/%.d, $(SRCS))
 
 OBJS_DIR=$(dir $(OBJS))
 INC_DIR=$(dir $(SRCS))
@@ -71,11 +67,7 @@ make_dir:
 
 .PHONY: clean
 clean:
-	rm -f $(OBJS) $(BIN_NAME) $(DEPEND_FILE) $(DEPENDS) $(INC_IMGS) $(OTHER_GEN_INC)
-
-.PHONY: depend
-depend: make_dir $(DEPENDS)
-	cat $(DEPENDS) > $(DEPEND_FILE)
+	rm -f $(OBJS) $(BIN_NAME)  $(INC_IMGS) $(OTHER_GEN_INC)
 
 $(OBJ_DIR)/%.o: %.asm
 	$(AS) -c -M $(AS_FLAGS) -I. $(addprefix -I,$(UNIQ_INC_DIR)) $< -o $@
@@ -89,6 +81,7 @@ $(OBJ_DIR)/%.d: %.asm
 src/common/numpot_mapping.inc:
 	$(NUMPOT_MAPPING) > $@
 
-ifneq ($(strip $(wildcard $(DEPEND_FILE))),)
-include $(DEPEND_FILE)
-endif
+sinclude Makefile.dep
+Makefile.dep: $(SRCS)
+	touch $@
+	makedepend $(addprefix -I,$(UNIQ_INC_DIR)) -p $(OBJ_DIR)/ -f $@ $(SRCS)
