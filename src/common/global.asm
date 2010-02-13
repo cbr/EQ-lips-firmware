@@ -30,4 +30,8 @@ interrupt_var_1 RES 1 ; variable used by ISR
     global interrupt_var_1;
 current_bank       RES 1 ; Currently selected memory bank
     global current_bank;
+
+tst_timer       RES 1
+    global tst_timer;
+
 END

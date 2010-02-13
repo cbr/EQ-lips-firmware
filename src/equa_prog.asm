@@ -1,4 +1,4 @@
-; -----------------------------------------------------------------------
+make; -----------------------------------------------------------------------
 ;;; Main screen show the following information
 ;;; - equalizer
 ;;;   - 10 bands -> 1 band is 4/5 pixel wide -> show all presets in half a screen
@@ -104,6 +104,15 @@ INT_VECTOR CODE 0x004
 
     ;; Manage encode interrupt
     encoder_it
+    banksel PIR1
+    btfss PIR1, CCP1IF
+    goto end_it
+
+    ;; inc tst reg
+    incf tst_timer, F
+    ;; ack it
+    bcf PIR1, CCP1IF
+end_it:
 
     movf    pclath_saved,w ; restore context
     movwf   PCLATH
@@ -204,6 +213,54 @@ test_switch:
     call_other_page numpot_send_all
 
     ;; goto spi_test
+#endif
+
+#if 1
+
+#if 1
+    ;; clear tst reg
+    movlw 1
+    movwf tst_timer
+    ;; Prescaller 1:8
+    banksel T1CON
+    bsf T1CON, T1CKPS0
+    bsf T1CON, T1CKPS1
+    ;; compare mode, trigger special event
+    banksel CCP1CON
+    bsf CCP1CON, CCP1M0
+    bsf CCP1CON, CCP1M1
+    bcf CCP1CON, CCP1M2
+    bsf CCP1CON, CCP1M3
+    ;; Set compare value to 0xFF00
+    banksel CCPR1H
+    movlw 0xFF
+    movwf CCPR1H
+    movlw 0x00
+    movwf CCPR1L
+    ;; Enable it for ccp1
+    banksel PIE1
+    bsf PIE1, CCP1IE
+    banksel INTCON
+    bsf INTCON, PEIE
+    ;; Timer1 ON
+    banksel T1CON
+    bsf T1CON, TMR1ON
+#endif
+    call_other_page lcd_clear
+    encoder_set_value 1, 1, 10
+tst_timer_loop:
+    banksel 0
+    clrf param1
+    clrf param2
+    movlw 1
+    movwf param4
+    movf tst_timer, W
+    ;; movf encoder_value, W
+    movwf param3
+    bcf param5, LCD_XOR
+    bsf param5, LCD_SET_PIXEL
+    call_other_page lcd_rectangle
+    goto tst_timer_loop
 #endif
 
 #if 1
