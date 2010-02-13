@@ -84,4 +84,4 @@ src/common/numpot_mapping.inc:
 sinclude Makefile.dep
 Makefile.dep: $(SRCS)
 	touch $@
-	makedepend $(addprefix -I,$(UNIQ_INC_DIR)) -p $(OBJ_DIR)/ -f $@ $(SRCS)
+	makedepend $(addprefix -I,$(UNIQ_INC_DIR)) -p $(OBJ_DIR)/ -f $@ $(SRCS) 2> /dev/null
