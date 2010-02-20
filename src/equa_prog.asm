@@ -1,4 +1,4 @@
-make; -----------------------------------------------------------------------
+; -----------------------------------------------------------------------
 ;;; Main screen show the following information
 ;;; - equalizer
 ;;;   - 10 bands -> 1 band is 4/5 pixel wide -> show all presets in half a screen
@@ -82,6 +82,7 @@ make; -----------------------------------------------------------------------
 #include <spi.inc>
 #include <numpot.inc>
 #include <edit_eq.inc>
+#include <math.inc>
 ; -----------------------------------------------------------------------
 ; Variable declaration
 
@@ -215,9 +216,8 @@ test_switch:
     ;; goto spi_test
 #endif
 
-#if 1
-
-#if 1
+#if 0
+    ;; **** TEST TIMER ****
     ;; clear tst reg
     movlw 1
     movwf tst_timer
@@ -245,7 +245,7 @@ test_switch:
     ;; Timer1 ON
     banksel T1CON
     bsf T1CON, TMR1ON
-#endif
+
     call_other_page lcd_clear
     encoder_set_value 1, 1, 10
 tst_timer_loop:
@@ -261,6 +261,11 @@ tst_timer_loop:
     bsf param5, LCD_SET_PIXEL
     call_other_page lcd_rectangle
     goto tst_timer_loop
+#endif
+
+#if 1
+    call_other_page math_test
+    goto $
 #endif
 
 #if 1

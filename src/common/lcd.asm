@@ -765,6 +765,7 @@ lcd_int:
     global lcd_int
     ;; Save param
     movf param1, W
+    banksel var3
     movwf var3
     movf param2, W
     movwf var4
@@ -977,6 +978,7 @@ lcd_locate:
     global lcd_locate
     ;; store param 2
     movf param2, W
+    banksel var2
     movwf var2
 
     ;; *** Set x position
