@@ -14,6 +14,7 @@ SRCS=src/common/numpot.asm \
 	src/common/std.asm \
 	src/common/eeprom.asm  \
 	src/common/flash.asm  \
+	src/common/timer.asm  \
 	src/common/math.asm  \
 	src/equa_prog.asm \
 	src/edit_eq.asm \

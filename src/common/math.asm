@@ -16,22 +16,14 @@
 ;;; So a single 'banksel' of these variable have to be realized before
 ;;; using math variable or calling math functions
 MATH_VAR    UDATA
-number_a_lo  RES 1
-    global number_a_lo
-number_a_hi  RES 1
-    global number_a_hi
-number_b_lo  RES 1
-    global number_b_lo
-number_b_hi  RES 1
-    global number_b_hi
-number_c_lo  RES 1
-    global number_c_lo
-number_c_hi  RES 1
-    global number_c_hi
-number_d_lo  RES 1
-    global number_d_lo
-number_d_hi  RES 1
-    global number_d_hi
+number_a    RES 2
+    global number_a
+number_b    RES 2
+    global number_b
+number_c    RES 2
+    global number_c
+number_d    RES 2
+    global number_d
 count  RES 1
 sign    RES 1
 
@@ -207,7 +199,7 @@ loop:
 
 	retlw   0
 
-#if 1
+#if 0
 #include <lcd.inc>
 
 ;;; Test math functions

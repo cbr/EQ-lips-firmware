@@ -83,8 +83,13 @@
 #include <numpot.inc>
 #include <edit_eq.inc>
 #include <math.inc>
+#include <timer.inc>
 ; -----------------------------------------------------------------------
 ; Variable declaration
+    UDATA
+gain16      RES 2
+inc         RES 2
+trem_nb_val RES 1
 
 ; -----------------------------------------------------------------------
 ; Startup vector
@@ -105,16 +110,7 @@ INT_VECTOR CODE 0x004
 
     ;; Manage encode interrupt
     encoder_it
-    banksel PIR1
-    btfss PIR1, CCP1IF
-    goto end_it
-
-    ;; inc tst reg
-    incf tst_timer, F
-    ;; ack it
-    bcf PIR1, CCP1IF
-end_it:
-
+    timer_it
     movf    pclath_saved,w ; restore context
     movwf   PCLATH
     swapf   status_saved,w
@@ -159,6 +155,14 @@ start:
     call_other_page lcd_init
     call_other_page encoder_init
     call_other_page spi_init
+
+    movlw low tick_hook
+    movwf param1
+    movlw high tick_hook
+    movwf param2
+    call_other_page timer_init
+
+    call prepare_trem
 
     ; enable interrupt
     interrupt_enable
@@ -217,60 +221,33 @@ test_switch:
 #endif
 
 #if 0
+
     ;; **** TEST TIMER ****
-    ;; clear tst reg
+    ;; Clear tst reg
     movlw 1
     movwf tst_timer
-    ;; Prescaller 1:8
-    banksel T1CON
-    bsf T1CON, T1CKPS0
-    bsf T1CON, T1CKPS1
-    ;; compare mode, trigger special event
-    banksel CCP1CON
-    bsf CCP1CON, CCP1M0
-    bsf CCP1CON, CCP1M1
-    bcf CCP1CON, CCP1M2
-    bsf CCP1CON, CCP1M3
-    ;; Set compare value to 0xFF00
-    banksel CCPR1H
-    movlw 0xFF
-    movwf CCPR1H
-    movlw 0x00
-    movwf CCPR1L
-    ;; Enable it for ccp1
-    banksel PIE1
-    bsf PIE1, CCP1IE
-    banksel INTCON
-    bsf INTCON, PEIE
-    ;; Timer1 ON
-    banksel T1CON
-    bsf T1CON, TMR1ON
 
     call_other_page lcd_clear
-    encoder_set_value 1, 1, 10
 tst_timer_loop:
     banksel 0
-    clrf param1
     clrf param2
     movlw 1
     movwf param4
-    movf tst_timer, W
-    ;; movf encoder_value, W
     movwf param3
+    movf tst_timer, W
+    movwf param1
+    decf param1, F
     bcf param5, LCD_XOR
     bsf param5, LCD_SET_PIXEL
     call_other_page lcd_rectangle
     goto tst_timer_loop
 #endif
 
-#if 1
-    call_other_page math_test
-    goto $
-#endif
 
 #if 1
     call_other_page edit_eq_show
 #endif
+
 
 #if 0
 spi_test:
@@ -319,7 +296,7 @@ loop_spi_dec
 #endif
 
 
-#if 1
+#if 0
     ;; *** TEST MENU ***
     menu_start
     menu_button st_eqprog, 0, 0
@@ -472,5 +449,69 @@ loop_draw:
 #endif
 
     goto    $              ; infinite loop
+
+prepare_trem
+    ;; init gain16
+    banksel gain16
+    movlw 16
+    movwf gain16+1
+    lshift_f gain16+1, 3
+    clrf gain16
+
+    ;; init inc
+    ;; inc = amplitude / nb_val
+    ;; inc = 8 (shifted) / nb_val
+    ;; inc = 0x4000 / 100 = 0xA4
+    banksel inc
+    clrf inc+1
+    movlw 0xA4
+    movwf inc
+
+    ;; init nb val
+    banksel trem_nb_val
+    movlw 0x64
+    movwf trem_nb_val
+    return
+
+tick_hook:
+#if 0
+    ;; increment gain value
+    ;; gain16 = gain16 + inc
+    math_copy_16 gain16, number_a
+    math_copy_16 inc, number_b
+    math_banksel
+    call_other_page math_add_1616s
+    math_copy_16 number_b, gain16
+
+    ;; Set gain value (keep only 5 high order bits)
+    banksel gain16
+    movf gain16+1, W
+    movwf param2
+    rshift_f param2, 3
+    ;; gain is pot 9
+    movlw 9
+    movwf param1
+    call_other_page numpot_set_one_value
+    ;; incf tst_timer, F
+
+    ;; send values
+    call_other_page numpot_send_all
+
+    ;; prepare next val
+    banksel trem_nb_val
+    decfsz trem_nb_val, F
+    goto tick_hook_end
+    ;; reinit nb_val
+    movlw 0x64
+    movwf trem_nb_val
+    ;; inverse inc
+    math_copy_16 inc, number_a
+    math_banksel
+    call_other_page math_neg_number_a_16s
+    math_copy_16 number_a, inc
+#endif
+tick_hook_end:
+    banksel 0
+    return
 
 END

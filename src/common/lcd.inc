@@ -105,8 +105,10 @@ lcd_send_cmd_2 macro cmd, value
     extern get_lcd_data
     extern lcd_char
     extern lcd_locate
+#if 0
     extern lcd_test_io_blink
     extern lcd_test_io_on
     extern lcd_test_io_off
+#endif
 #endif
 
