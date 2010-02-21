@@ -1,4 +1,4 @@
-BIN_NAME=equa_prog.hex
+BIN_NAME=equa_prog
 
 SRCS=src/common/numpot.asm \
 	src/common/global.asm  \
@@ -46,6 +46,8 @@ UNIQ_INC_DIR=$(shell echo $(INC_DIR) | tr ' ' \\n | uniq)
 
 INC_IMGS=$(addsuffix .inc,$(basename $(IMGS)))
 
+MAKEDEP=Makefile.dep
+
 .PHONY: all
 all: make_dir image $(OTHER_GEN_INC) $(BIN_NAME)
 
@@ -69,7 +71,7 @@ make_dir:
 
 .PHONY: clean
 clean:
-	rm -f $(OBJS) $(BIN_NAME)  $(INC_IMGS) $(OTHER_GEN_INC)
+	rm -f $(OBJS) $(BIN_NAME).*  $(INC_IMGS) $(OTHER_GEN_INC) $(MAKEDEP)
 
 $(OBJ_DIR)/%.o: %.asm
 	$(AS) -c -M $(AS_FLAGS) -I. $(addprefix -I,$(UNIQ_INC_DIR)) $< -o $@
@@ -83,7 +85,8 @@ $(OBJ_DIR)/%.d: %.asm
 src/common/numpot_mapping.inc:
 	$(NUMPOT_MAPPING) > $@
 
-sinclude Makefile.dep
-Makefile.dep: $(SRCS)
+sinclude $(MAKEDEP)
+$(MAKEDEP): $(SRCS)
 	touch $@
 	makedepend $(addprefix -I,$(UNIQ_INC_DIR)) -p $(OBJ_DIR)/ -f $@ $(SRCS) 2> /dev/null
+	-rm $(MAKEDEP).bak 2> /dev/null
