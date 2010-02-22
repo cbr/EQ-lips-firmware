@@ -14,12 +14,16 @@
 #include <interrupt.inc>
 #include <numpot.inc>
 #include <eeprom.inc>
+#include <math.inc>
 ;; #include <menu_label.inc>
 
 #define EDIT_EQ_BANK_EESIZE_SHT     0x04
 
     UDATA
 edit_eq_tmp      RES 1
+gain16      RES 2
+inc         RES 2
+trem_nb_val RES 1
 
 
 ; relocatable code
@@ -51,21 +55,12 @@ edit_eq_load:
 
 edit_eq_show:
     global edit_eq_show
-#if 0
-    movlw high st_load
-    movwf param1
-    movlw low st_load
-    movwf param2
-    call_other_page std_strlen
-#endif
+
+    call prepare_trem
+
     movlw 1
     movwf current_bank
     menu_start
-#if 0
-    menu_edit st_bank, 0, 1, 0x10, current_bank, edit_eq_load
-    menu_button st_load, 1, edit_eq_load
-    menu_button st_save, 2, edit_eq_save
-#endif
     ;; menu_label_int 0, current_bank
     menu_edit st_bank, 1, 1, 0x10, current_bank, edit_eq_load, 0
     menu_edit_no_show st_save, 2, 1, 0x10, current_bank, edit_eq_refreh, edit_eq_save
@@ -80,6 +75,7 @@ edit_eq_show:
     menu_eq (0x5*8 + 0x3D), potvalues+8, numpot_send_all
     menu_eq (0x5*9 + 0x3D), potvalues+9, numpot_send_all
     menu_eq (0x5*0xB + 0x3D), potvalues+0xA, numpot_send_all
+    call trem_manage
     menu_end
 
 
@@ -152,4 +148,76 @@ edit_eq_bank_change:
     ;; nothing to do
     return
 
+
+prepare_trem
+    ;; init gain16
+    banksel gain16
+    movlw .16
+    movwf gain16+1
+    lshift_f gain16+1, 3
+    clrf gain16
+
+    ;; init inc
+    ;; inc = amplitude / nb_val
+    ;; inc = 16 (shifted) / nb_val
+    ;; inc = 0x4000 / 50 = 0x147
+    banksel inc
+    movlw 0x47
+    movwf inc
+    movlw 0x01
+    movwf inc+1
+
+    ;; init nb val
+    banksel trem_nb_val
+    movlw 0x32
+    movwf trem_nb_val
+    return
+
+trem_manage:
+#if 1
+    ;; Check if timer event has occured
+    movf timer_cpt, W
+    btfsc STATUS, Z
+    ;; no event
+    goto trem_manage_end
+    ;; timer event !
+    decf timer_cpt, F
+    ;; increment gain value
+    ;; gain16 = gain16 + inc
+    math_copy_16 gain16, number_a
+    math_copy_16 inc, number_b
+    math_banksel
+    call_other_page math_add_1616s
+    math_copy_16 number_b, gain16
+
+    ;; Set gain value (keep only 5 high order bits)
+    banksel gain16
+    movf gain16+1, W
+    movwf param2
+    rshift_f param2, 3
+    ;; gain is pot 9
+    movlw 0xA
+    movwf param1
+    call_other_page numpot_set_one_value
+    ;; incf tst_timer, F
+
+    ;; send values
+    call_other_page numpot_send_all
+
+    ;; prepare next val
+    banksel trem_nb_val
+    decfsz trem_nb_val, F
+    goto trem_manage_end
+    ;; reinit nb_val
+    movlw 0x32
+    movwf trem_nb_val
+    ;; inverse inc
+    math_copy_16 inc, number_a
+    math_banksel
+    call_other_page math_neg_number_a_16s
+    math_copy_16 number_a, inc
+#endif
+trem_manage_end:
+    banksel 0
+    return
 END

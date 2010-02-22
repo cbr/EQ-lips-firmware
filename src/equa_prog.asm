@@ -87,9 +87,6 @@
 ; -----------------------------------------------------------------------
 ; Variable declaration
     UDATA
-gain16      RES 2
-inc         RES 2
-trem_nb_val RES 1
 
 ; -----------------------------------------------------------------------
 ; Startup vector
@@ -155,14 +152,7 @@ start:
     call_other_page lcd_init
     call_other_page encoder_init
     call_other_page spi_init
-
-    movlw low tick_hook
-    movwf param1
-    movlw high tick_hook
-    movwf param2
     call_other_page timer_init
-
-    call prepare_trem
 
     ; enable interrupt
     interrupt_enable
@@ -449,69 +439,5 @@ loop_draw:
 #endif
 
     goto    $              ; infinite loop
-
-prepare_trem
-    ;; init gain16
-    banksel gain16
-    movlw 16
-    movwf gain16+1
-    lshift_f gain16+1, 3
-    clrf gain16
-
-    ;; init inc
-    ;; inc = amplitude / nb_val
-    ;; inc = 8 (shifted) / nb_val
-    ;; inc = 0x4000 / 100 = 0xA4
-    banksel inc
-    clrf inc+1
-    movlw 0xA4
-    movwf inc
-
-    ;; init nb val
-    banksel trem_nb_val
-    movlw 0x64
-    movwf trem_nb_val
-    return
-
-tick_hook:
-#if 0
-    ;; increment gain value
-    ;; gain16 = gain16 + inc
-    math_copy_16 gain16, number_a
-    math_copy_16 inc, number_b
-    math_banksel
-    call_other_page math_add_1616s
-    math_copy_16 number_b, gain16
-
-    ;; Set gain value (keep only 5 high order bits)
-    banksel gain16
-    movf gain16+1, W
-    movwf param2
-    rshift_f param2, 3
-    ;; gain is pot 9
-    movlw 9
-    movwf param1
-    call_other_page numpot_set_one_value
-    ;; incf tst_timer, F
-
-    ;; send values
-    call_other_page numpot_send_all
-
-    ;; prepare next val
-    banksel trem_nb_val
-    decfsz trem_nb_val, F
-    goto tick_hook_end
-    ;; reinit nb_val
-    movlw 0x64
-    movwf trem_nb_val
-    ;; inverse inc
-    math_copy_16 inc, number_a
-    math_banksel
-    call_other_page math_neg_number_a_16s
-    math_copy_16 number_a, inc
-#endif
-tick_hook_end:
-    banksel 0
-    return
 
 END

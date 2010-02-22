@@ -8,16 +8,12 @@ timer_it macro
     ;; -> Not set
     goto timer_it_end
     ;; -> Set
-    ;; Call tick hook
-    call_indirect timer_tick_hook_lo, timer_tick_hook_hi
+    incf timer_cpt, F
     ;; ack it
     bcf PIR1, CCP1IF
 timer_it_end:
     endm
 
 #ifndef TIMER_M
-    extern timer_tick_hook_lo
-    extern timer_tick_hook_hi
-
     extern timer_init
 #endif

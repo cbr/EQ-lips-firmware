@@ -10,7 +10,7 @@
 #define TIMER_HARD_PRESCALLER       .4
 #define TIMER_BASE_FREQ             .8000000
 #define TIMER_NB_MS_IN_SEC          .1000
-#define TIMER_PERIOD_MS             .10
+#define TIMER_PERIOD_MS             .1
 
 #define TIMER_VAL       (TIMER_PERIOD_MS*TIMER_BASE_FREQ)/(TIMER_NB_MS_IN_SEC*TIMER_CONFIG_PRESCALER*TIMER_HARD_PRESCALLER)
 
@@ -19,10 +19,6 @@
 
 
     UDATA
-timer_tick_hook_lo  RES 1
-    global timer_tick_hook_lo
-timer_tick_hook_hi  RES 1
-    global timer_tick_hook_hi
 
 
 ; relocatable code
@@ -33,14 +29,6 @@ COMMON CODE
 ;;; param2: addrh of function to be called at each tick
 timer_init:
     global timer_init
-
-    ;; Save params
-    banksel timer_tick_hook_lo
-    movf param1, W
-    movwf timer_tick_hook_lo
-    banksel timer_tick_hook_hi
-    movf param2, W
-    movwf timer_tick_hook_hi
 
     ;; Prescaller 1:8
     banksel T1CON
