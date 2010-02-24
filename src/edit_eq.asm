@@ -60,7 +60,7 @@ edit_eq_show:
 
     movlw 1
     movwf current_bank
-    menu_start
+    menu_start trem_manage
     ;; menu_label_int 0, current_bank
     menu_edit st_bank, 1, 1, 0x10, current_bank, edit_eq_load, 0
     menu_edit_no_show st_save, 2, 1, 0x10, current_bank, edit_eq_refreh, edit_eq_save
@@ -175,13 +175,6 @@ prepare_trem
 
 trem_manage:
 #if 1
-    ;; Check if timer event has occured
-    movf timer_cpt, W
-    btfsc STATUS, Z
-    ;; no event
-    goto trem_manage_end
-    ;; timer event !
-    decf timer_cpt, F
     ;; increment gain value
     ;; gain16 = gain16 + inc
     math_copy_16 gain16, number_a

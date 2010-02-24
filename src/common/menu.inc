@@ -133,9 +133,10 @@ menu_event_dispatch_end:
 ;;; and the 'menu_end' macro. In 'menu_start' the action
 ;;; (or event) to be managed is evaluated. Actions are separated
 ;;; in two categories : states and sub-states.
+;;; tick_function: function called at every timer tick (period to be checked in timer.h)
 ;;; Changed registers: menu_value, menu_action, param1
 ;;;
-menu_start macro
+menu_start macro tick_function
     VARIABLE MENU_NB_ENTRY=0
     local menu_start_quit
     local menu_start_check_focus_change
@@ -146,6 +147,8 @@ menu_start macro
     local menu_start_state_none_check_event
     local menu_start_check_leave_select
     local menu_start_check_refresh
+    local menu_start_check_tick
+
     call_other_page lcd_clear
     ;; init variables
     banksel menu_value
@@ -174,6 +177,21 @@ menu_start_end_return_#v(menu_number)
     ;; No action defined
 
     ;; **** ALL STATE ****
+
+menu_start_check_tick:
+    ;; Check if timer event has occured
+    movf timer_cpt, W
+    btfsc STATUS, Z
+    ;; No timer event -> check next event
+    goto menu_start_check_refresh
+    ;; Timer event has occured
+    ;; -> decrement timer cpt
+    decf timer_cpt, F
+    ;; -> call tick function
+    call tick_function
+    ;; Now, restart event analyse
+    goto menu_start_end_return
+
 menu_start_check_refresh:
     movf menu_state_asked_action, W
     sublw MENU_STATE_ASK_ACTION_REFRESH
