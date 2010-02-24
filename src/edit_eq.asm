@@ -35,7 +35,7 @@ trem_type       RES 1
     ;; Data update info
 update_info     RES 1
     ;; Temporary activation data
-all_numpot_16   RES (2*7)
+all_numpot_16   RES (2*9)
 ;; all_inc_16      RES (2*11)
 
 

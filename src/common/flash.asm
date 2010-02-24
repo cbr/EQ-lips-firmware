@@ -8,7 +8,6 @@
 
 
     UDATA
-var1       RES 1
 
 
 ; relocatable code

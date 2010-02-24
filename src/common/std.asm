@@ -7,7 +7,6 @@
 #include <flash.inc>
 
     UDATA
-flash_var1       RES 1
 
 ;;; relocatable code
 COMMON CODE
