@@ -19,11 +19,24 @@
 
 #define EDIT_EQ_BANK_EESIZE_SHT     0x04
 
+#define TREM_TYPE_NONE              0x00
+#define TREM_TYPE_SIMPLE            0x01
+#define TREM_TYPE_EQ                0x02
+
     UDATA
-edit_eq_tmp      RES 1
-gain16      RES 2
-inc         RES 2
-trem_nb_val RES 1
+edit_eq_tmp     RES 1
+gain16          RES 2
+inc             RES 2
+trem_nb_val     RES 1
+    ;; Sources data
+numpot_values_a RES 11
+numpot_values_b RES 11
+trem_type       RES 1
+    ;; Data update info
+update_info     RES 1
+    ;; Temporary activation data
+all_numpot_16   RES (2*7)
+;; all_inc_16      RES (2*11)
 
 
 ; relocatable code
