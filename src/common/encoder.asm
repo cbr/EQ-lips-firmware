@@ -12,7 +12,7 @@
 #define ENCODER_DEFAULT_MIN_VALUE 0x00
 #define ENCODER_DEFAULT_MAX_VALUE 0x15
 
-    UDATA
+COMMON_VAR UDATA
 encoder_min_value RES 1 ; encoder minimum value
     global encoder_min_value
 encoder_max_value RES 1 ; encoder maximum value

@@ -20,10 +20,9 @@
 ;;; Max value
 #define NUMPOT_MAX_VALUE            0xFF
 
-    UDATA
+COMMON_VAR UDATA
 potvalues           RES NUMPOT_NB_POT_BY_CHIP*NUMPOT_NB_CHIP
     global potvalues
-    UDATA_OVR
 remaining_chip      RES 1
 num_pot             RES 1
 num_pot_in_cmd      RES 1

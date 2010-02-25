@@ -6,7 +6,7 @@
 #include <io.inc>
 #include <flash.inc>
 
-    UDATA
+COMMON_VAR UDATA
 
 ;;; relocatable code
 COMMON CODE

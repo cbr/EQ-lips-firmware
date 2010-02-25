@@ -20,7 +20,7 @@
 #define LCD_INT_DEC_POS_10     0x02
 #define LCD_INT_DEC_POS_1      0x01
 
-    UDATA_OVR
+COMMON_VAR UDATA
 var1       RES 1
 var2       RES 1
 var3       RES 1

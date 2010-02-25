@@ -7,9 +7,6 @@
 
 
 
-    UDATA
-
-
 ; relocatable code
 COMMON CODE
 

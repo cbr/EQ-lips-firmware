@@ -9,7 +9,7 @@
 #include <encoder.inc>
 #include <delay.inc>
 
-    UDATA
+COMMON_VAR UDATA
 menu_edit_var1               RES 1
 ;;; relocatable code
 COMMON CODE

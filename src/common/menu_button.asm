@@ -11,7 +11,7 @@
 
 #define MENU_BUTTON_NB_DRAW_SELECT  0x8
 
-    UDATA
+COMMON_VAR UDATA
 menu_button_var1               RES 1
 menu_button_var2               RES 1
 

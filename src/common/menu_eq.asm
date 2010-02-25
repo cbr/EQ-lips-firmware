@@ -14,7 +14,7 @@
 #define MENU_EQ_ZERO_VALUE          0x10
 #define MENU_EQ_VALUE_TO_LCD_SHT    0x00
 
-    UDATA
+COMMON_VAR UDATA
 menu_eq_last_value         RES 1
     global menu_eq_last_value
 menu_eq_var1               RES 1

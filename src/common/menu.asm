@@ -9,7 +9,7 @@
 
 #define MENU_BUTTON_NB_DRAW_SELECT  0x8
 
-    UDATA
+COMMON_VAR UDATA
 menu_state              RES 1
     global menu_state
 menu_state_asked_action        RES 1

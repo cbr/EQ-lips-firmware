@@ -1,4 +1,4 @@
- UDATA_OVR
+COMMON_VAR UDATA
 delay      RES 1 ; variable used for context saving
 
 ; relocatable code

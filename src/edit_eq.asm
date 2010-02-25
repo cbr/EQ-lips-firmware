@@ -23,7 +23,7 @@
 #define TREM_TYPE_SIMPLE            0x01
 #define TREM_TYPE_EQ                0x02
 
-    UDATA
+PROG_VAR_1 UDATA
 edit_eq_tmp     RES 1
 gain16          RES 2
 inc             RES 2
@@ -34,9 +34,11 @@ numpot_values_b RES 11
 trem_type       RES 1
     ;; Data update info
 update_info     RES 1
+
     ;; Temporary activation data
-all_numpot_16   RES (2*9)
-;; all_inc_16      RES (2*11)
+PROG_VAR_2 UDATA
+all_numpot_16   RES (2*11)
+all_inc_16      RES (2*11)
 
 
 ; relocatable code

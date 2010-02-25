@@ -35,3 +35,6 @@ SECTION    NAME=EQ_PROG    ROM=page3      // ROM code space - page3
 SECTION    NAME=IDLOCS   ROM=.idlocs    // ID locations
 SECTION    NAME=DEEPROM  ROM=eedata     // Data EEPROM
 SECTION    NAME=MATH_VAR    RAM=gpr_math
+SECTION    NAME=PROG_VAR_1    RAM=gpr0
+SECTION    NAME=PROG_VAR_2    RAM=gpr2
+SECTION    NAME=COMMON_VAR    RAM=gpr1

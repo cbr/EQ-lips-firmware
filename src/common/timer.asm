@@ -18,7 +18,7 @@
 #define TIMER_VAL_LO    (TIMER_VAL & 0x00FF)
 
 
-    UDATA
+COMMON_VAR UDATA
 
 
 ; relocatable code
