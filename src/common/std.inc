@@ -38,6 +38,13 @@ call_indirect_push:
 call_indirect_end:
     endm
 
+mem_clear macro base_addr, length
+    if (length > 0)
+        clrf base_addr
+        mem_clear (base_addr+1), (length-1)
+    endif
+    endm
+
 #ifndef STD_M
     extern std_strlen
 #endif

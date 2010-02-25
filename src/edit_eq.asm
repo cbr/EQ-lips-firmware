@@ -228,4 +228,13 @@ trem_manage:
 trem_manage_end:
     banksel 0
     return
+
+;;; Function called when input data have been changed
+;;; (because of gui data change or bank load)
+data_update:
+    ;; Reset all_inc_16 and all_numpot_16
+
+    ;; clear all_inc_16
+    mem_clear all_inc_16, (2*11)
+    return
 END
