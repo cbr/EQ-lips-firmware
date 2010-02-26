@@ -13,13 +13,9 @@
 #include <encoder.inc>
 #include <interrupt.inc>
 #include <numpot.inc>
-#include <eeprom.inc>
 #include <math.inc>
+#include <bank.inc>
 ;; #include <menu_label.inc>
-
-#define NB_NUMPOT_VALUES            0xB
-
-#define EDIT_EQ_BANK_EESIZE_SHT     0x04
 
 #define TREM_TYPE_NONE              0x00
 #define TREM_TYPE_SIMPLE            0x01
@@ -31,18 +27,10 @@
 #define SHIFT_NUMPOT_VAL_TO_HIGH_ORDER  0x03
 
 PROG_VAR_1 UDATA
-edit_eq_tmp     RES 1
 gain16          RES 2
 inc             RES 2
 trem_nb_val     RES 1
-    ;; Sources data
-numpot_values_a RES NB_NUMPOT_VALUES
-numpot_values_b RES NB_NUMPOT_VALUES
-trem_type       RES 1
-;;; amplitude of simple tremolo (in %)
-trem_rate       RES 1
-;;; number of inc value in a half period of tremolo (=speed of tremolo)
-trem_nb_inc     RES 1
+
 trem_inc_cpt    RES 1
 ;;; Data update info. Tell if numpot have to be updated or not.
 ;;; If this value is not 0, then data have to be updated.
@@ -54,8 +42,8 @@ index           RES 1
 
     ;; Temporary activation data
 PROG_VAR_2 UDATA
-all_numpot_16   RES (2*NB_NUMPOT_VALUES)
-all_inc_16      RES (2*NB_NUMPOT_VALUES)
+all_numpot_16   RES (2*BANK_NB_NUMPOT_VALUES)
+all_inc_16      RES (2*BANK_NB_NUMPOT_VALUES)
 
 
 ; relocatable code
@@ -72,7 +60,7 @@ edit_eq_save:
     movf current_bank, W
     movwf param1
     decf param1, F
-    call edit_eq_save_bank
+    call bank_save
     return
 
 edit_eq_load:
@@ -80,7 +68,7 @@ edit_eq_load:
     movf current_bank, W
     movwf param1
     decf param1, F
-    call edit_eq_load_bank
+    call bank_load
     call_other_page numpot_send_all
     menu_ask_refresh
     return
@@ -109,66 +97,6 @@ edit_eq_show:
     menu_eq (0x5*0xB + 0x3D), potvalues+0xA, numpot_send_all
     menu_end
 
-
-;;; Save current eq values in eeprom
-;;; param1: bank number
-edit_eq_save_bank:
-    ;; set param1 to the start of bank in eeprom
-    lshift_f param1, EDIT_EQ_BANK_EESIZE_SHT
-    ;; Prepare current value counter
-    clrf edit_eq_tmp
-
-edit_eq_save_bank_loop:
-    ;; Calculate value addr
-    movlw potvalues
-    addwf edit_eq_tmp, W
-    ;; Derefenrence value
-    movwf FSR
-    movf INDF, W
-    ;; Put value in param2
-    movwf param2
-    ;; Store in eeprom
-    call_other_page eeprom_write
-    ;; next value
-    incf param1, F
-    incf edit_eq_tmp, F
-    ;; loop in order to store all values
-    movf edit_eq_tmp, W
-    sublw (NUMPOT_NB_CHIP * NUMPOT_NB_POT_BY_CHIP)
-    btfss STATUS, Z
-    goto edit_eq_save_bank_loop
-
-    return
-
-;;; Load a memorized bank from eeprom to numpot
-;;; param1: bank number
-edit_eq_load_bank:
-    ;; set param1 to the start of bank in eeprom
-    lshift_f param1, EDIT_EQ_BANK_EESIZE_SHT
-    ;; Prepare current value counter
-    clrf edit_eq_tmp
-
-edit_eq_load_bank_loop:
-    ;; Calculate value addr
-    movlw potvalues
-    addwf edit_eq_tmp, W
-    ;; Prepare pointer
-    movwf FSR
-    ;; Get value from eeprom
-    call_other_page eeprom_read
-    ;; Store in numpot memory
-    movwf INDF
-
-    ;; next value
-    incf param1, F
-    incf edit_eq_tmp, F
-    ;; loop in order to store all values
-    movf edit_eq_tmp, W
-    sublw (NUMPOT_NB_CHIP * NUMPOT_NB_POT_BY_CHIP)
-    btfss STATUS, Z
-    goto edit_eq_load_bank_loop
-
-    return
 
 edit_eq_refreh:
     menu_ask_refresh
@@ -257,10 +185,10 @@ data_change:
 
     ;; Manage simple tremolo
 
-    ;; inc = amplitude / trem_nb_inc
-    ;; inc = (numpot_values_a - (numpot_values_a * trem_rate / 100)) / trem_nb_inc
-    ;; inc = 16 (shifted) / trem_nb_inc
-    ;; inc = 0x4000 / trem_nb_inc = 0x147
+    ;; inc = amplitude / bank_nb_inc
+    ;; inc = (numpot_values_a - (numpot_values_a * trem_rate / 100)) / bank_nb_inc
+    ;; inc = 16 (shifted) / bank_nb_inc
+    ;; inc = 0x4000 / bank_nb_inc = 0x147
 
     ;; Calculate numpot_values_a * trem_rate / 100
 #if 1
@@ -271,9 +199,9 @@ data_change:
     lshift_f all_inc_16+(0xA*2)+1, 3
     clrf all_numpot_16+(0xA*2)
 
-    banksel trem_nb_inc
+    banksel bank_nb_inc
     movlw 0x32
-    movwf trem_nb_inc
+    movwf bank_nb_inc
 
     banksel trem_inc_cpt
     clrf trem_inc_cpt
@@ -307,7 +235,7 @@ data_update:
 
     ;; Prepate loop
     banksel index
-    movlw NB_NUMPOT_VALUES
+    movlw BANK_NB_NUMPOT_VALUES
     movwf index
 data_update_loop_update_gain:
     ;; Put address of 16 bit increment (all_inc_16) value in FSR
@@ -378,11 +306,11 @@ data_update_loop_update_gain:
     ;; End of half period
     ;; -> trem_inc_cpt need to be reset and all_inc_16 have to be negated
     ;; Reinit trem_inc_cpt
-    movf trem_nb_inc, W
+    movf bank_nb_inc, W
     movwf trem_inc_cpt
     ;; Prepare loop
     banksel index
-    movlw NB_NUMPOT_VALUES
+    movlw BANK_NB_NUMPOT_VALUES
     movwf index
 data_update_loop_negate_inc:
     ;; inverse inc
