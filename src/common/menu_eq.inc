@@ -23,6 +23,7 @@ menu_eq_init:
     movwf param1
     movlw value_addr
     movwf FSR
+    bankisel value_addr
     movf INDF, W
     movwf param2
     call_other_page menu_draw_eq_band
@@ -41,6 +42,7 @@ menu_eq_select:
     movwf param1
     movlw value_addr
     movwf param2
+    bankisel value_addr
     call_other_page menu_eq_manage_select
     goto menu_eq_undef
 
@@ -55,6 +57,7 @@ menu_eq_select_value_change:
     movwf param1
     movlw value_addr
     movwf param2
+    bankisel value_addr
     call_other_page menu_eq_manage_select_value_change
     call_other_page on_value_change_func
     goto menu_eq_undef
@@ -68,6 +71,7 @@ menu_eq_refresh:
     movwf param1
     movlw value_addr
     movwf FSR
+    bankisel value_addr
     movf INDF, W
     movwf param2
     call_other_page menu_refresh_eq_band

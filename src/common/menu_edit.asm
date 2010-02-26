@@ -15,10 +15,13 @@ menu_edit_var1               RES 1
 COMMON CODE
 
 ;;; Manage value change of edit
+
 ;;; param1: addrl of null terminated string
 ;;; param2: addrh of null terminated string
 ;;; param3: y position of edit
-;;; param4: address of edit value
+;;; param4: address of edit value. IRP bit of STATUS register must be correctly
+;;;         set before calling this function in order to read the value with the
+;;;         help of FSR/INDF
 menu_edit_manage_select_value_change:
     global menu_edit_manage_select_value_change
     ;; save param3 and param4

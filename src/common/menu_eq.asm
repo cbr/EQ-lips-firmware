@@ -26,7 +26,7 @@ COMMON CODE
 
 ;;; Draw eq band rectangle value
 ;;; param1: band x position
-;;; param2: band value
+;;; param2: band value.
 menu_draw_eq_band:
     global menu_draw_eq_band
 
@@ -158,7 +158,9 @@ menu_eq_draw_select:
 ;;; Manage eq band selection: change value with encoder and return from selection
 ;;; when encoder sw is pressed
 ;;; param1: band x position
-;;; param2: address of eq value
+;;; param2: address of eq value. IRP bit of STATUS register must be correctly
+;;;         set before calling this function in order to read the value with the
+;;;         help of FSR/INDF
 ;;; Changed registers: menu_eq_var1
 ;;;
 menu_eq_manage_select:
@@ -201,7 +203,9 @@ menu_eq_manage_unselect:
 ;;; Manage eq band selection: change value with encoder and return from selection
 ;;; when encoder sw is pressed
 ;;; param1: band x position
-;;; param2: address of eq value
+;;; param2: address of eq value. IRP bit of STATUS register must be correctly
+;;;         set before calling this function in order to read the value with the
+;;;         help of FSR/INDF
 ;;; Changed registers: menu_eq_var1
 ;;;
 menu_eq_manage_select_value_change:
@@ -213,6 +217,7 @@ menu_eq_manage_select_value_change:
     movwf menu_eq_var1
     ;; FSR is not used by called functions, so it can be directly set
     movf param2, W
+    ;; fixme: FSR bank
     movwf FSR
 
     ;; undraw band

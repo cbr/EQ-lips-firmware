@@ -49,6 +49,7 @@ bank_save_loop:
     movlw potvalues
     addwf bank_tmp, W
     ;; Derefenrence value
+    bankisel potvalues
     movwf FSR
     movf INDF, W
     ;; Put value in param2
@@ -85,6 +86,7 @@ bank_load_loop:
     ;; Get value from eeprom
     call_other_page eeprom_read
     ;; Store in numpot memory
+    banksel potvalues
     movwf INDF
 
     ;; next value

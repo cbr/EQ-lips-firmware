@@ -21,6 +21,7 @@ menu_label_init_or_refresh:
     ;; Print value
     movlw value_addr
     movwf FSR
+    bankisel value_addr
     movf INDF, W
     movwf param1
     clrf param2

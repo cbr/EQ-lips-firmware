@@ -88,6 +88,7 @@ numpot_send_all_next_chip:
     addwf num_pot, W
 
     ;; Get pot value (in W)
+    bankisel potvalues
     movwf FSR
     movf INDF, W
 #ifdef NUMPOT_MAPPING
@@ -134,8 +135,8 @@ numpot_set_one_value:
     global numpot_set_one_value
     movlw potvalues
     addwf param1, W
-    ;; INDF and FSR are mapped on all pages, so non banksel is needed
     movwf FSR
+    bankisel potvalues
     movf param2, W
     movwf INDF
     return
