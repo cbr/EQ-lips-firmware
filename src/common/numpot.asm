@@ -46,38 +46,10 @@ numpot_send_chained_values macro command, num_pot_in_chip, nb_chip
     endif
     endm
 
-;;; send all values to all chips
-;;; Changed registers: none
-numpot_send_all_old:
-    global numpot_send_all_old
-
-    ; set CS
-    banksel SPI_CS_PORT
-    bcf SPI_CS_PORT, SPI_CS_BIT
-
-    numpot_send_chained_values 0x11, 0, NUMPOT_NB_CHIP
-
-    ;; unset CS
-    banksel SPI_CS_PORT
-    bsf SPI_CS_PORT, SPI_CS_BIT
-
-    ; set CS
-    banksel SPI_CS_PORT
-    bcf SPI_CS_PORT, SPI_CS_BIT
-
-    numpot_send_chained_values 0x12, 1, NUMPOT_NB_CHIP
-
-    ;; unset CS
-    banksel SPI_CS_PORT
-    bsf SPI_CS_PORT, SPI_CS_BIT
-
-    banksel 0
-
-    return
-
-
+;;;
 ;;; send all values to all chips
 ;;; used variables: var1
+;;;
 numpot_send_all:
     global numpot_send_all
 
@@ -151,11 +123,13 @@ numpot_send_all_next_chip:
 
     return
 
+;;;
 ;;; Set internal value of a potentiometer.
 ;;; The value is stored but transmitted to tye real potentiometer
 ;;; param1: potentiometer number
 ;;; param2: value
 ;;; Changed registers: none
+;;;
 numpot_set_one_value:
     global numpot_set_one_value
     movlw potvalues
