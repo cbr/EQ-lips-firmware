@@ -1,3 +1,4 @@
+* Fix IDF/FSR bank access (with bankisel and other things)
 
 * Manage stomp switch
 ** Stomp switch 1: bypass, hardware only
@@ -11,9 +12,13 @@
               - in select mode : next bank with activation
               - in no_select mode: select current bank
          long: enter in no_select mode, change to next bank with blink
+
 * Manage generic bank module
-* Manage tremolo prepare
-* Test tremolo update
+** Save bank in flash if enough flash mem is available
+
+* Manage Tremolo
+** Manage tremolo prepare
+** Test tremolo update
 
 * Gui
 ** Context label and value
