@@ -107,6 +107,7 @@ lcd_init:
 lcd_clear:
     global lcd_clear
     movlw 4 ; number of page
+    banksel var1
     movwf var1
 
 loop_pages:
@@ -125,6 +126,7 @@ loop_pages:
 
     ; set page var1
     movlw LCD_SET_PAGE_ADDRESS
+    banksel var1
     decf var1, F
     iorwf var1, W
     movwf param1
@@ -144,7 +146,7 @@ loop_column:
     bcf param2, LCD_FIRST_CHIP
     call lcd_write
 
-
+    banksel var2
     decfsz var2, F
     goto loop_column
 
@@ -163,6 +165,7 @@ lcd_plot:
     global lcd_plot
     ; store param1
     movf param1, W
+    banksel var1
     movwf var1
     ; store param2
     movf param2, W
@@ -195,6 +198,7 @@ lcd_plot_set_clmn:
     ; *** get pixel number in byte to set
     ; w = var2 & PIXEL_MASK
     movlw PIXEL_MASK
+    banksel var2
     andwf var2, W
     ; put it in var1
     movwf var1
@@ -229,6 +233,7 @@ lcd_plot_set_clmn:
     ; *** Set pixel
     ; var2 = 1
     movlw 0x01
+    banksel var2
     movwf var2
     ; if var1 = 0 then goto lcd_plot_set_pix_after
     movf var1, F
@@ -237,6 +242,7 @@ lcd_plot_set_clmn:
     ; shift bar2
     bcf STATUS, C
 lcd_plot_set_pix:
+    banksel var2
     rlf var2, F
     ; var-- and loop while != 0
     decfsz var1, F
@@ -249,12 +255,14 @@ lcd_plot_set_pix_after:
 lcd_plot_unset:
     ; var2 = !var2 (equiv to xor 0xFF)
     movlw 0xFF
+    banksel var2
     xorwf var2, W
     andwf param1, F
     goto lcd_plot_write
 
 lcd_plot_set:
     ; move var2 in w (mask to write)
+    banksel var2
     movf var2, W
     ; param1 = param1 | w
     iorwf param1, F
@@ -284,6 +292,7 @@ lcd_rectangle:
 
     ; store param1
     movf param1, W
+    banksel var1
     movwf var1
     ; store param2
     movf param2, W
@@ -304,6 +313,7 @@ lcd_rect_chip_1:
 
 lcd_rect_chip_2:
     ; memorize x in chip 2 in param1
+    banksel var1
     movwf var1
     bcf param2, LCD_FIRST_CHIP
 
@@ -311,6 +321,7 @@ lcd_rect_chip_2:
 lcd_rect_y:
     ; ** get lastpixel number in byte to set
     ; param4 = var2 + param4 - 1(= absolute y2)
+    banksel var2
     movf var2, W
     addwf param4, F
     decf param4, F
@@ -373,6 +384,7 @@ lcd_rect_page_loop:
     ; w = LCD_SET_PAGE_ADDRESS
     movlw LCD_SET_PAGE_ADDRESS
     ; w = w | var3
+    banksel var3
     iorwf var3, W
     ; param1 = w
     movwf param1
@@ -385,6 +397,7 @@ lcd_rect_page_loop:
     ; * begining of the rectangle
     ; var7 = 0xFF
     movlw 0xFF
+    banksel var7
     movwf var7
 
     ; if var2 = 0 then goto lcd_rect_set_pix_start_after
@@ -394,6 +407,7 @@ lcd_rect_page_loop:
     ; shift var7
 lcd_rect_set_pix_start:
     bcf STATUS, C
+    banksel var7
     rlf var7, F
     ; var-- and loop while != 0
     decfsz var2, F
@@ -404,6 +418,7 @@ lcd_rect_set_pix_start_after:
     ; if var5 (number of page) is 1, it means it is the last page
     ; So wee need to calculate the end rectangle mask
     movlw 1
+    banksel var5
     subwf var5, W
     btfss STATUS, Z
     goto lcd_rect_set_clmn
@@ -423,18 +438,21 @@ lcd_rect_set_pix_start_after:
     ; shift var2 (and include 1 with CARRY flag)
 lcd_rect_set_pix_end:
     bsf STATUS, C
+    banksel var2
     rlf var2, F
     ; var-- and loop while != 0
     decfsz var4, F
     goto lcd_rect_set_pix_end
 lcd_rect_set_pix_end_after:
     ; apply end mask (var2) on var7
+    banksel var2
     movf var2, W
     andwf var7, F
 
     ; ** set start column (x1)
 lcd_rect_set_clmn:
     ; w = var1
+    banksel var1
     movf var1, W
     ; w |= LCD_COLUMN_ADDRESS
     iorlw LCD_COLUMN_ADDRESS
@@ -448,6 +466,7 @@ lcd_rect_set_clmn:
     call lcd_write
 
     movf param3, W
+    banksel var6
     movwf var6
 lcd_rect_column_loop:
     ; *** Get pixel in param1
@@ -460,6 +479,7 @@ lcd_rect_column_loop:
     btfss param5, LCD_XOR
     goto lcd_rect_set_unset
     ; param1 = param1 xor var7
+    banksel var7
     movf var7, W
     xorwf param1, F
     goto lcd_rect_write
@@ -470,12 +490,14 @@ lcd_rect_set_unset:
 lcd_rect_unset:
     ; var7 = !var7 (equiv to xor 0xFF)
     movlw 0xFF
+    banksel var7
     xorwf var7, W
     andwf param1, F
     goto lcd_rect_write
 
 lcd_rect_set:
     ; move var7 in w (mask to write)
+    banksel var7
     movf var7, W
     ; param1 = param1 | w
     iorwf param1, F
@@ -484,7 +506,7 @@ lcd_rect_write:
     ; call command
     call lcd_write
 
-
+    banksel var6
     decfsz var6, F
     goto lcd_rect_column_loop
 
@@ -499,6 +521,7 @@ lcd_rect_write:
     call lcd_write
 
     ; ** manage end of page loop
+    banksel var3
     incf var3, F
     decfsz var5, 1
     goto lcd_rect_page_loop
@@ -518,7 +541,7 @@ lcd_rect_write:
 ;       LCD_FIRST_CHIP -> write on first chip if set, on second otherwise
 lcd_write:
     global lcd_write
-
+    banksel LCD_A0_PORT
     ; Set A0 if data, unset else
     btfss param2, LCD_COMMAND
     bsf LCD_A0_PORT, LCD_A0_BIT
@@ -561,7 +584,7 @@ lcd_write:
 ;       LCD_FIRST_CHIP -> write on first chip if set, on second otherwise
 lcd_read:
     global lcd_read
-
+    banksel LCD_A0_PORT
     ; Set A0 if data, unset else
     btfss param2, LCD_COMMAND
     bsf LCD_A0_PORT, LCD_A0_BIT
@@ -612,6 +635,7 @@ set_lcd_data:
     call io_config_lcd_data_output
 
 #ifdef LCD_ALL_BIT_IN_SAME_REG
+    banksel LCD_DATA_PORT
     movf param1, W
     movwf LCD_DATA_PORT
 #else
@@ -640,6 +664,7 @@ get_lcd_data:
     clrf param1
 
 #ifdef LCD_ALL_BIT_IN_SAME_REG
+    banksel LCD_DATA_PORT
     movf LCD_DATA_PORT, W
     movwf param1
 #else
@@ -661,6 +686,7 @@ lcd_int_print_unit macro reg_value, unit, max_unit
     local lcd_int_print_unit_continue
     local lcd_int_print_unit_end
     movlw 0x00
+    banksel var2
     movwf var2
 
 lcd_int_print_unit_continue:
@@ -679,6 +705,7 @@ lcd_int_print_unit_continue:
 
 lcd_int_print_unit_end:
     ;; Print unit value
+    banksel var2
     movf var2, W
     addlw '0'
     movwf param1
@@ -707,7 +734,9 @@ lcd_int:
     movwf param1
     call lcd_char
 lcd_int_print_100:
+    banksel var3
     lcd_int_print_unit var3, 0x64, 2
+    banksel var4
     movf var4, W
     sublw LCD_INT_DEC_POS_10
     btfss STATUS, Z
@@ -716,7 +745,9 @@ lcd_int_print_100:
     movwf param1
     call lcd_char
 lcd_int_print_10:
+    banksel var3
     lcd_int_print_unit var3, 0x0A, 9
+    banksel var4
     movf var4, W
     sublw LCD_INT_DEC_POS_1
     btfss STATUS, Z
@@ -726,6 +757,7 @@ lcd_int_print_10:
     call lcd_char
 lcd_int_print_1:
     ;; Print last unit
+    banksel var3
     movf var3, W
     addlw '0'
     movwf param1
@@ -744,6 +776,7 @@ lcd_loc_string:
 
     ;; store param1 and param2
     movf param1, W
+    banksel var3
     movwf var3
     movf param2, W
     movwf var4
@@ -754,6 +787,7 @@ lcd_loc_string:
     clrf var5
 lcd_loc_string_loop:
     ;; locate
+    banksel var3
     movf var3, W
     movwf param1
     movf var4, W
@@ -767,12 +801,12 @@ lcd_loc_string_loop:
     call lcd_write
 #endif
     ;;  set addr to read
+    banksel var5
     movf var5, W
     addwf param3, W
     banksel EEADR
     movwf EEADR
 
-    banksel param4
     movf param4, W
     banksel EEADRH
     movwf EEADRH
@@ -785,7 +819,6 @@ lcd_loc_string_loop:
     bsf EECON1, RD
     nop
     nop
-    banksel 0
     ;; verify if last char
     banksel EEDAT
     movf EEDAT, W
@@ -796,25 +829,22 @@ lcd_loc_string_loop:
     ;; write read data in param1 and draw char
     banksel EEDAT
     movf EEDAT, W
-    banksel param1
     movwf param1
     call lcd_char
 
-    banksel 0
+    banksel var5
     incf var5, F
     incf var3, F
     goto lcd_loc_string_loop
 
 #if 0
     ;; end of read modify write
-    banksel 0
     bsf param2, LCD_COMMAND
     movlw LCD_END
     movwf param1
     call lcd_write
 #endif
 lcd_loc_string_end:
-    banksel 0
 #if 0
     lcd_send_cmd_1 LCD_END, 0
     lcd_send_cmd_2 LCD_END, 0
@@ -829,13 +859,13 @@ lcd_string:
     global lcd_string
     ;; Save params
     movf param1, W
+    banksel var3
     movwf var3
     movf param2, W
     movwf var4
 
     ;; *** Draw string
     ;; init position counter (in var5)
-    banksel var5
     clrf var5
 lcd_string_loop:
 #if 0
@@ -846,6 +876,7 @@ lcd_string_loop:
     call lcd_write
 #endif
     ;;  set addr to read
+    banksel var5
     movf var5, W
     addwf var3, W
     banksel EEADR
@@ -878,20 +909,18 @@ lcd_string_loop:
     movwf param1
     call lcd_char
 
-    banksel 0
+    banksel var5
     incf var5, F
     goto lcd_string_loop
 
 #if 0
     ;; end of read modify write
-    banksel 0
     bsf param2, LCD_COMMAND
     movlw LCD_END
     movwf param1
     call lcd_write
 #endif
 lcd_string_end:
-    banksel 0
 #if 0
     lcd_send_cmd_1 LCD_END, 0
     lcd_send_cmd_2 LCD_END, 0
@@ -951,6 +980,7 @@ lcd_locate_mult_x_loop:
 
     ;; *** Set y position
     ;; lcd page 0
+    banksel var2
     movf var2, W
     iorlw LCD_SET_PAGE_ADDRESS
     movwf param1
@@ -967,7 +997,6 @@ lcd_char:
     ;;  restore param2 (the chip to be used)
     banksel lcd_save_chip
     movf lcd_save_chip, W
-    banksel param2
     movwf param2
 
     movlw FIRST_FONT_CHAR_NUM
@@ -979,13 +1008,12 @@ lcd_char:
     movwf EEADRH
     movlw low font
     movwf EEADR
-    banksel 0
+    banksel var1
     ;; add offset of char (4 times the character position):
     ;; loop LCD_CHAR_WIDTH times
     movlw LCD_CHAR_WIDTH
     movwf var1
 lcd_char_add_offset_loop:
-    banksel param1
     bcf STATUS, C
     movf param1, W
     banksel EEADR
@@ -996,7 +1024,6 @@ lcd_char_add_offset_loop:
     decfsz var1, F
     goto lcd_char_add_offset_loop
 
-    banksel 0
 #if 0
     ;; start read modify write
     movlw LCD_READ_MODIFY_WRITE
@@ -1006,6 +1033,7 @@ lcd_char_add_offset_loop:
 #endif
     ;; prepare loop var
     movlw LCD_CHAR_WIDTH
+    banksel var1
     movwf var1
 
 lcd_char_loop:
@@ -1016,14 +1044,11 @@ lcd_char_loop:
     nop
     nop
 
-    banksel 0
-
     ;; write data
     bcf param2, LCD_COMMAND
     banksel EEDAT
     ;; movlw FIRST_FONT_CHAR_NUM
     movf EEDAT, W
-    banksel 0
     movwf param1
     call lcd_write
 
@@ -1034,7 +1059,7 @@ lcd_char_loop:
     clrf EEADR
     incf EEADRH, F
 loop_char_end_loop:
-    banksel 0
+    banksel var1
     decfsz var1, F
     goto lcd_char_loop
 #if 0

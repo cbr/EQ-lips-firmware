@@ -56,6 +56,7 @@ menu_edit_manage_select_value_change:
     movf menu_edit_var1, W
     movwf param2
     call lcd_locate
+    banksel menu_select_value
     movf menu_select_value, W
     movwf param1
     call lcd_int

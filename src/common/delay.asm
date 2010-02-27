@@ -8,6 +8,7 @@ COMMON CODE
 delay_wait:
     return
     global delay_wait
+    banksel delay
     movwf delay
 delay_loop:
     decfsz delay, 1

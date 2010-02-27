@@ -70,14 +70,17 @@ numpot_send_all_next_pot_series:
 numpot_send_all_next_chip:
     ;; Send command
     movlw NUMPOT_SPI_COMMAND
+    banksel num_pot_in_cmd
     iorwf num_pot_in_cmd, W
     spi_send_w_and_wait
 
     ;; Calculate pot value address:
     ;; address = &potvalues + ((remaining_chip - 1) * NUMPOT_NB_POT_BY_CHIP) + num_pot)
     ;; w = remaining_chip-1
+    banksel remaining_chip
     decf remaining_chip, W
     ;; tmp = w
+    banksel tmp
     movwf tmp
     ;; tmp = tmp << NUMPOT_NB_POT_BY_CHIP_SHT
     lshift_f tmp, NUMPOT_NB_POT_BY_CHIP_SHT
@@ -85,6 +88,7 @@ numpot_send_all_next_chip:
     movlw potvalues
     addwf tmp, W
     ;; W = W + num_pot
+    banksel num_pot
     addwf num_pot, W
 
     ;; Get pot value (in W)
@@ -102,6 +106,7 @@ numpot_send_all_next_chip:
     spi_send_w_and_wait
 
     ;; next chip
+    banksel remaining_chip
     decfsz remaining_chip, F
     goto numpot_send_all_next_chip
 

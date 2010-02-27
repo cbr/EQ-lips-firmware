@@ -77,6 +77,7 @@ edit_eq_show:
     global edit_eq_show
 
     ;; call prepare_trem
+    call data_change
 
     movlw 1
     movwf current_bank
@@ -218,10 +219,11 @@ data_change:
 
 ;;;
 ;;; Function called at each tick to update numpot
-;;; Variable changes: number_a, nuùber_b, FSR,
+;;; Variable changes: number_a, number_b, FSR,
 ;;; all_numpot_16, all_inc_16, index, update_info
 ;;;
 data_update:
+#if 1
     ;; Check if numpot have to be changed
     banksel update_info
     movf update_info, W
@@ -353,6 +355,7 @@ data_update_loop_negate_inc:
     bcf update_info, UPDATE_ONE_TIME
 
     ;; Numpot have to be changed
+#endif
 data_update_end:
     return
 END

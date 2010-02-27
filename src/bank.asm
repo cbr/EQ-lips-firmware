@@ -42,11 +42,14 @@ bank_save:
     ;; set param1 to the start of bank in eeprom
     lshift_f param1, BANK_EESIZE_SHT
     ;; Prepare current value counter
+    banksel bank_tmp
     clrf bank_tmp
 
 bank_save_loop:
     ;; Calculate value addr
+    banksel potvalues
     movlw potvalues
+    banksel bank_tmp
     addwf bank_tmp, W
     ;; Derefenrence value
     bankisel potvalues
@@ -58,6 +61,7 @@ bank_save_loop:
     call_other_page eeprom_write
     ;; next value
     incf param1, F
+    banksel bank_tmp
     incf bank_tmp, F
     ;; loop in order to store all values
     movf bank_tmp, W
@@ -75,22 +79,26 @@ bank_load:
     ;; set param1 to the start of bank in eeprom
     lshift_f param1, BANK_EESIZE_SHT
     ;; Prepare current value counter
+    banksel bank_tmp
     clrf bank_tmp
 
 bank_load_loop:
     ;; Calculate value addr
+    banksel potvalues
     movlw potvalues
+    banksel bank_tmp
     addwf bank_tmp, W
     ;; Prepare pointer
     movwf FSR
     ;; Get value from eeprom
     call_other_page eeprom_read
     ;; Store in numpot memory
-    banksel potvalues
+    bankisel potvalues
     movwf INDF
 
     ;; next value
     incf param1, F
+    banksel bank_tmp
     incf bank_tmp, F
     ;; loop in order to store all values
     movf bank_tmp, W

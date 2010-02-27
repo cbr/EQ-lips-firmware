@@ -116,6 +116,7 @@ menu_draw_focus_eq_band:
     global menu_draw_focus_eq_band
     ;; save param
     movf param1, W
+    banksel menu_eq_var1
     movwf menu_eq_var1
     ;; draw left vertical line
     clrf param2
@@ -126,6 +127,7 @@ menu_draw_focus_eq_band:
     bsf param5, LCD_XOR
     call lcd_rectangle
     ;; draw right vertical line
+    banksel menu_eq_var1
     movf menu_eq_var1, W
     addlw MENU_EQ_BAND_FOCUS_WIDTH
     movwf param1
@@ -168,6 +170,7 @@ menu_eq_manage_select:
 
     ;; Save params
     movf param1, W
+    banksel menu_eq_var1
     movwf menu_eq_var1
     ;; FSR is not used by called functions, so it can be directly set
     movf param2, W
@@ -178,6 +181,7 @@ menu_eq_manage_select:
     ;; mem current value
     ;; FSR has been set at the beginning of function
     movf INDF, W
+    banksel menu_eq_last_value
     movwf menu_eq_last_value
     ;; configure encoder
     movwf param1
