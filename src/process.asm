@@ -9,8 +9,9 @@
 #include <bank.inc>
 #include <math.inc>
 #include <numpot.inc>
+#include <lcd.inc>
 
-#define SHIFT_NUMPOT_VAL_TO_HIGH_ORDER  0x03
+#define SHIFT_NUMPOT_VAL_TO_HIGH_ORDER  0x02
 #define UPDATE_ONE_TIME             0x01
 #define UPDATE_EVERY_TIME           0x02
 
@@ -46,8 +47,16 @@ process_change_conf:
 
 #if 1
     ;; for testing
-    movlw 0x50
+    movlw 0x0
     movwf bank_trem_rate
+
+    banksel bank_nb_inc
+    movlw 0x10
+    movwf bank_nb_inc
+    banksel trem_inc_cpt
+    movwf trem_inc_cpt
+
+
 #endif
 
     ;; Reset all_inc_16 and all_numpot_16
@@ -55,11 +64,59 @@ process_change_conf:
     ;; clear all_inc_16
     banksel all_inc_16
     mem_clear all_inc_16, (2*BANK_NB_NUMPOT_VALUES)
-    banksel all_numpot_16
-    mem_set all_numpot_16, (2*BANK_NB_NUMPOT_VALUES), 0x80
     ;; Manage simple tremolo
     ;; inc = amplitude / bank_nb_inc
     ;; inc = (numpot_values_a - (numpot_values_a * trem_rate / 100)) / bank_nb_inc
+
+#if 1
+#if 0
+    banksel index
+    movlw BANK_NB_NUMPOT_VALUES
+    movwf index
+process_change_conf_init_value_loop:
+#else
+    banksel all_numpot_16
+    mem_set all_numpot_16, (2*BANK_NB_NUMPOT_VALUES), 0x40
+    banksel index
+    movlw BANK_POS_GAIN_IN_NUMPOT
+    movwf index
+#endif
+    ;; Get value from bank_numpot_values
+    movlw bank_numpot_values
+    banksel index
+    addwf index, W
+    movwf FSR
+    decf FSR, F
+    bankisel bank_numpot_values
+    movf INDF, W
+    ;; Store value in param1 with appropriate shift
+    movwf param1
+    lshift_f param1, SHIFT_NUMPOT_VAL_TO_HIGH_ORDER
+    ;; Prepare all_numpot_16 ptr
+    banksel index
+    movf index, W
+    movwf FSR
+    decf FSR, F
+    lshift_f FSR, 1
+    movlw all_numpot_16
+    addwf FSR, F
+    bankisel all_numpot_16
+    ;; Clear lo byte
+    clrf INDF
+    ;; Store param1 into hi byte
+    incf FSR, F
+    movf param1, W
+    movwf INDF
+#if 0
+    ;; Next index, and loop
+    banksel index
+    decfsz index, F
+    goto process_change_conf_init_value_loop
+#endif
+#else
+    banksel all_numpot_16
+    mem_set all_numpot_16, (2*BANK_NB_NUMPOT_VALUES), 0x40
+#endif
 
     ;; Calculate bank_numpot_values[BANK_POS_GAIN_IN_NUMPOT] * trem_rate / 100
     ;; number_a = bank_numpot_values[BANK_POS_GAIN_IN_NUMPOT]
@@ -72,7 +129,7 @@ process_change_conf:
     movf bank_trem_rate, W
     math_banksel
     movwf number_b_lo
-    ;; number_c = number_a + number b
+    ;; number_c = number_a * number b
     call_other_page math_mult_08u08u_16u
     ;; number_b = number_c
     math_copy_16 number_c, number_b
@@ -83,20 +140,31 @@ process_change_conf:
     ;; number_b = number_b/number_a
     call_other_page math_div_16s16s_16s
     ;; number_a = number_b
-    math_copy_16 number_b, number_a
+    ;; left shift number_b of 8+SHIFT_NUMPOT_VAL_TO_HIGH_ORDER bits
+    ;; (the lo byte is put to hi byte and shifted by SHIFT_NUMPOT_VAL_TO_HIGH_ORDER)
+    movf number_b_lo, W
+    movwf number_a_hi
+    lshift_f number_a_hi, SHIFT_NUMPOT_VAL_TO_HIGH_ORDER
+    clrf number_a_lo
     ;; number_b = bank_numpot_values[BANK_POS_GAIN_IN_NUMPOT]
+    ;; left shift number_b of 8+SHIFT_NUMPOT_VAL_TO_HIGH_ORDER bits
+    ;; (the lo byte is put to hi byte and shifted by SHIFT_NUMPOT_VAL_TO_HIGH_ORDER)
     banksel bank_numpot_values+BANK_POS_GAIN_IN_NUMPOT
     movf bank_numpot_values+BANK_POS_GAIN_IN_NUMPOT, W
     math_banksel
-    movwf number_b_lo
-    clrf number_b_hi
+    movwf number_b_hi
+    lshift_f number_b_hi, SHIFT_NUMPOT_VAL_TO_HIGH_ORDER
+    clrf number_b_lo
     ;; number_b = number_b - number_a
     call_other_page math_sub_1616s
+#if 0
     ;; left shift number_b of 8+SHIFT_NUMPOT_VAL_TO_HIGH_ORDER bits
     ;; (the lo byte is put to hi byte and shifted by SHIFT_NUMPOT_VAL_TO_HIGH_ORDER)
     movf number_b_lo, W
     movwf number_b_hi
     lshift_f number_b_hi, SHIFT_NUMPOT_VAL_TO_HIGH_ORDER
+    clrf number_b_lo
+#endif
     ;; number_a = bank_nb_inc
     banksel bank_nb_inc
     movf bank_nb_inc, W
@@ -105,22 +173,34 @@ process_change_conf:
     clrf number_a_hi
     ;; number_b = number_b / number_a
     call_other_page math_div_16s16s_16s
-#if 1
+
     math_copy_16 number_b, all_inc_16+(BANK_POS_GAIN_IN_NUMPOT*2)
 
-#else
+#if 0
+    movlw 0x0
+    movwf param1
+    movlw 3
+    movwf param2
+    call_other_page lcd_locate
+    math_banksel
+    movf number_b_hi, W
+    movwf param1
+    clrf param2
+    call_other_page lcd_int
+    math_banksel
+    movf number_b_lo, W
+    movwf param1
+    clrf param2
+    call_other_page lcd_int
+#endif
+
+#if 0
     ;; For testing
     banksel all_numpot_16
     movlw .16
     movwf all_numpot_16+(0xA*2)+1
     lshift_f all_inc_16+(0xA*2)+1, 3
     clrf all_numpot_16+(0xA*2)
-
-    banksel bank_nb_inc
-    movlw 0x10
-    movwf bank_nb_inc
-    banksel trem_inc_cpt
-    movwf trem_inc_cpt
 
     banksel all_inc_16
     movlw 0x00
@@ -164,6 +244,7 @@ process_update_loop_update_gain:
     banksel index
     movf index, W
     movwf FSR
+    decf FSR, F
     lshift_f FSR, 1
     movlw all_inc_16
     addwf FSR, F
@@ -181,6 +262,7 @@ process_update_loop_update_gain:
     banksel index
     movf index, W
     movwf FSR
+    decf FSR, F
     lshift_f FSR, 1
     movlw all_numpot_16
     addwf FSR, F
@@ -213,6 +295,7 @@ process_update_loop_update_gain:
     banksel index
     movf index, W
     movwf param1
+    decf param1, F
     call_other_page numpot_set_one_value
 
     ;; Next index, and loop
@@ -240,6 +323,7 @@ process_update_loop_negate_inc:
     banksel index
     movf index, W
     movwf FSR
+    decf FSR, F
     lshift_f FSR, 1
     movlw all_inc_16
     addwf FSR, F

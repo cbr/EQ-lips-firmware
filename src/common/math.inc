@@ -16,14 +16,14 @@ math_banksel macro
     endm
 
 math_copy_16 macro number_from, number_to
-    banksel number_from
-    movf number_from, W
-    banksel number_to+1
-    movwf number_to+1
-    banksel number_from+1
-    movf number_from+1, W
-    banksel number_to+1
-    movwf number_to+1
+    banksel (number_from)
+    movf (number_from), W
+    banksel (number_to)
+    movwf (number_to)
+    banksel (number_from)+1
+    movf (number_from)+1, W
+    banksel (number_to)+1
+    movwf (number_to)+1
     endm
 
 #ifndef MATH_M

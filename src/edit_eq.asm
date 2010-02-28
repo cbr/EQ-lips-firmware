@@ -52,7 +52,7 @@ edit_eq_load:
     movwf param1
     decf param1, F
     call bank_load
-    ;; call_other_page numpot_send_all
+    call_other_page process_change_conf
     menu_ask_refresh
     return
 
@@ -76,17 +76,17 @@ edit_eq_show:
     ;; menu_label_int 0, current_bank
     menu_edit st_bank, 1, 1, 0x10, current_bank, edit_eq_load, 0
     menu_edit_no_show st_save, 2, 1, 0x10, current_bank, edit_eq_refreh, edit_eq_save
-    menu_eq (0x5*0 + 0x3D), bank_numpot_values, numpot_send_all
-    menu_eq (0x5*1 + 0x3D), bank_numpot_values+1, numpot_send_all
-    menu_eq (0x5*2 + 0x3D), bank_numpot_values+2, numpot_send_all
-    menu_eq (0x5*3 + 0x3D), bank_numpot_values+3, numpot_send_all
-    menu_eq (0x5*4 + 0x3D), bank_numpot_values+4, numpot_send_all
-    menu_eq (0x5*5 + 0x3D), bank_numpot_values+5, numpot_send_all
-    menu_eq (0x5*6 + 0x3D), bank_numpot_values+6, numpot_send_all
-    menu_eq (0x5*7 + 0x3D), bank_numpot_values+7, numpot_send_all
-    menu_eq (0x5*8 + 0x3D), bank_numpot_values+8, numpot_send_all
-    menu_eq (0x5*9 + 0x3D), bank_numpot_values+9, numpot_send_all
-    menu_eq (0x5*0xB + 0x3D), bank_numpot_values+0xA, numpot_send_all
+    menu_eq (0x5*0 + 0x3D), bank_numpot_values, process_change_conf
+    menu_eq (0x5*1 + 0x3D), bank_numpot_values+1, process_change_conf
+    menu_eq (0x5*2 + 0x3D), bank_numpot_values+2, process_change_conf
+    menu_eq (0x5*3 + 0x3D), bank_numpot_values+3, process_change_conf
+    menu_eq (0x5*4 + 0x3D), bank_numpot_values+4, process_change_conf
+    menu_eq (0x5*5 + 0x3D), bank_numpot_values+5, process_change_conf
+    menu_eq (0x5*6 + 0x3D), bank_numpot_values+6, process_change_conf
+    menu_eq (0x5*7 + 0x3D), bank_numpot_values+7, process_change_conf
+    menu_eq (0x5*8 + 0x3D), bank_numpot_values+8, process_change_conf
+    menu_eq (0x5*9 + 0x3D), bank_numpot_values+9, process_change_conf
+    menu_eq (0x5*0xB + 0x3D), bank_numpot_values+0xA, process_change_conf
     menu_end
 
 

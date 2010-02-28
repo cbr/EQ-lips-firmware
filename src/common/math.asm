@@ -71,7 +71,7 @@ math_neg_number_a_16s:
 ;;; Negate double precision number_b (INT16S)
 ;;;
 math_neg_number_b_16s:
-    global math_neg_number_a_16s
+    global math_neg_number_b_16s
     comf    number_b_lo, F       ; negate number_b ( - number_b -> number_b )
 	incf    number_b_lo, F
 	btfsc   STATUS,Z
