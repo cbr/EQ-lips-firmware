@@ -188,7 +188,7 @@ menu_start_check_tick:
     ;; -> decrement timer cpt
     decf timer_cpt, F
     ;; -> call tick function
-    call tick_function
+    call_other_page tick_function
     ;; Now, restart event analyse
     goto menu_start_end_return
 

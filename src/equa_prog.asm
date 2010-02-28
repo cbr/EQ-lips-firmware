@@ -175,7 +175,7 @@ test_switch:
     ;; goto $
 #endif
 
-#if 1
+#if 0
 #define INIT_VAL    0x10
     NUMPOT_SET_ONE_VALUE 0x0, INIT_VAL
     NUMPOT_SET_ONE_VALUE 0x1, INIT_VAL
@@ -189,22 +189,7 @@ test_switch:
     NUMPOT_SET_ONE_VALUE 0x9, INIT_VAL
     NUMPOT_SET_ONE_VALUE 0xA, INIT_VAL
     NUMPOT_SET_ONE_VALUE 0xB, INIT_VAL
-#if 0
-    NUMPOT_SET_ONE_VALUE 0x0, 0x32
-    NUMPOT_SET_ONE_VALUE 0x1, 0x32
-    NUMPOT_SET_ONE_VALUE 0x2, 0x32
-    NUMPOT_SET_ONE_VALUE 0x3, 0x4B
-    NUMPOT_SET_ONE_VALUE 0x4, 0x80
-    NUMPOT_SET_ONE_VALUE 0x5, 0x64
-    NUMPOT_SET_ONE_VALUE 0x6, 0x4B
-    NUMPOT_SET_ONE_VALUE 0x7, 0x32
-    NUMPOT_SET_ONE_VALUE 0x8, 0x32
-    NUMPOT_SET_ONE_VALUE 0x9, 0x32
-    ;; NUMPOT_SET_ONE_VALUE 0xA, 0xFF
-    NUMPOT_SET_ONE_VALUE 0xB, 0xFF
-#endif
 
-;; spi_test:
     call_other_page numpot_send_all
 
     ;; goto spi_test

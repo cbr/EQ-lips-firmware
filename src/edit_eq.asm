@@ -15,39 +15,22 @@
 #include <numpot.inc>
 #include <math.inc>
 #include <bank.inc>
+#include <process.inc>
 ;; #include <menu_label.inc>
 
 #define TREM_TYPE_NONE              0x00
 #define TREM_TYPE_SIMPLE            0x01
 #define TREM_TYPE_EQ                0x02
 
-#define UPDATE_ONE_TIME             0x01
-#define UPDATE_EVERY_TIME           0x02
-
-#define SHIFT_NUMPOT_VAL_TO_HIGH_ORDER  0x03
-
 PROG_VAR_1 UDATA
+#if 0
 gain16          RES 2
 inc             RES 2
 trem_nb_val     RES 1
-
-trem_inc_cpt    RES 1
-;;; Data update info. Tell if numpot have to be updated or not.
-;;; If this value is not 0, then data have to be updated.
-;;; Bit UPDATE_ONE_TIME tell to only update data one time, and bit
-;;; UPDATE_EVERY_TIME tell to update data at every tick.
-update_info     RES 1
-;;; Loop index used to update numpot next values
-index           RES 1
-
-    ;; Temporary activation data
-PROG_VAR_2 UDATA
-all_numpot_16   RES (2*BANK_NB_NUMPOT_VALUES)
-all_inc_16      RES (2*BANK_NB_NUMPOT_VALUES)
-
+#endif
 
 ; relocatable code
-EQ_PROG CODE
+EQ_PROG_1 CODE
 st_bank:
     dt "BANK: ", 0
 st_load:
@@ -76,12 +59,20 @@ edit_eq_load:
 edit_eq_show:
     global edit_eq_show
 
-    ;; call prepare_trem
-    call data_change
-
+    ;; select first bank
     movlw 1
     movwf current_bank
-    menu_start data_update
+#if 1
+    ;; load
+    movwf param1
+    decf param1, F
+    call_other_page bank_load
+#endif
+    ;; call prepare_trem
+    call_other_page process_change_conf
+
+
+    menu_start process_update
     ;; menu_label_int 0, current_bank
     menu_edit st_bank, 1, 1, 0x10, current_bank, edit_eq_load, 0
     menu_edit_no_show st_save, 2, 1, 0x10, current_bank, edit_eq_refreh, edit_eq_save
@@ -136,7 +127,7 @@ prepare_trem
 
 trem_manage:
     ;; increment gain value
-    ;; gain16 = gain16 + inc
+   ;; gain16 = gain16 + inc
     math_copy_16 gain16, number_a
     math_copy_16 inc, number_b
     math_banksel
@@ -174,193 +165,4 @@ trem_manage_end:
     return
 #endif
 
-;;;
-;;; Function called when input data have been changed
-;;; (because of gui data change or bank load)
-;;;
-data_change:
-    ;; Reset all_inc_16 and all_numpot_16
-
-    ;; clear all_inc_16
-    banksel all_inc_16
-    mem_clear all_inc_16, (2*BANK_NB_NUMPOT_VALUES)
-    banksel all_numpot_16
-    mem_set all_numpot_16, (2*BANK_NB_NUMPOT_VALUES), 0x80
-    ;; Manage simple tremolo
-
-    ;; inc = amplitude / bank_nb_inc
-    ;; inc = (numpot_values_a - (numpot_values_a * trem_rate / 100)) / bank_nb_inc
-    ;; inc = 16 (shifted) / bank_nb_inc
-    ;; inc = 0x4000 / bank_nb_inc = 0x147
-
-    ;; Calculate numpot_values_a * trem_rate / 100
-#if 1
-    ;; For testing
-    banksel all_numpot_16
-    movlw .16
-    movwf all_numpot_16+(0xA*2)+1
-    lshift_f all_inc_16+(0xA*2)+1, 3
-    clrf all_numpot_16+(0xA*2)
-
-    banksel bank_nb_inc
-    movlw 0x10
-    movwf bank_nb_inc
-    banksel trem_inc_cpt
-    movwf trem_inc_cpt
-
-    banksel all_inc_16
-    movlw 0x00
-    movwf all_inc_16+(0xA*2)
-    movlw 0x04
-    movwf all_inc_16+(0xA*2)+1
-
-    banksel update_info
-    bsf update_info, UPDATE_EVERY_TIME
-
-#endif
-    return
-
-
-
-;;;
-;;; Function called at each tick to update numpot
-;;; Variable changes: number_a, number_b, FSR,
-;;; all_numpot_16, all_inc_16, index, update_info
-;;;
-data_update:
-#if 1
-    ;; Check if numpot have to be changed
-    banksel update_info
-    movf update_info, W
-    btfsc STATUS, Z
-    goto data_update_end
-
-    ;; Send previously prepared numpot values
-    call_other_page numpot_send_all
-
-    ;; Prepare next values
-
-    ;; Prepate loop
-    banksel index
-    movlw BANK_NB_NUMPOT_VALUES
-    movwf index
-data_update_loop_update_gain:
-    ;; Put address of 16 bit increment (all_inc_16) value in FSR
-    banksel index
-    movf index, W
-    movwf FSR
-    lshift_f FSR, 1
-    movlw all_inc_16
-    addwf FSR, F
-    ;; take care of bank
-    bankisel all_inc_16
-    ;; Extract 16 bit value into number_a
-    math_banksel
-    movf INDF, W
-    movwf number_a_lo
-    incf FSR, F
-    movf INDF, W
-    movwf number_a_hi
-
-    ;; Put address of indexed 16 bit numpot (all_numpot_16) value in FSR
-    banksel index
-    movf index, W
-    movwf FSR
-    lshift_f FSR, 1
-    movlw all_numpot_16
-    addwf FSR, F
-    ;; take care of bank
-    bankisel all_numpot_16
-    ;; Extract 16 bit value into number_b
-    math_banksel
-    movf INDF, W
-    movwf number_b_lo
-    incf FSR, F
-    movf INDF, W
-    movwf number_b_hi
-
-    ;; add number_a and number_b
-    call_other_page math_add_1616s
-
-    ;; store back result (number_b) into all_numpot_16
-    movf number_b_hi, W
-    movwf INDF
-    decf FSR, F
-    movf number_b_lo, W
-    movwf INDF
-
-    ;; store value in numpot
-    ;; Set gain value (keep only the high order bits corresponding to real value)
-    movf number_b_hi, W
-    movwf param2
-    rshift_f param2, SHIFT_NUMPOT_VAL_TO_HIGH_ORDER
-    ;; set numpot index in param 1
-    banksel index
-    movf index, W
-    movwf param1
-    call_other_page numpot_set_one_value
-
-    ;; Next index, and loop
-    banksel index
-    decfsz index, F
-    goto data_update_loop_update_gain
-
-    ;; Check if inc values have to be negated
-    banksel trem_inc_cpt
-    decfsz trem_inc_cpt, F
-    goto data_update_end
-
-    ;; End of half period
-    ;; -> trem_inc_cpt need to be reset and all_inc_16 have to be negated
-    ;; Reinit trem_inc_cpt
-    movf bank_nb_inc, W
-    movwf trem_inc_cpt
-    ;; Prepare loop
-    banksel index
-    movlw BANK_NB_NUMPOT_VALUES
-    movwf index
-data_update_loop_negate_inc:
-    ;; inverse inc
-    ;; Put address of 16 bit increment (all_inc_16) value in FSR
-    banksel index
-    movf index, W
-    movwf FSR
-    lshift_f FSR, 1
-    movlw all_inc_16
-    addwf FSR, F
-    ;; take care of bank
-    bankisel all_inc_16
-    ;; Extract 16 bit value into number_a
-    math_banksel
-    movf INDF, W
-    movwf number_a_lo
-    incf FSR, F
-    movf INDF, W
-    movwf number_a_hi
-
-    call_other_page math_neg_number_a_16s
-
-    ;; store back value in all_inc_16
-    movf number_a_hi, W
-    movwf INDF
-    decf FSR, F
-    movf number_a_lo, W
-    movwf INDF
-
-    ;; Next index, and loop
-    banksel index
-    decfsz index, F
-    goto data_update_loop_negate_inc
-
-
-    ;; Remove UPDATE_ONE_TIME bit from update_info,
-    ;; in order to not update data next time if not needed (eg if
-    ;; UPDATE_EVERY_TIME bit is not set)
-    banksel update_info
-    bcf update_info, UPDATE_ONE_TIME
-
-    ;; Numpot have to be changed
-#endif
-data_update_end:
-    return
 END

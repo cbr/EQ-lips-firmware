@@ -1,4 +1,5 @@
 #define BANK_NB_NUMPOT_VALUES            0xB
+#define BANK_POS_GAIN_IN_NUMPOT          0xA
 
 #ifndef BANK_M
     ;; Variables

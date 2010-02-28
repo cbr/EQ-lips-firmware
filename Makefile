@@ -19,6 +19,7 @@ SRCS=src/common/numpot.asm \
 	src/equa_prog.asm \
 	src/edit_eq.asm \
 	src/bank.asm \
+	src/process.asm \
 
 IMGS=src/common/font.xcf
 

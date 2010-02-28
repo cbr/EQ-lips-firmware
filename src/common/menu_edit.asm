@@ -62,7 +62,7 @@ menu_edit_manage_select_value_change:
     call lcd_int
     ;; ***************
 menu_edit_manage_select_value_change_after_print:
-    ;; menu_ask_refresh
+
     return
 
 ;;; draw selection/deselection rectangle of menu edit
