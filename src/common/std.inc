@@ -45,6 +45,14 @@ mem_clear macro base_addr, length
     endif
     endm
 
+mem_set macro base_addr, length, value
+    if (length > 0)
+        movlw value
+        movwf base_addr
+        mem_set (base_addr+1), (length-1), value
+    endif
+    endm
+
 #ifndef STD_M
     extern std_strlen
 #endif

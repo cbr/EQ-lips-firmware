@@ -182,8 +182,10 @@ data_change:
     ;; Reset all_inc_16 and all_numpot_16
 
     ;; clear all_inc_16
-    mem_clear all_inc_16, (2*11)
-
+    banksel all_inc_16
+    mem_clear all_inc_16, (2*BANK_NB_NUMPOT_VALUES)
+    banksel all_numpot_16
+    mem_set all_numpot_16, (2*BANK_NB_NUMPOT_VALUES), 0x80
     ;; Manage simple tremolo
 
     ;; inc = amplitude / bank_nb_inc
@@ -201,17 +203,20 @@ data_change:
     clrf all_numpot_16+(0xA*2)
 
     banksel bank_nb_inc
-    movlw 0x32
+    movlw 0x10
     movwf bank_nb_inc
-
     banksel trem_inc_cpt
-    clrf trem_inc_cpt
+    movwf trem_inc_cpt
 
     banksel all_inc_16
-    movlw 0x47
+    movlw 0x00
     movwf all_inc_16+(0xA*2)
-    movlw 0x01
+    movlw 0x04
     movwf all_inc_16+(0xA*2)+1
+
+    banksel update_info
+    bsf update_info, UPDATE_EVERY_TIME
+
 #endif
     return
 
@@ -302,7 +307,7 @@ data_update_loop_update_gain:
 
     ;; Check if inc values have to be negated
     banksel trem_inc_cpt
-    decfsz data_update_end, F
+    decfsz trem_inc_cpt, F
     goto data_update_end
 
     ;; End of half period
