@@ -6,7 +6,6 @@
 #include <global.inc>
 #include <std.inc>
 #include <eeprom.inc>
-#include <numpot.inc>
 #include <bank.inc>
 
 #define BANK_EESIZE_SHT     0x04
@@ -15,10 +14,8 @@
 PROG_VAR_1 UDATA
     ;; GLOBAL
     ;; Sources data
-bank_numpot_values_a RES BANK_NB_NUMPOT_VALUES
-    global bank_numpot_values_a
-bank_numpot_values_b RES BANK_NB_NUMPOT_VALUES
-    global bank_numpot_values_b
+bank_numpot_values RES BANK_NB_NUMPOT_VALUES
+    global bank_numpot_values
 bank_trem_type       RES 1
     global bank_trem_type
 ;;; amplitude of simple tremolo (in %)
@@ -34,9 +31,81 @@ bank_tmp     RES 1
 
 ; relocatable code
 EQ_PROG CODE
-;;; Save current eq values in eeprom
+;;; Save current parameters into bank
 ;;; param1: bank number
 bank_save:
+    global bank_save
+
+    ;; save numpot values
+    movlw bank_numpot_values
+    movwf param2
+    bankisel bank_numpot_values
+    call bank_save_eq_gain
+    ;; param1 have been set to the next eeprom position
+    ;; in the previous function -> don't need to prepare it
+
+    ;; save trem type
+    banksel bank_trem_type
+    movf bank_trem_type, W
+    movwf param2
+    call_other_page eeprom_write
+    incf param1, F
+
+    ;; save trem rate
+    banksel bank_trem_rate
+    movf bank_trem_rate, W
+    movwf param2
+    call_other_page eeprom_write
+    incf param1, F
+
+    ;; save nb inc
+    banksel bank_nb_inc
+    movf bank_nb_inc, W
+    movwf param2
+    call_other_page eeprom_write
+
+    return
+
+;;; Load parameters from bank
+;;; param1: bank number
+bank_load:
+    global bank_load
+
+    ;; load numpot values
+    movlw bank_numpot_values
+    movwf param2
+    bankisel bank_numpot_values
+    call bank_load_eq_gain
+    ;; param1 have been set to the next eeprom position
+    ;; in the previous function -> don't need to prepare it
+
+    ;; save trem type
+    call_other_page eeprom_read
+    banksel bank_trem_type
+    movwf bank_trem_type
+    incf param1, F
+
+    ;; save trem rate
+    call_other_page eeprom_read
+    banksel bank_trem_rate
+    movwf bank_trem_rate
+    incf param1, F
+
+#if 0
+    ;; save nb inc
+    call_other_page eeprom_write
+    banksel bank_nb_inc
+    movwf bank_nb_inc
+#endif
+    return
+
+;;; Save current eq and gain values into a bank
+;;; param1: bank number
+;;; param2: address of buffer from which equalizer and gain config are read.
+;;;         IRP bit of STATUS register must be correctly set before calling
+;;;         this function in order to read the value with the help of FSR/INDF.
+;;; Changed registers: param3
+bank_save_eq_gain:
     global bank_save
 
     ;; set param1 to the start of bank in eeprom
@@ -44,15 +113,15 @@ bank_save:
     ;; Prepare current value counter
     banksel bank_tmp
     clrf bank_tmp
-
+    ;; Save param2 into param3
+    movf param2, W
+    movwf param3
 bank_save_loop:
     ;; Calculate value addr
-    banksel potvalues
-    movlw potvalues
+    movf param3, W
     banksel bank_tmp
     addwf bank_tmp, W
     ;; Derefenrence value
-    bankisel potvalues
     movwf FSR
     movf INDF, W
     ;; Put value in param2
@@ -65,15 +134,18 @@ bank_save_loop:
     incf bank_tmp, F
     ;; loop in order to store all values
     movf bank_tmp, W
-    sublw (NUMPOT_NB_CHIP * NUMPOT_NB_POT_BY_CHIP)
+    sublw BANK_NB_NUMPOT_VALUES
     btfss STATUS, Z
     goto bank_save_loop
 
     return
 
-;;; Load a memorized bank from eeprom to numpot
+;;; Load the eq and gain values from a memorized bank to numpot
 ;;; param1: bank number
-bank_load:
+;;; param2: address of buffer which will receive equalizer and gain config.
+;;;         IRP bit of STATUS register must be correctly set before calling
+;;;         this function in order to read the value with the help of FSR/INDF.
+bank_load_eq_gain:
     global bank_load
 
     ;; set param1 to the start of bank in eeprom
@@ -84,8 +156,7 @@ bank_load:
 
 bank_load_loop:
     ;; Calculate value addr
-    banksel potvalues
-    movlw potvalues
+    movf param2, W
     banksel bank_tmp
     addwf bank_tmp, W
     ;; Prepare pointer
@@ -93,7 +164,6 @@ bank_load_loop:
     ;; Get value from eeprom
     call_other_page eeprom_read
     ;; Store in numpot memory
-    bankisel potvalues
     movwf INDF
 
     ;; next value
@@ -102,7 +172,7 @@ bank_load_loop:
     incf bank_tmp, F
     ;; loop in order to store all values
     movf bank_tmp, W
-    sublw (NUMPOT_NB_CHIP * NUMPOT_NB_POT_BY_CHIP)
+    sublw BANK_NB_NUMPOT_VALUES
     btfss STATUS, Z
     goto bank_load_loop
 
