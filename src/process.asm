@@ -339,7 +339,7 @@ process_update_loop_update_gain:
     clrf param2
     call_other_page lcd_int
 #endif
-#if 1
+#if 0
     banksel tst_reg
     movlw 0x08
     xorwf tst_reg, W

@@ -141,7 +141,7 @@ menu_edit_select_value_change:
     movlw value_addr
     movwf param4
     call_other_page menu_edit_manage_select_value_change
-#if on_value_change_func == 0
+#if on_value_change_func == "0"
 #else
     call_other_page on_value_change_func
 #endif

@@ -193,6 +193,7 @@ menu_start_check_tick:
     goto menu_start_end_return
 
 menu_start_check_refresh:
+    banksel menu_state_asked_action
     movf menu_state_asked_action, W
     sublw MENU_STATE_ASK_ACTION_REFRESH
     btfss STATUS, Z
@@ -216,6 +217,7 @@ menu_start_state_check_event:
 menu_start_state_select_check_event:
 
 menu_start_check_leave_select:
+    banksel menu_state_asked_action
     movf menu_state_asked_action, W
     sublw MENU_STATE_ASK_ACTION_LEAVE
     btfss STATUS, Z
@@ -366,6 +368,7 @@ menu_end_quit:
 ;;; be active.
 menu_leave_selection macro
     movlw MENU_STATE_ASK_ACTION_LEAVE
+    banksel menu_state_asked_action
     movwf menu_state_asked_action
     endm
 
@@ -373,6 +376,7 @@ menu_leave_selection macro
 ;;; on next event loop
 menu_ask_refresh macro
     movlw MENU_STATE_ASK_ACTION_REFRESH
+    banksel menu_state_asked_action
     movwf menu_state_asked_action
     endm
 

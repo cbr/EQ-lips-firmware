@@ -108,7 +108,7 @@ menu_button_select:
 menu_button_unselect:
     ;; call on event function
     if (use_goto == 1)
-        goto on_select_function
+        goto_other_page on_select_function
     else
         call_other_page on_select_function
     endif

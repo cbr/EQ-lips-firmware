@@ -16,6 +16,8 @@
 #include <math.inc>
 #include <bank.inc>
 #include <process.inc>
+#include <edit_common.inc>
+#include <edit_trem.inc>
 ;; #include <menu_label.inc>
 
 #define TREM_TYPE_NONE              0x00
@@ -31,30 +33,9 @@ trem_nb_val     RES 1
 
 ; relocatable code
 EQ_PROG_1 CODE
-st_bank:
-    dt "BANK: ", 0
-st_load:
-    dt "LOAD", 0
-st_save:
-    dt "SAVE", 0
+edit_eq_st_trem:
+    dt "GOTO TREMOLO", 0
 
-edit_eq_save:
-    global edit_eq_save
-    movf current_bank, W
-    movwf param1
-    decf param1, F
-    call bank_save
-    return
-
-edit_eq_load:
-    global edit_eq_save
-    movf current_bank, W
-    movwf param1
-    decf param1, F
-    call bank_load
-    call_other_page process_change_conf
-    menu_ask_refresh
-    return
 
 edit_eq_show:
     global edit_eq_show
@@ -71,11 +52,13 @@ edit_eq_show:
     ;; call prepare_trem
     call_other_page process_change_conf
 
+    call_other_page lcd_clear
 
     menu_start process_update
     ;; menu_label_int 0, current_bank
-    menu_edit st_bank, 1, 1, 0x10, current_bank, edit_eq_load, 0
-    menu_edit_no_show st_save, 2, 1, 0x10, current_bank, edit_eq_refreh, edit_eq_save
+    menu_button_goto edit_eq_st_trem, 0, edit_trem_show
+    menu_edit edit_common_st_bank, 1, 1, 0x10, current_bank, edit_common_load, 0
+    menu_edit_no_show edit_common_st_save, 2, 1, 0x10, current_bank, edit_common_refresh, edit_common_save
     menu_eq (0x5*0 + 0x3D), bank_numpot_values, process_change_conf
     menu_eq (0x5*1 + 0x3D), bank_numpot_values+1, process_change_conf
     menu_eq (0x5*2 + 0x3D), bank_numpot_values+2, process_change_conf
@@ -89,16 +72,7 @@ edit_eq_show:
     menu_eq (0x5*0xB + 0x3D), bank_numpot_values+0xA, process_change_conf
     menu_end
 
-
-edit_eq_refreh:
-    menu_ask_refresh
     return
-
-;;; function called when bank have to be changed
-edit_eq_bank_change:
-    ;; nothing to do
-    return
-
 
 #if 0
 prepare_trem

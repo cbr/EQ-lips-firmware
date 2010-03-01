@@ -18,6 +18,8 @@ SRCS=src/common/numpot.asm \
 	src/common/math.asm  \
 	src/equa_prog.asm \
 	src/edit_eq.asm \
+	src/edit_trem.asm \
+	src/edit_common.asm \
 	src/bank.asm \
 	src/process.asm \
 

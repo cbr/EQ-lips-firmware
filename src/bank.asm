@@ -30,7 +30,7 @@ bank_tmp     RES 1
 
 
 ; relocatable code
-EQ_PROG_1 CODE
+EQ_PROG_2 CODE
 ;;; Save current parameters into bank
 ;;; param1: bank number
 bank_save:
