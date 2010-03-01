@@ -33,7 +33,7 @@ PROG_VAR_2 UDATA
 all_numpot_16   RES (2*BANK_NB_NUMPOT_VALUES)
 all_inc_16      RES (2*BANK_NB_NUMPOT_VALUES)
 
-
+tst_reg         RES 1
 
 ; relocatable code
 EQ_PROG_2 CODE
@@ -47,15 +47,17 @@ process_change_conf:
 
 #if 1
     ;; for testing
-    movlw 0x0
+    movlw .50
     movwf bank_trem_rate
 
     banksel bank_nb_inc
-    movlw 0x10
+    movlw 0x30
     movwf bank_nb_inc
     banksel trem_inc_cpt
     movwf trem_inc_cpt
 
+    banksel tst_reg
+    clrf tst_reg
 
 #endif
 
@@ -69,18 +71,10 @@ process_change_conf:
     ;; inc = (numpot_values_a - (numpot_values_a * trem_rate / 100)) / bank_nb_inc
 
 #if 1
-#if 0
     banksel index
     movlw BANK_NB_NUMPOT_VALUES
     movwf index
 process_change_conf_init_value_loop:
-#else
-    banksel all_numpot_16
-    mem_set all_numpot_16, (2*BANK_NB_NUMPOT_VALUES), 0x40
-    banksel index
-    movlw BANK_POS_GAIN_IN_NUMPOT
-    movwf index
-#endif
     ;; Get value from bank_numpot_values
     movlw bank_numpot_values
     banksel index
@@ -107,17 +101,33 @@ process_change_conf_init_value_loop:
     incf FSR, F
     movf param1, W
     movwf INDF
-#if 0
+
     ;; Next index, and loop
     banksel index
     decfsz index, F
     goto process_change_conf_init_value_loop
-#endif
 #else
     banksel all_numpot_16
     mem_set all_numpot_16, (2*BANK_NB_NUMPOT_VALUES), 0x40
 #endif
 
+#if 0
+    movlw 0x0
+    movwf param1
+    movlw 3
+    movwf param2
+    call_other_page lcd_locate
+    banksel all_numpot_16
+    movf all_numpot_16+BANK_POS_GAIN_IN_NUMPOT*2+1, W
+    movwf param1
+    clrf param2
+    call_other_page lcd_int
+    banksel all_numpot_16
+    movf all_numpot_16+BANK_POS_GAIN_IN_NUMPOT*2, W
+    movwf param1
+    clrf param2
+    call_other_page lcd_int
+#endif
     ;; Calculate bank_numpot_values[BANK_POS_GAIN_IN_NUMPOT] * trem_rate / 100
     ;; number_a = bank_numpot_values[BANK_POS_GAIN_IN_NUMPOT]
     banksel bank_numpot_values+BANK_POS_GAIN_IN_NUMPOT
@@ -173,8 +183,8 @@ process_change_conf_init_value_loop:
     clrf number_a_hi
     ;; number_b = number_b / number_a
     call_other_page math_div_16s16s_16s
+    call_other_page math_neg_number_b_16s
 
-    math_copy_16 number_b, all_inc_16+(BANK_POS_GAIN_IN_NUMPOT*2)
 
 #if 0
     movlw 0x0
@@ -193,6 +203,7 @@ process_change_conf_init_value_loop:
     clrf param2
     call_other_page lcd_int
 #endif
+    math_copy_16 number_b, all_inc_16+(BANK_POS_GAIN_IN_NUMPOT*2)
 
 #if 0
     ;; For testing
@@ -308,10 +319,47 @@ process_update_loop_update_gain:
     decfsz trem_inc_cpt, F
     goto process_update_end
 
+#if 0
+    banksel tst_reg
+    movlw 0x08
+    xorwf tst_reg, W
+    movwf tst_reg
+    movwf param1
+    movlw 3
+    movwf param2
+    call_other_page lcd_locate
+    banksel all_numpot_16
+    movf all_numpot_16+BANK_POS_GAIN_IN_NUMPOT*2+1, W
+    movwf param1
+    clrf param2
+    call_other_page lcd_int
+    banksel all_numpot_16
+    movf all_numpot_16+BANK_POS_GAIN_IN_NUMPOT*2, W
+    movwf param1
+    clrf param2
+    call_other_page lcd_int
+#endif
+#if 1
+    banksel tst_reg
+    movlw 0x08
+    xorwf tst_reg, W
+    movwf tst_reg
+    movwf param1
+    movlw 3
+    movwf param2
+    call_other_page lcd_locate
+    banksel potvalues
+    movf potvalues+BANK_POS_GAIN_IN_NUMPOT, W
+    movwf param1
+    clrf param2
+    call_other_page lcd_int
+#endif
     ;; End of half period
     ;; -> trem_inc_cpt need to be reset and all_inc_16 have to be negated
     ;; Reinit trem_inc_cpt
+    banksel bank_nb_inc
     movf bank_nb_inc, W
+    banksel trem_inc_cpt
     movwf trem_inc_cpt
     ;; Prepare loop
     banksel index
@@ -351,16 +399,14 @@ process_update_loop_negate_inc:
     decfsz index, F
     goto process_update_loop_negate_inc
 
-
+#endif
+process_update_end:
     ;; Remove UPDATE_ONE_TIME bit from update_info,
     ;; in order to not update data next time if not needed (eg if
     ;; UPDATE_EVERY_TIME bit is not set)
     banksel update_info
     bcf update_info, UPDATE_ONE_TIME
 
-    ;; Numpot have to be changed
-#endif
-process_update_end:
     return
 
 
