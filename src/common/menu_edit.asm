@@ -61,6 +61,7 @@ menu_edit_manage_select_value_change:
     banksel menu_select_value
     movf menu_select_value, W
     movwf param1
+    clrf param2
     call lcd_int
     ;; ***************
 menu_edit_manage_select_value_change_after_print:

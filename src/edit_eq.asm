@@ -20,10 +20,6 @@
 #include <edit_trem.inc>
 ;; #include <menu_label.inc>
 
-#define TREM_TYPE_NONE              0x00
-#define TREM_TYPE_SIMPLE            0x01
-#define TREM_TYPE_EQ                0x02
-
 PROG_VAR_1 UDATA
 #if 0
 gain16          RES 2

@@ -66,7 +66,9 @@ menu_edit_init_or_refresh:
 #endif
 
 menu_edit_unfocus:
-    clrf param1
+    movlw pos_x
+    movwf param1
+    decf param1, F
     movlw pos_y
     movwf param2
     call_other_page lcd_locate
@@ -76,7 +78,9 @@ menu_edit_unfocus:
     goto menu_edit_undef
 menu_edit_focus:
     ;; Current edit
-    clrf param1
+    movlw pos_x
+    movwf param1
+    decf param1, F
     movlw pos_y
     movwf param2
     call_other_page lcd_locate
@@ -93,7 +97,7 @@ menu_edit_select:
     movwf param1
     movlw min_value
     movwf param2
-    movlw max_value
+    movlw low max_value
     movwf param3
     call_other_page menu_selection_encoder_configure
     ;; draw selection rectangle: the code is shared with unselect event, so

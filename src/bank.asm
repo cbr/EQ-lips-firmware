@@ -79,6 +79,7 @@ bank_load:
     ;; param1 have been set to the next eeprom position
     ;; in the previous function -> don't need to prepare it
 
+#if 1
     ;; save trem type
     call_other_page eeprom_read
     banksel bank_trem_type
@@ -91,11 +92,24 @@ bank_load:
     movwf bank_trem_rate
     incf param1, F
 
-#if 0
     ;; save nb inc
-    call_other_page eeprom_write
+    call_other_page eeprom_read
     banksel bank_nb_inc
     movwf bank_nb_inc
+#else
+    ;; for testing
+    movlw .50
+    banksel bank_trem_rate
+    movwf bank_trem_rate
+
+    banksel bank_nb_inc
+    movlw 0x30
+    movwf bank_nb_inc
+
+    banksel bank_trem_type
+    movlw 0x00
+    movwf bank_trem_type
+
 #endif
     return
 

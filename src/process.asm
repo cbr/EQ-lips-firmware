@@ -45,30 +45,25 @@ EQ_PROG_2 CODE
 process_change_conf:
     global process_change_conf
 
-#if 1
+#if 0
     ;; for testing
     movlw .50
+    banksel bank_trem_rate
     movwf bank_trem_rate
 
     banksel bank_nb_inc
     movlw 0x30
     movwf bank_nb_inc
-    banksel trem_inc_cpt
-    movwf trem_inc_cpt
-
+#endif
+#if 1
     banksel tst_reg
     clrf tst_reg
 
 #endif
 
-    ;; Reset all_inc_16 and all_numpot_16
-
-    ;; clear all_inc_16
+    ;; Clear all_inc_16
     banksel all_inc_16
     mem_clear all_inc_16, (2*BANK_NB_NUMPOT_VALUES)
-    ;; Manage simple tremolo
-    ;; inc = amplitude / bank_nb_inc
-    ;; inc = (numpot_values_a - (numpot_values_a * trem_rate / 100)) / bank_nb_inc
 
 #if 1
     banksel index
@@ -83,9 +78,17 @@ process_change_conf_init_value_loop:
     decf FSR, F
     bankisel bank_numpot_values
     movf INDF, W
-    ;; Store value in param1 with appropriate shift
+
+    ;; Store value in param2
+    movwf param2
+    ;; Store value in numpot
+    movf index, W
     movwf param1
-    lshift_f param1, SHIFT_NUMPOT_VAL_TO_HIGH_ORDER
+    decf param1, F
+    call_other_page numpot_set_one_value
+
+    ;; Shift param2
+    lshift_f param2, SHIFT_NUMPOT_VAL_TO_HIGH_ORDER
     ;; Prepare all_numpot_16 ptr
     banksel index
     movf index, W
@@ -97,9 +100,9 @@ process_change_conf_init_value_loop:
     bankisel all_numpot_16
     ;; Clear lo byte
     clrf INDF
-    ;; Store param1 into hi byte
+    ;; Store param2 into hi byte
     incf FSR, F
-    movf param1, W
+    movf param2, W
     movwf INDF
 
     ;; Next index, and loop
@@ -110,6 +113,48 @@ process_change_conf_init_value_loop:
     banksel all_numpot_16
     mem_set all_numpot_16, (2*BANK_NB_NUMPOT_VALUES), 0x40
 #endif
+
+
+    ;; *** Check Tremolo type
+process_change_conf_check_type_simple:
+    banksel bank_trem_type
+    movf bank_trem_type, W
+    sublw BANK_TREM_TYPE_SIMPLE
+    btfsc STATUS, Z
+    goto process_change_conf_type_simple
+
+process_change_conf_check_type_eq:
+    movf bank_trem_type, W
+    sublw BANK_TREM_TYPE_EQ
+    btfsc STATUS, Z
+    goto process_change_conf_type_eq
+
+
+    ;; *** No tremolo
+process_change_conf_type_none:
+    ;; No tremolo
+    ;; Update juste one time
+    banksel update_info
+    bcf update_info, UPDATE_EVERY_TIME
+    bsf update_info, UPDATE_ONE_TIME
+    goto process_change_conf_end
+
+    ;; *** Simple tremolo type
+    ;; *** Eq tremolo type
+    ;; inc = amplitude / bank_nb_inc
+    ;; inc = (numpot_values_a - (numpot_values_a * trem_rate / 100)) / bank_nb_inc
+process_change_conf_type_simple:
+process_change_conf_type_eq:
+
+    ;; Update juste every time
+    banksel update_info
+    bsf update_info, UPDATE_EVERY_TIME
+    ;; Init cpt
+    banksel bank_nb_inc
+    movf bank_nb_inc, W
+    sublw BANK_MAX_TREM_SPEED_VALUE
+    banksel trem_inc_cpt
+    movwf trem_inc_cpt
 
 #if 0
     movlw 0x0
@@ -137,8 +182,22 @@ process_change_conf_init_value_loop:
     ;; number_b = trem_rate
     banksel bank_trem_rate
     movf bank_trem_rate, W
+    sublw BANK_MAX_TREM_RATE_VALUE
     math_banksel
     movwf number_b_lo
+#if 0
+    movlw 0x0
+    movwf param1
+    movlw 3
+    movwf param2
+    call_other_page lcd_locate
+    math_banksel
+    movf number_b_lo, W
+    movwf param1
+    clrf param2
+    call_other_page lcd_int
+    math_banksel
+#endif
     ;; number_c = number_a * number b
     call_other_page math_mult_08u08u_16u
     ;; number_b = number_c
@@ -178,6 +237,7 @@ process_change_conf_init_value_loop:
     ;; number_a = bank_nb_inc
     banksel bank_nb_inc
     movf bank_nb_inc, W
+    sublw BANK_MAX_TREM_SPEED_VALUE
     math_banksel
     movwf number_a_lo
     clrf number_a_hi
@@ -219,10 +279,9 @@ process_change_conf_init_value_loop:
     movlw 0x04
     movwf all_inc_16+(0xA*2)+1
 
-    banksel update_info
-    bsf update_info, UPDATE_EVERY_TIME
-
 #endif
+process_change_conf_end:
+
     return
 
 
@@ -359,6 +418,7 @@ process_update_loop_update_gain:
     ;; Reinit trem_inc_cpt
     banksel bank_nb_inc
     movf bank_nb_inc, W
+    sublw BANK_MAX_TREM_SPEED_VALUE
     banksel trem_inc_cpt
     movwf trem_inc_cpt
     ;; Prepare loop
