@@ -1,3 +1,6 @@
+
+#define UNUSED_PARAM        "0"
+
 lshift_f macro reg, value
     if (value != 0)
         bcf STATUS, C

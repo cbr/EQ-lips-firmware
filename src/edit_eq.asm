@@ -36,7 +36,6 @@ EQ_PROG_1 CODE
 edit_eq_st_trem:
     dt "GOTO TREMOLO", 0
 
-
 edit_eq_show:
     global edit_eq_show
 
@@ -57,8 +56,8 @@ edit_eq_show:
     menu_start process_update
     ;; menu_label_int 0, current_bank
     menu_button_goto edit_eq_st_trem, 0, edit_trem_show
-    menu_edit edit_common_st_bank, 1, 1, 0x10, current_bank, edit_common_load, 0
-    menu_edit_no_show edit_common_st_save, 2, 1, 0x10, current_bank, edit_common_refresh, edit_common_save
+    menu_edit edit_common_st_bank, 1, 1, 1, 0x10, current_bank, edit_common_load, UNUSED_PARAM
+    menu_edit_no_show edit_common_st_save, 1, 2, 1, 0x10, current_bank, edit_common_refresh, edit_common_save
     menu_eq (0x5*0 + 0x3D), bank_numpot_values, process_change_conf
     menu_eq (0x5*1 + 0x3D), bank_numpot_values+1, process_change_conf
     menu_eq (0x5*2 + 0x3D), bank_numpot_values+2, process_change_conf

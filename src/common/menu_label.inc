@@ -8,7 +8,7 @@ menu_label_int macro pos, value_addr
     local menu_label_init_or_refresh
     local menu_label_undef
 
-    menu_event_dispatch menu_label_init_or_refresh, 0, 0, 0, 0, 0, 0, menu_label_init_or_refresh
+    menu_event_dispatch menu_label_init_or_refresh, UNUSED_PARAM, UNUSED_PARAM, UNUSED_PARAM, UNUSED_PARAM, UNUSED_PARAM, UNUSED_PARAM, menu_label_init_or_refresh
     goto menu_label_undef
 
 menu_label_init_or_refresh:

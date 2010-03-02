@@ -4,32 +4,32 @@
 ;;; This macro add a menu edit into a dialog screen.
 ;;; The value managed by edit is printed just after the string.
 ;;; string: label of the menu edit
-;;; pos: y position of menu edit
+;;; pos_y: y position of menu edit
 ;;; Changed registers: param1, param2, param3, param4
 ;;;
-menu_edit macro string, pos, min_value, max_value, value_addr, on_value_change_func, on_valid_value_func
-    menu_edit_comon string, pos, min_value, max_value, value_addr, on_value_change_func, on_valid_value_func, 1
+menu_edit macro string, pos_x, pos_y, min_value, max_value, value_addr, on_value_change_func, on_valid_value_func
+    menu_edit_comon string, pos_x, pos_y, min_value, max_value, value_addr, on_value_change_func, on_valid_value_func, 1
     endm
 
 ;;;
 ;;; This macro add a menu edit into a dialog screen.
 ;;; The value managed by edit is not printed.
 ;;; string: label of the menu edit
-;;; pos: y position of menu edit
+;;; pos_y: y position of menu edit
 ;;; Changed registers: param1, param2, param3, param4
 ;;;
-menu_edit_no_show macro string, pos, min_value, max_value, value_addr, on_value_change_func, on_valid_value_func
-    menu_edit_comon string, pos, min_value, max_value, value_addr, on_value_change_func, on_valid_value_func, 0
+menu_edit_no_show macro string, pos_x, pos_y, min_value, max_value, value_addr, on_value_change_func, on_valid_value_func
+    menu_edit_comon string, pos_x, pos_y, min_value, max_value, value_addr, on_value_change_func, on_valid_value_func, 0
     endm
 
 ;;;
 ;;; This macro add a menu edit into a dialog screen.
 ;;; Simplier alias macro can be used instead : menu_edit, menu_edit_no_show
 ;;; string: label of the menu edit
-;;; pos: y position of menu edit
+;;; pos_y: y position of menu edit
 ;;; Changed registers: param1, param2, param3, param4
 ;;;
-menu_edit_comon macro string, pos, min_value, max_value, value_addr, on_value_change_func, on_valid_value_func, print_value
+menu_edit_comon macro string, pos_x, pos_y, min_value, max_value, value_addr, on_value_change_func, on_valid_value_func, print_value
     local menu_edit_init_or_refresh
     local menu_edit_undef
     local menu_edit_focus
@@ -44,9 +44,9 @@ menu_edit_comon macro string, pos, min_value, max_value, value_addr, on_value_ch
 
 menu_edit_init_or_refresh:
     ;; Print string
-    movlw MENU_STRING_POS_X
+    movlw pos_x
     movwf param1
-    movlw pos
+    movlw pos_y
     movwf param2
     movlw low string
     movwf param3
@@ -67,7 +67,7 @@ menu_edit_init_or_refresh:
 
 menu_edit_unfocus:
     clrf param1
-    movlw pos
+    movlw pos_y
     movwf param2
     call_other_page lcd_locate
     movlw MENU_UNFOCUS_CHAR
@@ -77,7 +77,7 @@ menu_edit_unfocus:
 menu_edit_focus:
     ;; Current edit
     clrf param1
-    movlw pos
+    movlw pos_y
     movwf param2
     call_other_page lcd_locate
     movlw MENU_FOCUS_CHAR
@@ -88,6 +88,7 @@ menu_edit_focus:
 
 menu_edit_select:
     ;; configure encoder
+    banksel value_addr
     movf value_addr, W
     movwf param1
     movlw min_value
@@ -101,7 +102,7 @@ menu_edit_select:
 
 menu_edit_unselect:
     ;; Call value valid function callback
-#if on_valid_value_func == 0
+#if on_valid_value_func == UNUSED_PARAM
 #else
     call_other_page on_valid_value_func
 #endif
@@ -114,10 +115,12 @@ menu_edit_select_unselect_draw:
     movwf param2
     call_other_page std_strlen
     ;; store in param1
-    movwf param1
+    movwf param3
 
     ;; draw selection rectangle
-    movlw pos
+    movlw pos_x
+    movwf param1
+    movlw pos_y
     movwf param2
     call_other_page menu_edit_draw_select
     goto menu_edit_undef
@@ -131,17 +134,19 @@ menu_edit_select_value_change:
     movwf param1
     movlw low string
     movwf param2
+    movlw pos_x
+    movwf param3
 #if print_value == 1
-    movlw pos
+    movlw pos_y
 #else
     movlw MENU_EDIT_NO_PRINT_VAL
 #endif
-    movwf param3
+    movwf param4
     bankisel value_addr
     movlw value_addr
-    movwf param4
+    movwf param5
     call_other_page menu_edit_manage_select_value_change
-#if on_value_change_func == "0"
+#if on_value_change_func == UNUSED_PARAM
 #else
     call_other_page on_value_change_func
 #endif

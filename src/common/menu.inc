@@ -33,7 +33,7 @@ menu_event_dispatch macro label_init, label_focus, label_unfocus, label_select, 
     local menu_event_dispatch_end
     local menu_event_not_current_entry
     ;; *** Check action for all entries
-#if label_init == 0
+#if label_init == UNUSED_PARAM
 #else
     ;; INIT
     movlw MENU_ACTION_INIT
@@ -50,7 +50,7 @@ menu_event_dispatch macro label_init, label_focus, label_unfocus, label_select, 
     ;; not applied to current entry
     goto menu_event_not_current_entry
 
-#if label_focus == 0
+#if label_focus == UNUSED_PARAM
 #else
     ;; FOCUS
     movlw MENU_ACTION_FOCUS
@@ -59,7 +59,7 @@ menu_event_dispatch macro label_init, label_focus, label_unfocus, label_select, 
     goto label_focus
 #endif
 
-#if label_unfocus == 0
+#if label_unfocus == UNUSED_PARAM
 #else
     ;; UNFOCUS
     movlw MENU_ACTION_UNFOCUS
@@ -68,7 +68,7 @@ menu_event_dispatch macro label_init, label_focus, label_unfocus, label_select, 
     goto label_unfocus
 #endif
 
-#if label_select == 0
+#if label_select == UNUSED_PARAM
 #else
     ;; SELECT
     movlw MENU_ACTION_SELECT
@@ -77,7 +77,7 @@ menu_event_dispatch macro label_init, label_focus, label_unfocus, label_select, 
     goto label_select
 #endif
 
-#if label_unselect == 0
+#if label_unselect == UNUSED_PARAM
 #else
     ;; UNSELECT
     movlw MENU_ACTION_UNSELECT
@@ -86,7 +86,7 @@ menu_event_dispatch macro label_init, label_focus, label_unfocus, label_select, 
     goto label_unselect
 #endif
 
-#if label_select_value_change == 0
+#if label_select_value_change == UNUSED_PARAM
 #else
     ;; SELECT_VALUE_CHANGE
     movlw MENU_ACTION_SELECT_VALUE_CHANGE
@@ -95,7 +95,7 @@ menu_event_dispatch macro label_init, label_focus, label_unfocus, label_select, 
     goto label_select_value_change
 #endif
 
-#if label_select_switch == 0
+#if label_select_switch == UNUSED_PARAM
 #else
     ;; SELECT_SWITCH
     movlw MENU_ACTION_SELECT_SWITCH
@@ -108,7 +108,7 @@ menu_event_dispatch macro label_init, label_focus, label_unfocus, label_select, 
 
     ;; ** Following events are for all entries execpt the current one
 menu_event_not_current_entry:
-#if label_refresh == 0
+#if label_refresh == UNUSED_PARAM
 #else
     ;; REFRESH
     movlw MENU_ACTION_REFRESH
