@@ -84,6 +84,8 @@
 #include <edit_eq.inc>
 #include <math.inc>
 #include <timer.inc>
+#include <bank.inc>
+#include <process.inc>
 ; -----------------------------------------------------------------------
 ; Variable declaration
 PROG_VAR UDATA
@@ -220,6 +222,18 @@ tst_timer_loop:
 
 
 #if 1
+    ;; select first bank
+    movlw 1
+    movwf current_bank
+
+    ;; load
+    movwf param1
+    decf param1, F
+    call_other_page bank_load
+
+    ;; call prepare_trem
+    call_other_page process_change_conf
+
     call_other_page edit_eq_show
 #endif
 

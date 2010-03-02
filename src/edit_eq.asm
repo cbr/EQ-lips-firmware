@@ -39,18 +39,6 @@ edit_eq_st_trem:
 edit_eq_show:
     global edit_eq_show
 
-    ;; select first bank
-    movlw 1
-    movwf current_bank
-#if 1
-    ;; load
-    movwf param1
-    decf param1, F
-    call_other_page bank_load
-#endif
-    ;; call prepare_trem
-    call_other_page process_change_conf
-
     call_other_page lcd_clear
 
     menu_start process_update
