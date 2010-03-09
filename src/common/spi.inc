@@ -6,7 +6,6 @@ spi_send_w_and_wait macro
         ; wait end of transmission
         btfss SSPSTAT, BF
         goto $ - 1
-        banksel 0
     endm
 
 
