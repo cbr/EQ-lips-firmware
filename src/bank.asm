@@ -13,17 +13,23 @@
 
 PROG_VAR_1 UDATA
     ;; GLOBAL
-    ;; Sources data
+
+;;; Sources data
 bank_numpot_values RES BANK_NB_NUMPOT_VALUES
     global bank_numpot_values
+;;; Type of tremolo (BANK_TREM_TYPE_NONE,
+;;; BANK_TREM_TYPE_SIMPLE or BANK_TREM_TYPE_EQ)
 bank_trem_type       RES 1
     global bank_trem_type
-;;; amplitude of simple tremolo (in %)
+;;; Amplitude of simple tremolo (in %)
 bank_trem_rate       RES 1
     global bank_trem_rate
 ;;; number of inc value in a half period of tremolo (=speed of tremolo)
 bank_nb_inc     RES 1
     global bank_nb_inc
+;;; Target memory bank of eq tremolo
+bank_trem_target RES 1
+    global bank_trem_target
 
     ;; LOCAL
 bank_tmp     RES 1
@@ -63,6 +69,13 @@ bank_save:
     movf bank_nb_inc, W
     movwf param2
     call_other_page eeprom_write
+    incf param1, F
+
+    ;; save trem target
+    banksel bank_trem_target
+    movf bank_trem_target, W
+    movwf param2
+    call_other_page eeprom_write
 
     return
 
@@ -80,22 +93,29 @@ bank_load:
     ;; in the previous function -> don't need to prepare it
 
 #if 1
-    ;; save trem type
+    ;; load trem type
     call_other_page eeprom_read
     banksel bank_trem_type
     movwf bank_trem_type
     incf param1, F
 
-    ;; save trem rate
+    ;; load trem rate
     call_other_page eeprom_read
     banksel bank_trem_rate
     movwf bank_trem_rate
     incf param1, F
 
-    ;; save nb inc
+    ;; load nb inc
     call_other_page eeprom_read
     banksel bank_nb_inc
     movwf bank_nb_inc
+    incf param1, F
+
+    ;; load trem target
+    call_other_page eeprom_read
+    banksel bank_trem_target
+    movwf bank_trem_target
+
 #else
     ;; for testing
     movlw .50
@@ -120,7 +140,7 @@ bank_load:
 ;;;         this function in order to read the value with the help of FSR/INDF.
 ;;; Changed registers: param3
 bank_save_eq_gain:
-    global bank_save
+    global bank_save_eq_gain
 
     ;; set param1 to the start of bank in eeprom
     lshift_f param1, BANK_EESIZE_SHT
@@ -160,7 +180,7 @@ bank_save_loop:
 ;;;         IRP bit of STATUS register must be correctly set before calling
 ;;;         this function in order to read the value with the help of FSR/INDF.
 bank_load_eq_gain:
-    global bank_load
+    global bank_load_eq_gain
 
     ;; set param1 to the start of bank in eeprom
     lshift_f param1, BANK_EESIZE_SHT

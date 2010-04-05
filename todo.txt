@@ -16,9 +16,7 @@
 * Manage generic bank module
 ** Save bank in flash if enough flash mem is available
 
-* Manage Tremolo
-** Manage tremolo prepare
-** Test tremolo update
+* Tremolo: eq and simple are now working. However, eq trem result is not very interresting.
 
 * Gui
 ** Context label and value
@@ -31,7 +29,8 @@
 ** Facts:
 *** When a same value is sent continiously on SPI -> No problem:
 *** The proble can be heard when a DIFFERENT value is sent.
-*** It seams that the problem only occurs on global gain, not for eq band (not sure)
+*** It seams that the problem only occurs on global gain, not for eq band -> in fact no: it can also be heard on eq
+    band, but it is less sensitive
 *** By changing the cpu clock the problem is still present
 *** When CS of numpot is 'in the air' the signal is very noisy. -> CS problem ?
 ** TODO:

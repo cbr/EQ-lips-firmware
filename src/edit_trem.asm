@@ -31,6 +31,8 @@ edit_trem_st_speed:
     dt "SPEED: ", 0
 edit_trem_st_type:
     dt "TYPE: ", 0
+edit_trem_st_target_eq:
+    dt "TRGT EQ: ", 0
 
 edit_trem_show:
     global edit_trem_show
@@ -45,6 +47,7 @@ edit_trem_show:
     menu_edit edit_trem_st_type, (LCD_WIDTH_TXT/2+1), 0, 0, 2, bank_trem_type, process_change_conf, UNUSED_PARAM
     menu_edit edit_trem_st_rate, (LCD_WIDTH_TXT/2+1), 1, 1, BANK_MAX_TREM_RATE_VALUE, bank_trem_rate, process_change_conf, UNUSED_PARAM
     menu_edit edit_trem_st_speed, (LCD_WIDTH_TXT/2+1), 2, 0, BANK_MAX_TREM_SPEED_VALUE, bank_nb_inc, process_change_conf, UNUSED_PARAM
+    menu_edit edit_trem_st_target_eq, (LCD_WIDTH_TXT/2+1), 3, 1, 0x10, bank_trem_target, process_change_conf, UNUSED_PARAM
     menu_end
     return
 

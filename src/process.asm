@@ -27,7 +27,8 @@ trem_inc_cpt    RES 1
 update_info     RES 1
 ;;; Loop index used to update numpot next values
 index           RES 1
-
+;;; Target eq values used for tremolo type eq
+target_numpot_values RES BANK_NB_NUMPOT_VALUES
     ;; Temporary activation data
 PROG_VAR_2 UDATA
 all_numpot_16   RES (2*BANK_NB_NUMPOT_VALUES)
@@ -144,9 +145,8 @@ process_change_conf_type_none:
     ;; inc = amplitude / bank_nb_inc
     ;; inc = (numpot_values_a - (numpot_values_a * trem_rate / 100)) / bank_nb_inc
 process_change_conf_type_simple:
-process_change_conf_type_eq:
 
-    ;; Update juste every time
+    ;; Update every time
     banksel update_info
     bsf update_info, UPDATE_EVERY_TIME
     ;; Init cpt
@@ -173,7 +173,15 @@ process_change_conf_type_eq:
     clrf param2
     call_other_page lcd_int
 #endif
-    ;; Calculate bank_numpot_values[BANK_POS_GAIN_IN_NUMPOT] * trem_rate / 100
+    ;; Prepare index, in order to only calculate amplitude
+    ;; on gain (and not other eq band) when goto process_change_conf_eq_simple_plug
+    ;; will be made
+    banksel index
+    movlw BANK_POS_GAIN_IN_NUMPOT
+    movwf index
+
+    ;; Calculate gain target value:
+    ;; bank_numpot_values[BANK_POS_GAIN_IN_NUMPOT] * trem_rate / 100
     ;; number_a = bank_numpot_values[BANK_POS_GAIN_IN_NUMPOT]
     banksel bank_numpot_values+BANK_POS_GAIN_IN_NUMPOT
     movf bank_numpot_values+BANK_POS_GAIN_IN_NUMPOT, W
@@ -208,22 +216,85 @@ process_change_conf_type_eq:
     clrf number_a_hi
     ;; number_b = number_b/number_a
     call_other_page math_div_16s16s_16s
-    ;; number_a = number_b
-    ;; left shift number_b of 8+SHIFT_NUMPOT_VAL_TO_HIGH_ORDER bits
-    ;; (the lo byte is put to hi byte and shifted by SHIFT_NUMPOT_VAL_TO_HIGH_ORDER)
+    ;; W = number_b_lo
     movf number_b_lo, W
+    ;; Now use code from eq tremolo in order to calculate amplitude
+    goto process_change_conf_eq_simple_plug
+
+
+process_change_conf_type_eq:
+    ;; Prepare equalizer tremolo
+
+    ;; Update every time
+    banksel update_info
+    bsf update_info, UPDATE_EVERY_TIME
+    ;; Init cpt
+    banksel bank_nb_inc
+    movf bank_nb_inc, W
+    sublw BANK_MAX_TREM_SPEED_VALUE
+    banksel trem_inc_cpt
+    movwf trem_inc_cpt
+
+    ;; Initialize 'index'
+    ;; This index will be used to index array.
+    ;; It start to 0 and grow until BANK_NB_NUMPOT_VALUES.
+    ;; Simple tremolo also uses a part of this code, but only
+    ;; for the gain, so in this case the index is initialized to
+    ;; the last value (=gain index), so only gain is initialized in
+    ;; this case. It is done with a goto process_change_conf_eq_simple_plug
+    banksel index
+    clrf index
+
+    ;; Extract target eq value into target_numpot_values
+    banksel bank_trem_target
+    movf bank_trem_target, W
+    movwf param1
+    ;; banks are 1-indexed:
+    incf param1, F
+    movlw target_numpot_values
+    movwf param2
+    bankisel target_numpot_values
+    call_other_page bank_load_eq_gain
+
+process_change_conf_type_eq_loop:
+    ;; W = target_numpot_values[index]
+    movlw target_numpot_values
+    banksel index
+    addwf index, W
+    movwf FSR
+    bankisel target_numpot_values
+    movf INDF, W
+
+    ;; This label is used by simple eq in order to only calculate increment
+    ;; for gain.
+process_change_conf_eq_simple_plug:
+    ;; Now calculate the amplitude. This is calculated on 16 bits
+    ;; number in order to have more precision. This is why the result is shifted:
+    ;; left shift W of 8+SHIFT_NUMPOT_VAL_TO_HIGH_ORDER bits
+    ;; (W is put into hi byte of number_a and shifted by SHIFT_NUMPOT_VAL_TO_HIGH_ORDER)
+    math_banksel
     movwf number_a_hi
     lshift_f number_a_hi, SHIFT_NUMPOT_VAL_TO_HIGH_ORDER
     clrf number_a_lo
-    ;; number_b = bank_numpot_values[BANK_POS_GAIN_IN_NUMPOT]
+    ;; number_b = bank_numpot_values[index]
     ;; left shift number_b of 8+SHIFT_NUMPOT_VAL_TO_HIGH_ORDER bits
     ;; (the lo byte is put to hi byte and shifted by SHIFT_NUMPOT_VAL_TO_HIGH_ORDER)
+#if 1
+    movlw bank_numpot_values
+    banksel index
+    addwf index, W
+    movwf FSR
+    bankisel bank_numpot_values
+    movf INDF, W
+#else
     banksel bank_numpot_values+BANK_POS_GAIN_IN_NUMPOT
     movf bank_numpot_values+BANK_POS_GAIN_IN_NUMPOT, W
+#endif
     math_banksel
     movwf number_b_hi
     lshift_f number_b_hi, SHIFT_NUMPOT_VAL_TO_HIGH_ORDER
     clrf number_b_lo
+    ;; And the amplitude is:
     ;; number_b = number_b - number_a
     call_other_page math_sub_1616s
 #if 0
@@ -234,6 +305,8 @@ process_change_conf_type_eq:
     lshift_f number_b_hi, SHIFT_NUMPOT_VAL_TO_HIGH_ORDER
     clrf number_b_lo
 #endif
+
+    ;; Now calculate the increment which is added at each cycle
     ;; number_a = bank_nb_inc
     banksel bank_nb_inc
     movf bank_nb_inc, W
@@ -241,6 +314,7 @@ process_change_conf_type_eq:
     math_banksel
     movwf number_a_lo
     clrf number_a_hi
+    ;; The increment is:
     ;; number_b = number_b / number_a
     call_other_page math_div_16s16s_16s
     call_other_page math_neg_number_b_16s
@@ -263,7 +337,34 @@ process_change_conf_type_eq:
     clrf param2
     call_other_page lcd_int
 #endif
+#if 1
+    ;; FSR = index*2
+    banksel index
+    movf index, W
+    movwf FSR
+    lshift_f FSR, 1
+    ;; FSR=FSR + all_inc_16
+    movlw all_inc_16
+    addwf FSR, F
+    bankisel all_inc_16
+    ;; store number_b into FSR
+    math_banksel
+    movf number_b_lo, W
+    movwf INDF
+    incf FSR, F
+    movf number_b_hi, W
+    movwf INDF
+#else
     math_copy_16 number_b, all_inc_16+(BANK_POS_GAIN_IN_NUMPOT*2)
+#endif
+    ;; Next index, and loop
+    banksel index
+    incf index, F
+    movf index, W
+    sublw BANK_NB_NUMPOT_VALUES
+    btfss STATUS, Z
+    goto process_change_conf_type_eq_loop
+
 
 #if 0
     ;; For testing

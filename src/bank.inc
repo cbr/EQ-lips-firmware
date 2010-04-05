@@ -14,6 +14,7 @@
     extern bank_numpot_values
     extern bank_trem_type
     extern bank_trem_rate
+    extern bank_trem_target
 
     ;; Functions
     extern bank_load
