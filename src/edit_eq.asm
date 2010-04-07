@@ -37,7 +37,7 @@ edit_eq_show:
 
     call_other_page lcd_clear
 
-    menu_start process_update
+    menu_start edit_common_cycle_period
     ;; menu_label_int 0, current_bank
     menu_button_goto edit_eq_st_trem, 0, edit_trem_show
     menu_edit edit_common_st_bank, 1, 1, 1, 0x10, current_bank, edit_common_load, UNUSED_PARAM

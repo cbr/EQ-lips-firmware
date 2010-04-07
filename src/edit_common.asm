@@ -49,6 +49,12 @@ edit_common_refresh:
     menu_ask_refresh
     return
 
+edit_common_cycle_period:
+    global edit_common_cycle_period
+    ;; Check up & down switches
 
+    ;; Update numpot according to conf
+    call_other_page process_update
+    return
 
 END

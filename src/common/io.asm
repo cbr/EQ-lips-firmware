@@ -17,16 +17,19 @@ io_configure:
 
     banksel TRISA
 
+    ;; Outputs
     bcf LCD_E1_TRIS, LCD_E1_BIT
     bcf LCD_E2_TRIS, LCD_E2_BIT
     bcf LCD_WR_TRIS, LCD_WR_BIT
     bcf LCD_A0_TRIS, LCD_A0_BIT
+    bcf SPI_CS_TRIS, SPI_CS_BIT
+
+    ;; Inputs
     bsf ENC_A_TRIS, ENC_A_BIT
     bsf ENC_B_TRIS, ENC_B_BIT
     bsf ENC_SW_TRIS, ENC_SW_BIT
-    bcf SPI_CS_TRIS, SPI_CS_BIT
-
-    bcf TEST_TRIS, TEST_BIT
+    bsf DOWN_SW_TRIS, DOWN_SW_BIT
+    bsf UP_SW_TRIS, UP_SW_BIT
 
     banksel 0
     return

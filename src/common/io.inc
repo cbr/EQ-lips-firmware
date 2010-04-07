@@ -77,9 +77,46 @@ ENC_SW_TRIS equ TRISB
 ENC_SW_PORT equ PORTB
 ENC_SW_BIT  equ 2
 
-TEST_TRIS     equ TRISB
-TEST_PORT     equ PORTB
-TEST_BIT      equ 5
+DOWN_SW_TRIS     equ TRISB
+DOWN_SW_PORT     equ PORTB
+DOWN_SW_BIT      equ 5
+
+UP_SW_TRIS     equ TRISB
+UP_SW_PORT     equ PORTB
+UP_SW_BIT      equ 3
+
+io_filter macro port_register, port_mask, counter, result_reg
+    local encoder_it_wait_stable
+    local encoder_it_continue
+    ; test if rising edge
+    ; wait until edge value is stable
+encoder_it_wait_stable:
+    banksel 0
+    ; init counter
+    movlw counter
+    movwf interrupt_var_1
+    ; read reference value
+    banksel port_register
+    movf port_register, W
+    banksel result_reg
+    movwf result_reg
+    movlw port_mask
+    andwf result_reg, F
+encoder_it_continue:
+    ; read value and mask
+    movlw port_mask
+    banksel port_register
+    andwf port_register, W
+    ; compare to reference value
+    banksel result_reg
+    subwf result_reg, W
+    ; if bit Z of status is not set, the value is different from the reference, so we restart
+    btfss STATUS, Z
+    goto encoder_it_wait_stable
+
+    decfsz interrupt_var_1, F
+    goto encoder_it_continue
+    endm
 
 
 

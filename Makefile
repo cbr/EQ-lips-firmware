@@ -22,6 +22,7 @@ SRCS=src/common/numpot.asm \
 	src/edit_common.asm \
 	src/bank.asm \
 	src/process.asm \
+	src/io_interrupt.asm \
 
 IMGS=src/common/font.xcf
 

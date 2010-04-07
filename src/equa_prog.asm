@@ -86,6 +86,8 @@
 #include <timer.inc>
 #include <bank.inc>
 #include <process.inc>
+#include <io_interrupt.inc>
+
 ; -----------------------------------------------------------------------
 ; Variable declaration
 PROG_VAR UDATA
@@ -107,8 +109,8 @@ INT_VECTOR CODE 0x004
     movwf   pclath_saved
     clrf    PCLATH
 
-    ;; Manage encode interrupt
-    encoder_it
+    ;; Manage io interrupt
+    io_interrupt
     timer_it
     movf    pclath_saved,w ; restore context
     movwf   PCLATH

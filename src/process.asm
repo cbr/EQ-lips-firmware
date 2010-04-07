@@ -46,27 +46,13 @@ EQ_PROG_2 CODE
 process_change_conf:
     global process_change_conf
 
-#if 0
-    ;; for testing
-    movlw .50
-    banksel bank_trem_rate
-    movwf bank_trem_rate
-
-    banksel bank_nb_inc
-    movlw 0x30
-    movwf bank_nb_inc
-#endif
-#if 1
     banksel tst_reg
     clrf tst_reg
-
-#endif
 
     ;; Clear all_inc_16
     banksel all_inc_16
     mem_clear all_inc_16, (2*BANK_NB_NUMPOT_VALUES)
 
-#if 1
     banksel index
     movlw BANK_NB_NUMPOT_VALUES
     movwf index
@@ -110,10 +96,6 @@ process_change_conf_init_value_loop:
     banksel index
     decfsz index, F
     goto process_change_conf_init_value_loop
-#else
-    banksel all_numpot_16
-    mem_set all_numpot_16, (2*BANK_NB_NUMPOT_VALUES), 0x40
-#endif
 
 
     ;; *** Check Tremolo type
@@ -156,23 +138,6 @@ process_change_conf_type_simple:
     banksel trem_inc_cpt
     movwf trem_inc_cpt
 
-#if 0
-    movlw 0x0
-    movwf param1
-    movlw 3
-    movwf param2
-    call_other_page lcd_locate
-    banksel all_numpot_16
-    movf all_numpot_16+BANK_POS_GAIN_IN_NUMPOT*2+1, W
-    movwf param1
-    clrf param2
-    call_other_page lcd_int
-    banksel all_numpot_16
-    movf all_numpot_16+BANK_POS_GAIN_IN_NUMPOT*2, W
-    movwf param1
-    clrf param2
-    call_other_page lcd_int
-#endif
     ;; Prepare index, in order to only calculate amplitude
     ;; on gain (and not other eq band) when goto process_change_conf_eq_simple_plug
     ;; will be made
@@ -193,19 +158,7 @@ process_change_conf_type_simple:
     sublw BANK_MAX_TREM_RATE_VALUE
     math_banksel
     movwf number_b_lo
-#if 0
-    movlw 0x0
-    movwf param1
-    movlw 3
-    movwf param2
-    call_other_page lcd_locate
-    math_banksel
-    movf number_b_lo, W
-    movwf param1
-    clrf param2
-    call_other_page lcd_int
-    math_banksel
-#endif
+
     ;; number_c = number_a * number b
     call_other_page math_mult_08u08u_16u
     ;; number_b = number_c
@@ -279,17 +232,12 @@ process_change_conf_eq_simple_plug:
     ;; number_b = bank_numpot_values[index]
     ;; left shift number_b of 8+SHIFT_NUMPOT_VAL_TO_HIGH_ORDER bits
     ;; (the lo byte is put to hi byte and shifted by SHIFT_NUMPOT_VAL_TO_HIGH_ORDER)
-#if 1
     movlw bank_numpot_values
     banksel index
     addwf index, W
     movwf FSR
     bankisel bank_numpot_values
     movf INDF, W
-#else
-    banksel bank_numpot_values+BANK_POS_GAIN_IN_NUMPOT
-    movf bank_numpot_values+BANK_POS_GAIN_IN_NUMPOT, W
-#endif
     math_banksel
     movwf number_b_hi
     lshift_f number_b_hi, SHIFT_NUMPOT_VAL_TO_HIGH_ORDER
@@ -297,14 +245,6 @@ process_change_conf_eq_simple_plug:
     ;; And the amplitude is:
     ;; number_b = number_b - number_a
     call_other_page math_sub_1616s
-#if 0
-    ;; left shift number_b of 8+SHIFT_NUMPOT_VAL_TO_HIGH_ORDER bits
-    ;; (the lo byte is put to hi byte and shifted by SHIFT_NUMPOT_VAL_TO_HIGH_ORDER)
-    movf number_b_lo, W
-    movwf number_b_hi
-    lshift_f number_b_hi, SHIFT_NUMPOT_VAL_TO_HIGH_ORDER
-    clrf number_b_lo
-#endif
 
     ;; Now calculate the increment which is added at each cycle
     ;; number_a = bank_nb_inc
@@ -319,25 +259,6 @@ process_change_conf_eq_simple_plug:
     call_other_page math_div_16s16s_16s
     call_other_page math_neg_number_b_16s
 
-
-#if 0
-    movlw 0x0
-    movwf param1
-    movlw 3
-    movwf param2
-    call_other_page lcd_locate
-    math_banksel
-    movf number_b_hi, W
-    movwf param1
-    clrf param2
-    call_other_page lcd_int
-    math_banksel
-    movf number_b_lo, W
-    movwf param1
-    clrf param2
-    call_other_page lcd_int
-#endif
-#if 1
     ;; FSR = index*2
     banksel index
     movf index, W
@@ -354,9 +275,7 @@ process_change_conf_eq_simple_plug:
     incf FSR, F
     movf number_b_hi, W
     movwf INDF
-#else
-    math_copy_16 number_b, all_inc_16+(BANK_POS_GAIN_IN_NUMPOT*2)
-#endif
+
     ;; Next index, and loop
     banksel index
     incf index, F
@@ -365,22 +284,6 @@ process_change_conf_eq_simple_plug:
     btfss STATUS, Z
     goto process_change_conf_type_eq_loop
 
-
-#if 0
-    ;; For testing
-    banksel all_numpot_16
-    movlw .16
-    movwf all_numpot_16+(0xA*2)+1
-    lshift_f all_inc_16+(0xA*2)+1, 3
-    clrf all_numpot_16+(0xA*2)
-
-    banksel all_inc_16
-    movlw 0x00
-    movwf all_inc_16+(0xA*2)
-    movlw 0x04
-    movwf all_inc_16+(0xA*2)+1
-
-#endif
 process_change_conf_end:
 
     return
@@ -394,7 +297,6 @@ process_change_conf_end:
 ;;;
 process_update:
     global process_update
-#if 1
     ;; Check if numpot have to be changed
     banksel update_info
     movf update_info, W
@@ -479,41 +381,6 @@ process_update_loop_update_gain:
     decfsz trem_inc_cpt, F
     goto process_update_end
 
-#if 0
-    banksel tst_reg
-    movlw 0x08
-    xorwf tst_reg, W
-    movwf tst_reg
-    movwf param1
-    movlw 3
-    movwf param2
-    call_other_page lcd_locate
-    banksel all_numpot_16
-    movf all_numpot_16+BANK_POS_GAIN_IN_NUMPOT*2+1, W
-    movwf param1
-    clrf param2
-    call_other_page lcd_int
-    banksel all_numpot_16
-    movf all_numpot_16+BANK_POS_GAIN_IN_NUMPOT*2, W
-    movwf param1
-    clrf param2
-    call_other_page lcd_int
-#endif
-#if 0
-    banksel tst_reg
-    movlw 0x08
-    xorwf tst_reg, W
-    movwf tst_reg
-    movwf param1
-    movlw 3
-    movwf param2
-    call_other_page lcd_locate
-    banksel potvalues
-    movf potvalues+BANK_POS_GAIN_IN_NUMPOT, W
-    movwf param1
-    clrf param2
-    call_other_page lcd_int
-#endif
     ;; End of half period
     ;; -> trem_inc_cpt need to be reset and all_inc_16 have to be negated
     ;; Reinit trem_inc_cpt
@@ -560,7 +427,6 @@ process_update_loop_negate_inc:
     decfsz index, F
     goto process_update_loop_negate_inc
 
-#endif
 process_update_end:
     ;; Remove UPDATE_ONE_TIME bit from update_info,
     ;; in order to not update data next time if not needed (eg if
