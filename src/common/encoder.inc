@@ -3,7 +3,7 @@
     extern encoder_min_value
     extern encoder_max_value
 
-encoder_it macro reg_current_value, reg_last_value
+encoder_it macro reg_current_value, reg_changed_bit
 
 #if (ENC_A_PORT != ENC_B_PORT)
 #error config_error
@@ -12,18 +12,10 @@ encoder_it macro reg_current_value, reg_last_value
 #if (ENC_SW_PORT != ENC_B_PORT)
 #error config_error
 #endif
-    ;; Check if some changes have occured:
-    ;; using XOR only bit which have change are equal to 1
-    ;; -> put this result in interrupt_var_1
-    banksel reg_current_value
-    movf reg_current_value, W
-    banksel reg_last_value
-    xorwf reg_last_value, W
-    movwf interrupt_var_1
 
     ;; Check encoder switch
 encoder_switch_check:
-    btfss interrupt_var_1, ENC_SW_BIT
+    btfss reg_changed_bit, ENC_SW_BIT
     ;; The bit has not changed
     goto encoder_switch_check_end
     ;; The bit has changed, check if it has been pressed
@@ -33,7 +25,7 @@ encoder_switch_check:
 encoder_switch_check_end:
 
     ;; Check if encoder rotation need to be reevaluated
-    btfss interrupt_var_1, ENC_A_BIT
+    btfss reg_changed_bit, ENC_A_BIT
     ;; The bit has not changed
     goto encoder_it_end
     ;; The bit has changed, check its new state

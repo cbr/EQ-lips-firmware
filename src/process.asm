@@ -37,7 +37,7 @@ all_inc_16      RES (2*BANK_NB_NUMPOT_VALUES)
 tst_reg         RES 1
 
 ; relocatable code
-EQ_PROG_2 CODE
+EQ_PROG_1 CODE
 
 ;;;
 ;;; Function called when input data have been changed

@@ -31,6 +31,9 @@ io_configure:
     bsf DOWN_SW_TRIS, DOWN_SW_BIT
     bsf UP_SW_TRIS, UP_SW_BIT
 
+    banksel WPUB
+    bsf WPUB, DOWN_SW_BIT
+    bsf WPUB, UP_SW_BIT
     banksel 0
     return
 

@@ -1,5 +1,4 @@
 #define LCD_ALL_BIT_IN_SAME_REG
-
 LCD_DATA_0_TRIS equ TRISA
 LCD_DATA_0_PORT equ PORTA
 LCD_DATA_0_BIT  equ 0
@@ -86,11 +85,11 @@ UP_SW_PORT     equ PORTB
 UP_SW_BIT      equ 3
 
 io_filter macro port_register, port_mask, counter, result_reg
-    local encoder_it_wait_stable
-    local encoder_it_continue
+    local io_filter_wait_stable
+    local io_filter_continue
     ; test if rising edge
     ; wait until edge value is stable
-encoder_it_wait_stable:
+io_filter_wait_stable:
     banksel 0
     ; init counter
     movlw counter
@@ -102,7 +101,7 @@ encoder_it_wait_stable:
     movwf result_reg
     movlw port_mask
     andwf result_reg, F
-encoder_it_continue:
+io_filter_continue:
     ; read value and mask
     movlw port_mask
     banksel port_register
@@ -112,12 +111,30 @@ encoder_it_continue:
     subwf result_reg, W
     ; if bit Z of status is not set, the value is different from the reference, so we restart
     btfss STATUS, Z
-    goto encoder_it_wait_stable
+    goto io_filter_wait_stable
 
     decfsz interrupt_var_1, F
-    goto encoder_it_continue
+    goto io_filter_continue
     endm
 
+io_check_button macro filtered_port, port_changes, bit, pressed_register, released_register
+    local io_check_button_end
+    local io_check_button_pressed
+    local io_check_button_released
+    btfss port_changes, bit
+    goto io_check_button_end
+
+    btfss filtered_port, bit
+    goto io_check_button_released
+io_check_button_pressed:
+    banksel pressed_register
+    incf pressed_register, F
+    goto io_check_button_end
+io_check_button_released:
+    banksel released_register
+    incf released_register, F
+io_check_button_end:
+    endm
 
 
 #ifndef IO_M

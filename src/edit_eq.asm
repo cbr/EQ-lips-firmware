@@ -28,7 +28,7 @@ trem_nb_val     RES 1
 #endif
 
 ; relocatable code
-EQ_PROG_1 CODE
+EQ_PROG_2 CODE
 edit_eq_st_trem:
     dt "GOTO TREMOLO", 0
 

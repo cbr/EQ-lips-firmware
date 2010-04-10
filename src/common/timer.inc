@@ -1,3 +1,4 @@
+#define TIMER_PERIOD_MS             .5
 
 timer_it macro
     local timer_it_end

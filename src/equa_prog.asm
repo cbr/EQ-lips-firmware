@@ -145,11 +145,15 @@ start:
     BCF  STATUS,RP0 ;Bank 0
     BCF  STATUS,RP1 ;
 
+    ;; Do not deactivate week pull-up
+    banksel OPTION_REG
+    bcf OPTION_REG, NOT_RBPU
     ; disable adc (necessary to use io)
     banksel ANSEL
     clrf ANSEL
     clrf ANSELH
     banksel 0
+
 
     ; init
     call_other_page io_configure
@@ -158,7 +162,12 @@ start:
     call_other_page spi_init
     call_other_page timer_init
 
-    ; enable interrupt
+    ;; activate it for foot switch
+    banksel IOCB
+    bsf IOCB, UP_SW_BIT
+    bsf IOCB, DOWN_SW_BIT
+
+    ;; enable interrupt
     interrupt_enable
 #if 0
     call_other_page lcd_clear

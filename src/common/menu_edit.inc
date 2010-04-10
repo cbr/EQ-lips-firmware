@@ -88,7 +88,6 @@ menu_edit_focus:
     movwf param1
     call_other_page lcd_char
     goto menu_edit_undef
-    goto menu_edit_undef
 
 menu_edit_select:
     ;; configure encoder
