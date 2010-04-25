@@ -10,12 +10,13 @@
 
 #ifndef BANK_M
     ;; Variables
-    extern bank_nb_inc
     extern bank_numpot_values
+#ifdef TREMOLO
     extern bank_trem_type
     extern bank_trem_rate
     extern bank_trem_target
-
+    extern bank_nb_inc
+#endif
     ;; Functions
     extern bank_load
     extern bank_save

@@ -1,5 +1,7 @@
 BIN_NAME=equa_prog
 
+TREMOLO=0
+
 SRCS=src/common/numpot.asm \
 	src/common/global.asm  \
 	src/common/delay.asm  \
@@ -18,11 +20,14 @@ SRCS=src/common/numpot.asm \
 	src/common/math.asm  \
 	src/equa_prog.asm \
 	src/edit_eq.asm \
-	src/edit_trem.asm \
 	src/edit_common.asm \
 	src/bank.asm \
 	src/process.asm \
 	src/io_interrupt.asm \
+
+ifeq ($(TREMOLO), 1)
+SRCS +=	src/edit_trem.asm
+endif
 
 IMGS=src/common/font.xcf
 
@@ -36,7 +41,11 @@ LD=gplink
 IMG2GPASM=utils/img2gpasm.sh
 NUMPOT_MAPPING=utils/numpot_mapping.py
 
+ifeq ($(TREMOLO), 1)
+AS_FLAGS=-pp16f886 -D TREMOLO=1
+else
 AS_FLAGS=-pp16f886
+endif
 UNASM_FLAGS=-pp16f886
 LINK_SCRIPT=16f886.lkr
 LD_FLAGS= -c -ainhx32 -m -s$(LINK_SCRIPT)

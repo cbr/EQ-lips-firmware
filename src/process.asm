@@ -32,7 +32,9 @@ target_numpot_values RES BANK_NB_NUMPOT_VALUES
     ;; Temporary activation data
 PROG_VAR_2 UDATA
 all_numpot_16   RES (2*BANK_NB_NUMPOT_VALUES)
+#ifdef TREMOLO
 all_inc_16      RES (2*BANK_NB_NUMPOT_VALUES)
+#endif
 
 tst_reg         RES 1
 
@@ -48,10 +50,11 @@ process_change_conf:
 
     banksel tst_reg
     clrf tst_reg
-
+#ifdef TREMOLO
     ;; Clear all_inc_16
     banksel all_inc_16
     mem_clear all_inc_16, (2*BANK_NB_NUMPOT_VALUES)
+#endif
 
     banksel index
     movlw BANK_NB_NUMPOT_VALUES
@@ -97,7 +100,7 @@ process_change_conf_init_value_loop:
     decfsz index, F
     goto process_change_conf_init_value_loop
 
-
+#ifdef TREMOLO
     ;; *** Check Tremolo type
 process_change_conf_check_type_simple:
     banksel bank_trem_type
@@ -111,23 +114,29 @@ process_change_conf_check_type_eq:
     sublw BANK_TREM_TYPE_EQ
     btfsc STATUS, Z
     goto process_change_conf_type_eq
-
+#endif
 
     ;; *** No tremolo
 process_change_conf_type_none:
     ;; No tremolo
     ;; Update juste one time
     banksel update_info
+#ifdef TREMOLO
     bcf update_info, UPDATE_EVERY_TIME
     bsf update_info, UPDATE_ONE_TIME
+#else
+    ;; Send prepared numpot values
+    call_other_page numpot_send_all
+
+#endif
     goto process_change_conf_end
 
+#ifdef TREMOLO
     ;; *** Simple tremolo type
     ;; *** Eq tremolo type
     ;; inc = amplitude / bank_nb_inc
     ;; inc = (numpot_values_a - (numpot_values_a * trem_rate / 100)) / bank_nb_inc
 process_change_conf_type_simple:
-
     ;; Update every time
     banksel update_info
     bsf update_info, UPDATE_EVERY_TIME
@@ -283,13 +292,14 @@ process_change_conf_eq_simple_plug:
     sublw BANK_NB_NUMPOT_VALUES
     btfss STATUS, Z
     goto process_change_conf_type_eq_loop
+#endif
 
 process_change_conf_end:
 
     return
 
 
-
+#ifdef TREMOLO
 ;;;
 ;;; Function called at each tick to update numpot
 ;;; Variable changes: number_a, number_b, FSR,
@@ -435,6 +445,6 @@ process_update_end:
     bcf update_info, UPDATE_ONE_TIME
 
     return
-
+#endif
 
 END

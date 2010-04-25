@@ -17,6 +17,7 @@ PROG_VAR_1 UDATA
 ;;; Sources data
 bank_numpot_values RES BANK_NB_NUMPOT_VALUES
     global bank_numpot_values
+#ifdef TREMOLO
 ;;; Type of tremolo (BANK_TREM_TYPE_NONE,
 ;;; BANK_TREM_TYPE_SIMPLE or BANK_TREM_TYPE_EQ)
 bank_trem_type       RES 1
@@ -30,7 +31,7 @@ bank_nb_inc     RES 1
 ;;; Target memory bank of eq tremolo
 bank_trem_target RES 1
     global bank_trem_target
-
+#endif
     ;; LOCAL
 bank_tmp     RES 1
 
@@ -50,6 +51,7 @@ bank_save:
     ;; param1 have been set to the next eeprom position
     ;; in the previous function -> don't need to prepare it
 
+#ifdef TREMOLO
     ;; save trem type
     banksel bank_trem_type
     movf bank_trem_type, W
@@ -76,7 +78,7 @@ bank_save:
     movf bank_trem_target, W
     movwf param2
     call_other_page eeprom_write
-
+#endif
     return
 
 ;;; Load parameters from bank
@@ -92,7 +94,7 @@ bank_load:
     ;; param1 have been set to the next eeprom position
     ;; in the previous function -> don't need to prepare it
 
-#if 1
+#ifdef TREMOLO
     ;; load trem type
     call_other_page eeprom_read
     banksel bank_trem_type
@@ -115,21 +117,6 @@ bank_load:
     call_other_page eeprom_read
     banksel bank_trem_target
     movwf bank_trem_target
-
-#else
-    ;; for testing
-    movlw .50
-    banksel bank_trem_rate
-    movwf bank_trem_rate
-
-    banksel bank_nb_inc
-    movlw 0x30
-    movwf bank_nb_inc
-
-    banksel bank_trem_type
-    movlw 0x00
-    movwf bank_trem_type
-
 #endif
     return
 

@@ -56,6 +56,12 @@ edit_common_refresh:
     menu_ask_refresh
     return
 
+
+edit_common_sleep:
+    global edit_common_sleep
+    sleep
+    return
+
 #define LONG_PRESS_NB_CYCLE     (0x5DC/(TIMER_PERIOD_MS))
 
 ;;; Periodic check of button. Mange short press and long press callback.
@@ -170,41 +176,41 @@ edit_common_down_short:
     clrf param1
     movlw 3
     movwf param2
-    call_other_page lcd_locate
+    ;; call_other_page lcd_locate
     movlw 1
     movwf param1
     clrf param2
-    call_other_page lcd_int
+    ;; call_other_page lcd_int
     return
 edit_common_down_long:
     clrf param1
     movlw 3
     movwf param2
-    call_other_page lcd_locate
+    ;; call_other_page lcd_locate
     movlw 2
     movwf param1
     clrf param2
-    call_other_page lcd_int
+    ;; call_other_page lcd_int
     return
 edit_common_up_short:
     clrf param1
     movlw 3
     movwf param2
-    call_other_page lcd_locate
+    ;; call_other_page lcd_locate
     movlw 3
     movwf param1
     clrf param2
-    call_other_page lcd_int
+    ;; call_other_page lcd_int
     return
 edit_common_up_long:
     clrf param1
     movlw 3
     movwf param2
-    call_other_page lcd_locate
+    ;; call_other_page lcd_locate
     movlw 4
     movwf param1
     clrf param2
-    call_other_page lcd_int
+    ;; call_other_page lcd_int
     return
 
 ;;; Function called periodically in order to do periodic actions:
@@ -216,8 +222,10 @@ edit_common_cycle_period:
     cycle_check_button reg_input_current_value, UP_SW_BIT, button_up_time_cpt, edit_common_up_short, edit_common_up_long
     cycle_check_button reg_input_current_value, DOWN_SW_BIT, button_down_time_cpt, edit_common_down_short, edit_common_down_long
 
+#ifdef TREMOLO
     ;; Update numpot according to conf
     call_other_page process_update
+#endif
 
 #if 1
     movlw 5

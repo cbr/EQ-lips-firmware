@@ -136,9 +136,10 @@ menu_event_dispatch_end:
 ;;; tick_function: function called at every timer tick (period to be checked in timer.h)
 ;;; Changed registers: menu_value, menu_action, param1
 ;;;
-menu_start macro tick_function
+menu_start macro tick_function, idle_function
     VARIABLE MENU_NB_ENTRY=0
     local menu_start_quit
+    local menu_start_no_idle
     local menu_start_check_focus_change
     local menu_start_end_return
     local menu_start_check_select
@@ -292,6 +293,15 @@ menu_start_check_select:
     goto menu_start_quit
 
 menu_start_quit:
+#if idle_function == UNUSED_PARAM
+#else
+    movlw MENU_ACTION_UNDEF
+    subwf menu_action, W
+    btfss STATUS, Z
+    goto menu_start_no_idle
+    call_other_page idle_function
+#endif
+menu_start_no_idle:
     endm
 
 

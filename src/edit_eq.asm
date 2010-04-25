@@ -31,15 +31,24 @@ trem_nb_val     RES 1
 EQ_PROG_2 CODE
 edit_eq_st_trem:
     dt "GOTO TREMOLO", 0
+button_sleep_st:
+    dt "SLEEP", 0
 
 edit_eq_show:
     global edit_eq_show
 
     call_other_page lcd_clear
 
-    menu_start edit_common_cycle_period
+#ifdef TREMOLO
+    menu_start edit_common_cycle_period, UNUSED_PARAM
+#else
+    menu_start edit_common_cycle_period, edit_common_sleep
+#endif
+
     ;; menu_label_int 0, current_bank
+#ifdef TREMOLO
     menu_button_goto edit_eq_st_trem, 0, edit_trem_show
+#endif
     menu_edit edit_common_st_bank, 1, 1, 1, 0x10, current_bank, edit_common_load, UNUSED_PARAM
     menu_edit_no_show edit_common_st_save, 1, 2, 1, 0x10, current_bank, edit_common_refresh, edit_common_save
     menu_eq (0x5*0 + 0x3D), bank_numpot_values, process_change_conf
