@@ -33,10 +33,12 @@ IMGS=src/common/font.xcf
 
 OTHER_GEN_INC=src/common/numpot_mapping.inc
 
+STAT_DIR=stat
 OBJ_DIR=obj
 
 AS=gpasm
 LD=gplink
+BROWSER=chromium
 
 IMG2GPASM=utils/img2gpasm.sh
 NUMPOT_MAPPING=utils/numpot_mapping.py
@@ -72,6 +74,11 @@ prog: all
 .PHONY:unasm
 unasm: all
 	gpdasm $(UNASM_FLAGS) $(BIN_NAME) > $(UNASM_NAME)
+
+.PHONY:stat
+stat:
+	gitstats . $(STAT_DIR)
+	$(BROWSER) $(STAT_DIR)/index.html
 
 $(BIN_NAME): $(OBJS)
 	$(LD) -o$@ $(LD_FLAGS) $^
