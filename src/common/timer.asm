@@ -6,16 +6,6 @@
 #include <timer.inc>
 
 
-#define TIMER_CONFIG_PRESCALER      .8
-#define TIMER_HARD_PRESCALLER       .4
-#define TIMER_BASE_FREQ             .8000000
-#define TIMER_NB_MS_IN_SEC          .1000
-
-#define TIMER_VAL       (TIMER_PERIOD_MS*TIMER_BASE_FREQ)/(TIMER_NB_MS_IN_SEC*TIMER_CONFIG_PRESCALER*TIMER_HARD_PRESCALLER)
-
-#define TIMER_VAL_HI    ((TIMER_VAL & 0xFF00) >> 8)
-#define TIMER_VAL_LO    (TIMER_VAL & 0x00FF)
-
 
 COMMON_VAR UDATA
 
@@ -29,6 +19,7 @@ COMMON CODE
 timer_init:
     global timer_init
 
+#ifdef TIMER_WITH_ECCP
     ;; Prescaller 1:8
     banksel T1CON
     bsf T1CON, T1CKPS0
@@ -50,6 +41,29 @@ timer_init:
     bsf PIE1, CCP1IE
     banksel INTCON
     bsf INTCON, PEIE
+#else
+    ;; Prescaller 1:8
+    banksel T1CON
+    bsf T1CON, T1CKPS0
+    bsf T1CON, T1CKPS1
+    ;; Choose low power oscillator
+#if 0
+    banksel T1CON
+    bsf T1CON, T1OSCEN
+#endif
+    ;; Enable IT for timer1
+    banksel PIE1
+    bsf PIE1, TMR1IE
+    bsf INTCON, PEIE
+    ;; Set timer value
+    banksel TMR1H
+    movlw TIMER_VAL_HI
+    movwf TMR1H
+    banksel TMR1L
+    movlw TIMER_VAL_LO
+    movwf TMR1L
+#endif
+
     ;; Timer1 ON
     banksel T1CON
     bsf T1CON, TMR1ON
