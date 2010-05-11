@@ -42,7 +42,7 @@ edit_eq_show:
 #ifdef TREMOLO
     menu_start edit_common_cycle_period, UNUSED_PARAM
 #else
-    menu_start edit_common_cycle_period, edit_common_sleep
+    menu_start UNUSED_PARAM, edit_common_sleep
 #endif
 
     ;; menu_label_int 0, current_bank

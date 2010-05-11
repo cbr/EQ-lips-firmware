@@ -83,10 +83,13 @@
 #include <numpot.inc>
 #include <edit_eq.inc>
 #include <math.inc>
-#include <timer.inc>
 #include <bank.inc>
 #include <process.inc>
 #include <io_interrupt.inc>
+
+#ifdef TREMOLO
+#include <timer.inc>
+#endif
 
 ; -----------------------------------------------------------------------
 ; Variable declaration
@@ -111,7 +114,9 @@ INT_VECTOR CODE 0x004
 
     ;; Manage io interrupt
     io_interrupt
+#ifdef TREMOLO
     timer_it
+#endif
     movf    pclath_saved,w ; restore context
     movwf   PCLATH
     swapf   status_saved,w
@@ -160,7 +165,9 @@ start:
     call_other_page lcd_init
     call_other_page encoder_init
     call_other_page spi_init
+#ifdef TREMOLO
     call_other_page timer_init
+#endif
 
     ;; activate it for foot switch
     banksel IOCB

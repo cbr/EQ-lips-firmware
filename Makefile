@@ -16,7 +16,6 @@ SRCS=src/common/numpot.asm \
 	src/common/std.asm \
 	src/common/eeprom.asm  \
 	src/common/flash.asm  \
-	src/common/timer.asm  \
 	src/common/math.asm  \
 	src/equa_prog.asm \
 	src/edit_eq.asm \
@@ -26,7 +25,8 @@ SRCS=src/common/numpot.asm \
 	src/io_interrupt.asm \
 
 ifeq ($(TREMOLO), 1)
-SRCS +=	src/edit_trem.asm
+SRCS +=	src/edit_trem.asm \
+	src/common/timer.asm
 endif
 
 IMGS=src/common/font.xcf

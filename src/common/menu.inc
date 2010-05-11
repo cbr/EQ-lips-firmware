@@ -148,8 +148,9 @@ menu_start macro tick_function, idle_function
     local menu_start_state_none_check_event
     local menu_start_check_leave_select
     local menu_start_check_refresh
+#ifdef TREMOLO
     local menu_start_check_tick
-
+#endif
     call_other_page lcd_clear
     ;; init variables
     banksel menu_value
@@ -179,6 +180,7 @@ menu_start_end_return_#v(menu_number)
 
     ;; **** ALL STATE ****
 
+#ifdef TREMOLO
 menu_start_check_tick:
     ;; Check if timer event has occured
     movf timer_cpt, W
@@ -187,12 +189,18 @@ menu_start_check_tick:
     goto menu_start_check_refresh
     ;; Timer event has occured
     ;; -> decrement timer cpt
-    decf timer_cpt, F
+    ;; decf timer_cpt, F
     ;; -> call tick function
     call_other_page tick_function
     ;; Now, restart event analyse
     goto menu_start_end_return
-
+#else
+#if tick_function == UNUSED_PARAM
+#else
+    ;; Timer is not activated, so tick_function cannot be defined in menu_start macro
+#error timer_error
+#endif
+#endif
 menu_start_check_refresh:
     banksel menu_state_asked_action
     movf menu_state_asked_action, W

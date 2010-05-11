@@ -10,5 +10,8 @@
     extern edit_common_load
     extern edit_common_refresh
     extern edit_common_sleep
+#ifdef TREMOLO
     extern edit_common_cycle_period
+#endif
+
 #endif

@@ -1,3 +1,5 @@
+#define IO_LONG_PRESS_NB_CYCLE     (0x5DC/(TIMER_PERIOD_MS))
+
 #define LCD_ALL_BIT_IN_SAME_REG
 LCD_DATA_0_TRIS equ TRISA
 LCD_DATA_0_PORT equ PORTA
@@ -136,6 +138,93 @@ io_check_button_released:
 io_check_button_end:
     endm
 
+#ifdef TREMOLO
+;;; Periodic check of button. Mange short press and long press callback.
+;;; current_reg: register containing button state bit
+;;; bit: bit number in current_reg of button state. Warning: logic is negative!
+;;; time_cpt: 16 bit register containing the number of cycle the button is pressed
+;;; label_short_press: label called when short press event is detected
+;;; label_long_press: label called when long press event is detected
+io_cycle_check_button macro current_reg, bit, time_cpt, label_short_press, label_long_press
+    local time_cpt_is_zero
+    local time_cpt_is_not_zero
+    local io_cycle_check_button_end
+    local button_unpressed
+    local button_unpressed_no_short_press_event
+    math_test_16 time_cpt
+    btfss STATUS, Z
+    goto time_cpt_is_not_zero
+
+time_cpt_is_zero:
+#if 0
+    movlw 5
+    movwf param1
+    movlw 3
+    movwf param2
+    call_other_page lcd_locate
+    movlw 1
+    movwf param1
+    clrf param2
+    call_other_page lcd_int
+#endif
+    ;; Button was not previously pressed
+    ;; Check new state
+    banksel current_reg
+    btfsc current_reg, bit      ; logic is negative
+    goto io_cycle_check_button_end
+    ;; increment time_cpt
+    ;; (since it is equal to 0, only inc low order byte)
+    banksel time_cpt
+    incf time_cpt, F
+    ;; Finish
+    goto io_cycle_check_button_end
+
+time_cpt_is_not_zero:
+    ;; Button was previously pressed
+    ;; Check new state
+    banksel current_reg
+    btfsc current_reg, bit      ; logic is negative
+    goto button_unpressed
+
+    ;; Button is still pressed
+    ;; increment time_cpt
+    math_inc_16 time_cpt
+
+    ;; Check if we have a long press
+    math_load_const number_a, IO_LONG_PRESS_NB_CYCLE
+    math_equal number_a, time_cpt
+    btfss STATUS, Z
+    goto io_cycle_check_button_end
+
+    ;; Yes, we have a long press!
+    call_other_page label_long_press
+    ;; Set time_cpt to max value
+    ;; (so, when button is unpressed, if time_cpt
+    ;;  is not equal to max value, then it means
+    ;;  "long press" event has not occured, so
+    ;;  "short press" event has to be triggered)
+    math_load_const time_cpt, MATH_MAX_16S_VALUE
+    goto io_cycle_check_button_end
+
+button_unpressed:
+    ;; Button is not pressed anymore
+    ;; Check if we have a short press
+    math_load_const number_a, MATH_MAX_16S_VALUE
+    math_equal number_a, time_cpt
+    btfsc STATUS, Z
+    goto button_unpressed_no_short_press_event
+
+    ;; Yes, we have a short press event
+    call_other_page label_short_press
+
+    ;; In all case, reinit time_cpt
+button_unpressed_no_short_press_event:
+    banksel time_cpt
+    clrf time_cpt
+    clrf time_cpt+1
+io_cycle_check_button_end:
+    endm
+#endif
 
 #ifndef IO_M
     extern io_configure
