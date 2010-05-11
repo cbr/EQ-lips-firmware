@@ -61,8 +61,10 @@ edit_common_refresh:
 
 edit_common_sleep:
     global edit_common_sleep
+    ;; Nothing to do -> put processor in sleep mode
     sleep
     nop
+    ;; We have been wake up
     return
 
 

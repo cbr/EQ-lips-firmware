@@ -38,6 +38,8 @@ edit_eq_show:
     menu_start edit_common_cycle_period, UNUSED_PARAM
 #else
     menu_start UNUSED_PARAM, edit_common_sleep
+
+    ;; Before managing every element of menu, check buttons state
 #endif
 
     ;; menu_label_int 0, current_bank
