@@ -104,11 +104,6 @@ menu_edit_select:
     goto menu_edit_select_unselect_draw
 
 menu_edit_unselect:
-    ;; Call value valid function callback
-#if on_valid_value_func == UNUSED_PARAM
-#else
-    call_other_page on_valid_value_func
-#endif
 
 menu_edit_select_unselect_draw:
     ;; calculate size of string
@@ -129,6 +124,11 @@ menu_edit_select_unselect_draw:
     goto menu_edit_undef
 
 menu_edit_select_switch:
+    ;; Call value valid function callback
+#if on_valid_value_func == UNUSED_PARAM
+#else
+    call_other_page on_valid_value_func
+#endif
     menu_leave_selection
     goto menu_edit_undef
 
