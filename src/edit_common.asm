@@ -129,19 +129,6 @@ edit_common_cycle_period:
     ;; Update numpot according to conf
     call_other_page process_update
 
-#if 1
-    movlw 5
-    movwf param1
-    movlw 3
-    movwf param2
-    call_other_page lcd_locate
-    banksel reg_input_current_value
-    movf reg_input_current_value, W
-    andlw (1 << UP_SW_BIT) | (1 << DOWN_SW_BIT) | (1 << ENC_SW_BIT) | (1 << ENC_A_BIT) | (1 << ENC_B_BIT)
-    movwf param1
-    clrf param2
-    call_other_page lcd_int
-#endif
     return
 #endif
 

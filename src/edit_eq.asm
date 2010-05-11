@@ -21,11 +21,6 @@
 ;; #include <menu_label.inc>
 
 PROG_VAR_1 UDATA
-#if 0
-gain16          RES 2
-inc             RES 2
-trem_nb_val     RES 1
-#endif
 
 ; relocatable code
 EQ_PROG_2 CODE
@@ -66,69 +61,5 @@ edit_eq_show:
 
     return
 
-#if 0
-prepare_trem
-    ;; init gain16
-    banksel gain16
-    movlw .16
-    movwf gain16+1
-    lshift_f gain16+1, 3
-    clrf gain16
-
-    ;; init inc
-    ;; inc = amplitude / nb_val
-    ;; inc = 16 (shifted) / nb_val
-    ;; inc = 0x4000 / 50 = 0x147
-    banksel inc
-    movlw 0x47
-    movwf inc
-    movlw 0x01
-    movwf inc+1
-
-    ;; init nb val
-    banksel trem_nb_val
-    movlw 0x32
-    movwf trem_nb_val
-    return
-
-trem_manage:
-    ;; increment gain value
-   ;; gain16 = gain16 + inc
-    math_copy_16 gain16, number_a
-    math_copy_16 inc, number_b
-    math_banksel
-    call_other_page math_add_1616s
-    math_copy_16 number_b, gain16
-
-    ;; Set gain value (keep only 5 high order bits)
-    banksel gain16
-    movf gain16+1, W
-    movwf param2
-    rshift_f param2, 3
-    ;; gain is pot 9
-    movlw 0xA
-    movwf param1
-    call_other_page numpot_set_one_value
-    ;; incf tst_timer, F
-
-    ;; send values
-    call_other_page numpot_send_all
-
-    ;; prepare next val
-    banksel trem_nb_val
-    decfsz trem_nb_val, F
-    goto trem_manage_end
-    ;; reinit nb_val
-    movlw 0x32
-    movwf trem_nb_val
-    ;; inverse inc
-    math_copy_16 inc, number_a
-    math_banksel
-    call_other_page math_neg_number_a_16s
-    math_copy_16 number_a, inc
-trem_manage_end:
-    banksel 0
-    return
-#endif
 
 END
