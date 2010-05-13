@@ -81,6 +81,7 @@
 #include <menu_button.inc>
 #include <spi.inc>
 #include <numpot.inc>
+#include <edit_common.inc>
 #include <edit_eq.inc>
 #include <math.inc>
 #include <bank.inc>
@@ -168,6 +169,7 @@ start:
 #ifdef TREMOLO
     call_other_page timer_init
 #endif
+    call_other_page edit_common_init
 
     ;; activate it for foot switch
     banksel IOCB

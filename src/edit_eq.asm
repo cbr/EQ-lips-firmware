@@ -20,6 +20,8 @@
 #include <edit_trem.inc>
 ;; #include <menu_label.inc>
 
+#define EDIT_EQ_VALUE
+
 PROG_VAR_1 UDATA
 
 ; relocatable code
@@ -28,6 +30,7 @@ edit_eq_st_trem:
     dt "GOTO TREMOLO", 0
 button_sleep_st:
     dt "SLEEP", 0
+
 
 edit_eq_show:
     global edit_eq_show
