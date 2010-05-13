@@ -7,6 +7,8 @@
 #define BANK_TREM_TYPE_SIMPLE            0x01
 #define BANK_TREM_TYPE_EQ                0x02
 
+;;; Number of total bank
+#define BANK_NB                          0x10
 
 #ifndef BANK_M
     ;; Variables

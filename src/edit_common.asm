@@ -57,6 +57,8 @@ edit_common_init:
     movlw 0xFF
     movwf edit_common_button_free_to_use
     movwf edit_common_button_last_value
+    clrf edit_common_up_btn_released
+    clrf edit_common_down_btn_released
     return
 
 edit_common_save:
@@ -89,7 +91,7 @@ edit_common_refresh:
 edit_common_sleep:
     global edit_common_sleep
     ;; Nothing to do -> put processor in sleep mode
-    ;; sleep
+    sleep
     nop
     ;; We have been wake up
     return
