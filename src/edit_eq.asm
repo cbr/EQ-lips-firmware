@@ -43,6 +43,7 @@ edit_eq_show:
     menu_start UNUSED_PARAM, edit_common_sleep
 
     ;; Before managing every element of menu, check buttons state
+    call_other_page edit_common_check_buttons
 #endif
 
     ;; menu_label_int 0, current_bank

@@ -89,7 +89,7 @@ edit_common_refresh:
 edit_common_sleep:
     global edit_common_sleep
     ;; Nothing to do -> put processor in sleep mode
-    sleep
+    ;; sleep
     nop
     ;; We have been wake up
     return
@@ -138,7 +138,17 @@ edit_common_up_long:
 
 edit_common_check_buttons:
     global edit_common_check_buttons
-
+#if 1
+    clrf param1
+    movlw 3
+    movwf param2
+    call_other_page lcd_locate
+    banksel edit_common_button_free_to_use
+    movf edit_common_button_free_to_use, W
+    movwf param1
+    clrf param2
+    call_other_page lcd_int
+#endif
     ;; Check if both button are pressed and not used
     ;; (bits are active when equal to 0, so the value is first negated)
     banksel reg_input_current_value
@@ -153,12 +163,13 @@ edit_common_check_buttons:
     ;; Both button are pressed !
 chk_btn_both_button_pressed:
     ;; Memorized that button state have been used
-    banksel edit_common_button_free_to_use
     movlw BOTH_BUTTON_MASK
-    movwf edit_common_button_free_to_use
+    xorlw 0xFF
+    banksel edit_common_button_free_to_use
+    andwf edit_common_button_free_to_use, F
     banksel edit_common_both_btn_pressed
     incf edit_common_both_btn_pressed, F
-    call_other_page lcd_clear
+    ;; call_other_page lcd_clear
 
     ;; Both button are not pressed
 chk_btn_both_button_not_pressed:
@@ -179,6 +190,7 @@ chk_btn_both_button_not_pressed:
 
     ;; Button UP released
 chk_btn_up_button_released:
+    ;; call_other_page lcd_clear
     banksel edit_common_up_btn_released
     incf edit_common_up_btn_released, F
     goto chk_btn_up_button_released_end
@@ -191,6 +203,7 @@ chk_btn_up_button_not_released:
 
     ;; Button DOWN released
 chk_btn_down_button_released:
+    ;; call_other_page lcd_clear
     banksel edit_common_down_btn_released
     incf edit_common_down_btn_released, F
     goto chk_btn_down_button_released_end
@@ -203,6 +216,12 @@ chk_btn_down_button_not_released:
     movf reg_input_current_value, W
     banksel edit_common_button_last_value
     movwf edit_common_button_last_value
+    ;; Reset if necessary
+    banksel reg_input_current_value
+    movf reg_input_current_value, W
+    andlw BOTH_BUTTON_MASK
+    banksel edit_common_button_free_to_use
+    iorwf edit_common_button_free_to_use
     return
 
 

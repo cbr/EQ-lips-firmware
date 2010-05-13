@@ -12,5 +12,14 @@ reg_input_current_value RES 1
 ; relocatable code
 EQ_PROG_1 CODE
 
-
+;;;
+;;; Initialize module
+;;;
+io_interrupt_init:
+    global io_interrupt_init
+    banksel reg_input_last_value
+    movlw 0xFF
+    movwf reg_input_last_value
+    movwf reg_input_current_value
+    return
 END

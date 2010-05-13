@@ -169,6 +169,7 @@ start:
 #ifdef TREMOLO
     call_other_page timer_init
 #endif
+    call_other_page io_interrupt_init
     call_other_page edit_common_init
 
     ;; activate it for foot switch

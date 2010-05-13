@@ -42,6 +42,9 @@ no_io_it:
 
 
 #ifndef IO_INTERRUPT_M
+    ;; Variables
     extern reg_input_last_value
     extern reg_input_current_value
+    ;; Functions
+    extern io_interrupt_init
 #endif
