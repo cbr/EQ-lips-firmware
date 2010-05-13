@@ -9,10 +9,10 @@ io_interrupt macro
     goto no_io_it
 
     ;; Memorize previous register filtered value
+    banksel reg_input_current_value
     movf reg_input_current_value, W
     banksel reg_input_last_value
     movwf reg_input_last_value
-    banksel 0
 
     ;; Filter value of register (put into reg_input_current_value)
     io_filter ENC_A_PORT, ENCODER_MASK | (1 << DOWN_SW_BIT) | (1 << UP_SW_BIT), IO_FILTER_NB_STABLE_STATE, reg_input_current_value
@@ -29,6 +29,7 @@ io_interrupt macro
     encoder_it reg_input_current_value, interrupt_var_1
 ack_it_io:
     ; ack it
+    banksel ENC_A_PORT
     movf ENC_A_PORT, F
 #ifdef RABIF
     bcf INTCON, RABIF
