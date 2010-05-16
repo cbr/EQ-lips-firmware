@@ -11,7 +11,5 @@
     extern encoder_sw
     extern encoder_value
     extern encoder_last_value
-    extern menu_value
-    extern menu_action
     extern interrupt_var_1
     extern current_bank

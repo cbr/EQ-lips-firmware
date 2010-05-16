@@ -145,8 +145,8 @@ edit_common_check_buttons:
     movlw 3
     movwf param2
     call_other_page lcd_locate
-    banksel edit_common_button_free_to_use
-    movf edit_common_button_free_to_use, W
+    banksel menu_asked_action
+    movf menu_asked_action, W
     movwf param1
     clrf param2
     call_other_page lcd_int
