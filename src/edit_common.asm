@@ -223,7 +223,7 @@ chk_btn_down_button_not_released:
     movf reg_input_current_value, W
     andlw BOTH_BUTTON_MASK
     banksel edit_common_button_free_to_use
-    iorwf edit_common_button_free_to_use
+    iorwf edit_common_button_free_to_use, F
     return
 
 

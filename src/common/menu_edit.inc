@@ -24,7 +24,7 @@ menu_edit_no_show macro string, pos_x, pos_y, min_value, max_value, value_addr, 
 
 ;;;
 ;;; This macro add a menu edit into a dialog screen.
-;;; Simplier alias macro can be used instead : menu_edit, menu_edit_no_show
+;;; Simplier alias macro can be used instead: menu_edit, menu_edit_no_show
 ;;; string: label of the menu edit
 ;;; pos_y: y position of menu edit
 ;;; Changed registers: param1, param2, param3, param4
@@ -76,6 +76,7 @@ menu_edit_unfocus:
     movwf param1
     call_other_page lcd_char
     goto menu_edit_undef
+
 menu_edit_focus:
     ;; Current edit
     movlw pos_x
