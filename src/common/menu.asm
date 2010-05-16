@@ -11,6 +11,9 @@
 #define MENU_ACTION_STEP_1              0x0
 #define MENU_ACTION_STEP_2              0x1
 #define MENU_ACTION_STEP_3              0x2
+#define MENU_ACTION_STEP_4              0x3
+#define MENU_ACTION_STEP_5              0x4
+#define MENU_ACTION_STEP_6              0x5
 
 #define MENU_BUTTON_NB_DRAW_SELECT  0x8
 
@@ -40,6 +43,8 @@ menu_asked_action        RES 1
 ;;; Internal value of selected entry
 menu_select_value       RES 1
     global menu_select_value
+menu_asked_action_param RES 1
+    global menu_asked_action_param
 
 ;;; relocatable code
 COMMON CODE
@@ -298,7 +303,82 @@ menu_start_process_complex_action_leave_2:
     goto menu_start_process_end
 menu_start_process_complex_action_leave_end:
 
-;;;       - Select other entry
+menu_start_process_complex_action_select_specific_entry:
+    banksel menu_action
+    movf menu_action, W
+    sublw MENU_ACTION_SELECT_SPEC_ENTRY
+    btfss STATUS, Z
+    goto menu_start_process_complex_action_select_specific_entry_end
+    ;; Check action step
+    banksel menu_action_step
+    movf menu_action_step, W
+    sublw MENU_ACTION_STEP_1
+    btfss STATUS, Z
+    goto menu_start_process_complex_action_select_specific_entry_2
+    ;; step 1:
+menu_start_process_complex_action_select_specific_entry_1:
+    incf menu_action_step, F
+    ;; Check current menu state
+    banksel menu_state
+    movf menu_state, W
+    sublw MENU_STATE_SELECT
+    btfss STATUS, Z
+    ;; No current selection, go directly to next step
+    goto menu_start_process_complex_action_select_specific_entry_2
+    ;; There is a selection -> unselect
+    movlw MENU_EVENT_UNSELECT
+    movwf menu_event
+    goto menu_start_process_end
+
+    ;; step 2:
+menu_start_process_complex_action_select_specific_entry_2:
+    movf menu_action_step, W
+    sublw MENU_ACTION_STEP_2
+    btfss STATUS, Z
+    goto menu_start_process_complex_action_select_specific_entry_3
+    ;; Prepare next step
+    incf menu_action_step, F
+    ;; Unfocus current entry
+    movlw MENU_EVENT_UNFOCUS
+    movwf menu_event
+    goto menu_start_process_end
+
+    ;; step 3:
+menu_start_process_complex_action_select_specific_entry_3:
+    movf menu_action_step, W
+    sublw MENU_ACTION_STEP_3
+    btfss STATUS, Z
+    goto menu_start_process_complex_action_select_specific_entry_4
+    ;; Prepare next step
+    incf menu_action_step, F
+    ;; Change current menu entry and focus it
+    banksel menu_asked_action_param
+    movf menu_asked_action_param, W
+    movwf menu_value
+
+    movwf param1
+    clrf param2
+    movlw MENU_NB_ENTRY-1
+    movwf param3
+    call_other_page encoder_set_value
+
+    movlw MENU_EVENT_FOCUS
+    movwf menu_event
+    goto menu_start_process_end
+
+    ;; step 4:
+menu_start_process_complex_action_select_specific_entry_4:
+    ;; This is the last step of complete init
+    clrf menu_action_step
+    clrf menu_action
+    movlw MENU_EVENT_SELECT
+    movwf menu_event
+    ;; Change state
+    movlw MENU_STATE_SELECT
+    banksel menu_state
+    movwf menu_state
+    goto menu_start_process_end
+menu_start_process_complex_action_select_specific_entry_end:
 
 menu_start_process_end:
     return

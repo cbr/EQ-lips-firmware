@@ -23,6 +23,7 @@
 #define MENU_ACTION_FOCUS_CHANGE        (0x80 + 0x01)
 #define MENU_ACTION_COMPLETE_INIT       (0x80 + 0x02)
 #define MENU_ACTION_LEAVE               (0x80 + 0x03)
+#define MENU_ACTION_SELECT_SPEC_ENTRY   (0x80 + 0x04)
 
 #define MENU_STATE_NONE                 0x00
 #define MENU_STATE_SELECT               0x01
@@ -264,6 +265,19 @@ menu_ask_refresh macro
     movwf menu_asked_action
     endm
 
+;;; This macro ask to select the given menu entry
+;;; on next event loop
+menu_select_specific_entry macro entry_nb
+    movlw MENU_ACTION_SELECT_SPEC_ENTRY
+    banksel menu_asked_action
+    movwf menu_asked_action
+    movlw entry_nb
+    banksel menu_asked_action_param
+    movwf menu_asked_action_param
+    endm
+
+
+
 ;;;
 ;;; This macro is a template (exemple) for menu entry element
 ;;;
@@ -297,14 +311,17 @@ menu_template_undef:
 
 
 #ifndef MENU_M
+    ;; Variables (non shared)
     extern menu_value
     extern menu_event
-
+    ;; Variables (shared)
     extern menu_state
     extern menu_select_value
     extern menu_action
     extern menu_action_step
     extern menu_asked_action
+    extern menu_asked_action_param
+    ;; Functions
     extern menu_selection_encoder_configure
     extern menu_start_process
 #endif
