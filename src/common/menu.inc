@@ -39,9 +39,18 @@
 
     VARIABLE MENU_NB_ENTRY
 
+menu_get_uniq_iq macro id
+    movlw entry_#v(id)
+    endm
+
 ;;; Macro which manage event dispatching for menu element
-;;; parameters: label for different event
-menu_event_dispatch macro label_init, label_focus, label_unfocus, label_select, label_unselect, label_select_value_change, label_select_switch, label_refresh
+;;; id: uniq id of menu_entry element
+;;; other parameters: label for different event
+menu_event_dispatch macro id, label_init, label_focus, label_unfocus, label_select, label_unselect, label_select_value_change, label_select_switch, label_refresh
+
+    ;; Menu entry ID
+entry_#v(id) equ MENU_NB_ENTRY
+
     local menu_event_dispatch_end
     local menu_event_not_current_entry
     ;; *** Check event for all entries
@@ -271,7 +280,7 @@ menu_select_specific_entry macro entry_nb
     movlw MENU_ACTION_SELECT_SPEC_ENTRY
     banksel menu_asked_action
     movwf menu_asked_action
-    movlw entry_nb
+    menu_get_uniq_iq entry_nb
     banksel menu_asked_action_param
     movwf menu_asked_action_param
     endm

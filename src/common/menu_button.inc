@@ -1,36 +1,38 @@
 ;;;
 ;;; This macro add a menu button into a dialog screen
-;;; string: label of the menu button. The specified label
-;;; is called on selection
+;;; id: uniq id of menu_entry element
+;;; string: label of the menu button.
 ;;; pos: y position of menu button
 ;;; on_select_function: function called on selection
 ;;; Changed registers: param1, param2, param3, param4
 ;;;
-menu_button macro string, pos, on_select_function
-    menu_button_common string, pos, on_select_function, 0
+menu_button macro id, string, pos, on_select_function
+    menu_button_common id, string, pos, on_select_function, 0
     endm
 
 ;;;
 ;;; This macro add a menu button into a dialog screen. This variant
 ;;; goto the specified label on selection
+;;; id: uniq id of menu_entry element
 ;;; string: label of the menu button
 ;;; pos: y position of menu button
 ;;; on_select_function: function 'gotoed' on selecttion
 ;;; Changed registers: param1, param2, param3, param4
 ;;;
-menu_button_goto macro string, pos, on_select_function
-    menu_button_common string, pos, on_select_function, 1
+menu_button_goto macro id, string, pos, on_select_function
+    menu_button_common id, string, pos, on_select_function, 1
     endm
 
 ;;;
 ;;; This macro add a menu button into a dialog screen
+;;; id: uniq id of menu_entry element
 ;;; string: label of the menu button
 ;;; pos: y position of menu button
 ;;; on_select_function: label used on selection
 ;;; use_goto: if 1, on_select_function is used as a goto, otherwise it is called
 ;;; Changed registers: param1, param2, param3, param4
 ;;;
-menu_button_common macro string, pos, on_select_function, use_goto
+menu_button_common macro id, string, pos, on_select_function, use_goto
     local menu_button_init_or_refresh
     local menu_button_undef
     local menu_button_focus
@@ -38,7 +40,7 @@ menu_button_common macro string, pos, on_select_function, use_goto
     local menu_button_select
     local menu_button_unselect
 
-    menu_event_dispatch menu_button_init_or_refresh, menu_button_focus, menu_button_unfocus, menu_button_select, menu_button_unselect, UNUSED_PARAM, UNUSED_PARAM, menu_button_init_or_refresh
+    menu_event_dispatch id, menu_button_init_or_refresh, menu_button_focus, menu_button_unfocus, menu_button_select, menu_button_unselect, UNUSED_PARAM, UNUSED_PARAM, menu_button_init_or_refresh
     goto menu_button_undef
 
 menu_button_init_or_refresh:

@@ -3,33 +3,36 @@
 ;;;
 ;;; This macro add a menu edit into a dialog screen.
 ;;; The value managed by edit is printed just after the string.
+;;; id: uniq id of menu_entry element
 ;;; string: label of the menu edit
 ;;; pos_y: y position of menu edit
 ;;; Changed registers: param1, param2, param3, param4
 ;;;
-menu_edit macro string, pos_x, pos_y, min_value, max_value, value_addr, on_value_change_func, on_valid_value_func
-    menu_edit_comon string, pos_x, pos_y, min_value, max_value, value_addr, on_value_change_func, on_valid_value_func, 1
+menu_edit macro id, string, pos_x, pos_y, min_value, max_value, value_addr, on_value_change_func, on_valid_value_func
+    menu_edit_comon id, string, pos_x, pos_y, min_value, max_value, value_addr, on_value_change_func, on_valid_value_func, 1
     endm
 
 ;;;
 ;;; This macro add a menu edit into a dialog screen.
 ;;; The value managed by edit is not printed.
+;;; id: uniq id of menu_entry element
 ;;; string: label of the menu edit
 ;;; pos_y: y position of menu edit
 ;;; Changed registers: param1, param2, param3, param4
 ;;;
-menu_edit_no_show macro string, pos_x, pos_y, min_value, max_value, value_addr, on_value_change_func, on_valid_value_func
-    menu_edit_comon string, pos_x, pos_y, min_value, max_value, value_addr, on_value_change_func, on_valid_value_func, 0
+menu_edit_no_show macro id, string, pos_x, pos_y, min_value, max_value, value_addr, on_value_change_func, on_valid_value_func
+    menu_edit_comon id, string, pos_x, pos_y, min_value, max_value, value_addr, on_value_change_func, on_valid_value_func, 0
     endm
 
 ;;;
 ;;; This macro add a menu edit into a dialog screen.
 ;;; Simplier alias macro can be used instead: menu_edit, menu_edit_no_show
+;;; id: uniq id of menu_entry element
 ;;; string: label of the menu edit
 ;;; pos_y: y position of menu edit
 ;;; Changed registers: param1, param2, param3, param4
 ;;;
-menu_edit_comon macro string, pos_x, pos_y, min_value, max_value, value_addr, on_value_change_func, on_valid_value_func, print_value
+menu_edit_comon macro id, string, pos_x, pos_y, min_value, max_value, value_addr, on_value_change_func, on_valid_value_func, print_value
     local menu_edit_init_or_refresh
     local menu_edit_undef
     local menu_edit_focus
@@ -39,7 +42,7 @@ menu_edit_comon macro string, pos_x, pos_y, min_value, max_value, value_addr, on
     local menu_edit_select_switch
     local menu_edit_select_value_change
     local menu_edit_select_unselect_draw
-    menu_event_dispatch menu_edit_init_or_refresh, menu_edit_focus, menu_edit_unfocus, menu_edit_select, menu_edit_unselect, menu_edit_select_value_change, menu_edit_select_switch, menu_edit_init_or_refresh
+    menu_event_dispatch id, menu_edit_init_or_refresh, menu_edit_focus, menu_edit_unfocus, menu_edit_select, menu_edit_unselect, menu_edit_select_value_change, menu_edit_select_switch, menu_edit_init_or_refresh
     goto menu_edit_undef
 
 menu_edit_init_or_refresh:

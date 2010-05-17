@@ -1,11 +1,13 @@
 #define MENU_EQ_MAX_INPUT           0x1F
 ;;;
 ;;; This macro manage an entry element got eq band
+;;; id: uniq id of menu_entry element
 ;;; pos_x: band x position
 ;;; value_addr: address of eq value
 ;;; on_value_change_func: function called when the eq band value is changed
 ;;;
-menu_eq macro pos_x, value_addr, on_value_change_func
+menu_eq macro id, pos_x, value_addr, on_value_change_func
+
     local menu_eq_init
     local menu_eq_undef
     local menu_eq_focus
@@ -15,8 +17,7 @@ menu_eq macro pos_x, value_addr, on_value_change_func
     local menu_eq_refresh
     local menu_eq_select_value_change
     local menu_eq_select_switch
-
-    menu_event_dispatch menu_eq_init, menu_eq_focus, menu_eq_unfocus, menu_eq_select, menu_eq_unselect, menu_eq_select_value_change, menu_eq_select_switch, menu_eq_refresh
+    menu_event_dispatch id, menu_eq_init, menu_eq_focus, menu_eq_unfocus, menu_eq_select, menu_eq_unselect, menu_eq_select_value_change, menu_eq_select_switch, menu_eq_refresh
     goto menu_eq_undef
 menu_eq_init:
     movlw pos_x
