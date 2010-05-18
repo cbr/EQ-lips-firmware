@@ -78,7 +78,7 @@ menu_eq_refresh:
     call_other_page menu_refresh_eq_band
 
 menu_eq_undef:
-    VARIABLE MENU_NB_ENTRY=MENU_NB_ENTRY+1
+    MENU_NEW_ENTRY_WITH_FOCUS
     endm
 
 

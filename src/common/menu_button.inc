@@ -117,7 +117,7 @@ menu_button_unselect:
     goto menu_button_undef
 
 menu_button_undef:
-    VARIABLE MENU_NB_ENTRY=MENU_NB_ENTRY+1
+    MENU_NEW_ENTRY_WITH_FOCUS
     endm
 
 #ifndef MENU_BUTTON_M

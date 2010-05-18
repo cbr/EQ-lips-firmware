@@ -160,7 +160,7 @@ menu_edit_select_value_change:
     goto menu_edit_undef
 
 menu_edit_undef:
-    VARIABLE MENU_NB_ENTRY=MENU_NB_ENTRY+1
+    MENU_NEW_ENTRY_WITH_FOCUS
     endm
 
 #ifndef MENU_EDIT_M

@@ -30,6 +30,7 @@ menu_label_init_or_refresh:
 
 
 menu_label_undef:
+    MENU_NEW_ENTRY_WITHOUT_FOCUS
     endm
 
 #ifndef MENU_LABEL_M

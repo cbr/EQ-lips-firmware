@@ -37,10 +37,34 @@
 #define MENU_STRING_POS_X               0
 #endif
 
-    VARIABLE MENU_NB_ENTRY
 
-menu_get_uniq_iq macro id
-    movlw entry_#v(id)
+
+    VARIABLE MENU_NB_TOTAL_ENTRY
+    VARIABLE MENU_NB_FOCUSABLE_ENTRY
+
+menu_get_number_from_id macro id
+    movlw entry_nb_from_id_#v(id)
+    endm
+
+menu_get_number_from_focusable_nb macro id
+    movlw entry_nb_from_id_#v(id)
+    endm
+
+;;;
+;;; Declare a menu entry which is focusable
+;;;
+MENU_NEW_ENTRY_WITH_FOCUS macro
+entry_nb_from_focus_nb_#v(MENU_NB_FOCUSABLE_ENTRY) equ MENU_NB_TOTAL_ENTRY
+    VARIABLE MENU_NB_TOTAL_ENTRY=MENU_NB_TOTAL_ENTRY+1
+    VARIABLE MENU_NB_FOCUSABLE_ENTRY=MENU_NB_FOCUSABLE_ENTRY+1
+    endm
+
+;;;
+;;; Declare a menu entry which is not focusable
+;;;
+MENU_NEW_ENTRY_WITHOUT_FOCUS macro
+    ;; Menu entry ID
+    VARIABLE MENU_NB_TOTAL_ENTRY=MENU_NB_TOTAL_ENTRY+1
     endm
 
 ;;; Macro which manage event dispatching for menu element
@@ -48,8 +72,7 @@ menu_get_uniq_iq macro id
 ;;; other parameters: label for different event
 menu_event_dispatch macro id, label_init, label_focus, label_unfocus, label_select, label_unselect, label_select_value_change, label_select_switch, label_refresh
 
-    ;; Menu entry ID
-entry_#v(id) equ MENU_NB_ENTRY
+entry_nb_from_id_#v(id) equ MENU_NB_TOTAL_ENTRY
 
     local menu_event_dispatch_end
     local menu_event_not_current_entry
@@ -63,9 +86,9 @@ entry_#v(id) equ MENU_NB_ENTRY
     goto label_init
 #endif
 
-    ;; ** Following events are  for specific entry
+    ;; ** Following events are for specific entry
     ;; -> Check if it applies to current entry
-    movlw MENU_NB_ENTRY
+    movlw MENU_NB_TOTAL_ENTRY
     subwf menu_value, W
     btfss STATUS, Z
     ;; not applied to current entry
@@ -241,7 +264,8 @@ menu_start_no_tick:
 menu_start_no_idle:
 #endif
 menu_start_quit:
-    VARIABLE MENU_NB_ENTRY=0
+    VARIABLE MENU_NB_FOCUSABLE_ENTRY=0
+    VARIABLE MENU_NB_TOTAL_ENTRY=0
     endm
 
 
@@ -280,7 +304,7 @@ menu_select_specific_entry macro entry_nb
     movlw MENU_ACTION_SELECT_SPEC_ENTRY
     banksel menu_asked_action
     movwf menu_asked_action
-    menu_get_uniq_iq entry_nb
+    menu_get_number_from_id entry_nb
     banksel menu_asked_action_param
     movwf menu_asked_action_param
     endm
@@ -315,7 +339,7 @@ menu_template_unselect:
 menu_template_select_value_change:
     goto menu_template_undef
 menu_template_undef:
-    VARIABLE MENU_NB_ENTRY=MENU_NB_ENTRY+1
+    MENU_NEW_ENTRY_WITH_FOCUS
     endm
 
 
@@ -330,6 +354,7 @@ menu_template_undef:
     extern menu_action_step
     extern menu_asked_action
     extern menu_asked_action_param
+    extern menu_focused_entry
     ;; Functions
     extern menu_selection_encoder_configure
     extern menu_start_process

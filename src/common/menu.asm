@@ -45,7 +45,8 @@ menu_select_value       RES 1
     global menu_select_value
 menu_asked_action_param RES 1
     global menu_asked_action_param
-
+menu_focused_entry RES
+    global menu_focused_entry
 ;;; relocatable code
 COMMON CODE
 
@@ -149,10 +150,10 @@ menu_start_process_check_select_switch:
     ;; **** STATE NONE ****
 menu_start_process_state_none:
 menu_start_process_check_focus_change:
-    ;; Check if encoder value is equal to current menu value
+    ;; Check if encoder value is equal to current focused menu value
     movf encoder_value, W
-    banksel menu_value
-    subwf menu_value, W
+    banksel menu_focused_entry
+    subwf menu_focused_entry, W
     btfsc STATUS, Z
     ;; equal, focus has not changed
     goto menu_start_process_check_select
@@ -224,10 +225,15 @@ menu_start_process_complex_action_focus_change_1:
     ;; step 2: focus
 menu_start_process_complex_action_focus_change_2:
     ;; This is the last step of focus change
+    ;; Reinit
     clrf menu_action_step
     clrf menu_action
+    ;; Get new focused entry
     movf encoder_value, W
-    movwf menu_value
+    banksel menu_focused_entry
+    movwf menu_focused_entry
+    ;; menu_value
+    ;; Set event value
     movlw MENU_EVENT_FOCUS
     movwf menu_event
     goto menu_start_process_end
@@ -256,7 +262,7 @@ menu_start_process_complex_action_complete_init_2:
     ;; This is the last step of complete init
     clrf menu_action_step
     clrf menu_action
-    encoder_set_value 0, 0, MENU_NB_ENTRY-1
+    encoder_set_value 0, 0, MENU_NB_FOCUSABLE_ENTRY-1
     ;; After init, we manage focus entry
     movlw MENU_EVENT_FOCUS
     movwf menu_event
@@ -287,10 +293,11 @@ menu_start_process_complex_action_leave_2:
     clrf menu_action_step
     clrf menu_action
     ;; After selection, reset encoder settings
-    movf menu_value, W
+    banksel menu_focused_entry
+    movf menu_focused_entry, W
     movwf param1
     clrf param2
-    movlw MENU_NB_ENTRY-1
+    movlw MENU_NB_FOCUSABLE_ENTRY-1
     movwf param3
     call_other_page encoder_set_value
     ;; Change state to none
@@ -352,13 +359,14 @@ menu_start_process_complex_action_select_specific_entry_3:
     ;; Prepare next step
     incf menu_action_step, F
     ;; Change current menu entry and focus it
+    ;; (todo: but without changing the current focus entry variable ?)
     banksel menu_asked_action_param
     movf menu_asked_action_param, W
     movwf menu_value
 
     movwf param1
     clrf param2
-    movlw MENU_NB_ENTRY-1
+    movlw MENU_NB_FOCUSABLE_ENTRY-1
     movwf param3
     call_other_page encoder_set_value
 
