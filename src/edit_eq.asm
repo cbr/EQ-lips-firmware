@@ -72,6 +72,15 @@ edit_eq_show:
     menu_end
 
     return
+;;; In the 'end' macro we also write the function which return the
+;;; absolute menu entry number from the focusable number
+;;; param1: focusable entry nb for which absolute entry nb must be returned (in W)
+menu_get_nb_from_focusable_nb:
+    ;; movf param1, W
+    ;; return
+    ;; This function is realized by recursively calling a macro
+    menu_get_nb_from_focusable_nb_func_write MENU_NB_FOCUSABLE_ENTRY
+    return
 
 
 END

@@ -42,12 +42,12 @@
     VARIABLE MENU_NB_TOTAL_ENTRY
     VARIABLE MENU_NB_FOCUSABLE_ENTRY
 
-menu_get_number_from_id macro id
+menu_get_nb_from_id_macro macro id
     movlw entry_nb_from_id_#v(id)
     endm
 
-menu_get_number_from_focusable_nb macro id
-    movlw entry_nb_from_id_#v(id)
+menu_get_nb_from_focusable_nb_macro macro focus_nb
+    movlw entry_nb_from_focus_nb_#v(focus_nb)
     endm
 
 ;;;
@@ -235,7 +235,10 @@ menu_start macro tick_function, idle_function
 menu_start_end_return:
 menu_start_end_return_#v(menu_number)
 
-
+    movlw high menu_get_nb_from_focusable_nb
+    movwf param1
+    movlw low menu_get_nb_from_focusable_nb
+    movwf param2
     call_other_page menu_start_process
 
 #if tick_function == UNUSED_PARAM
@@ -268,12 +271,33 @@ menu_start_quit:
     VARIABLE MENU_NB_TOTAL_ENTRY=0
     endm
 
-
 ;;;
 ;;; This macro end a dialog screen
 ;;; Changed registers: menu_event
 ;;;
 menu_end macro
+#if 1
+    movlw .16
+    movwf param1
+    movlw 3
+    movwf param2
+    call_other_page lcd_locate
+    movlw  MENU_NB_FOCUSABLE_ENTRY
+    movwf param1
+    clrf param2
+    call_other_page lcd_int
+
+    movlw .20
+    movwf param1
+    movlw 3
+    movwf param2
+    call_other_page lcd_locate
+    movlw  MENU_NB_TOTAL_ENTRY
+    movwf param1
+    clrf param2
+    call_other_page lcd_int
+#endif
+
     local menu_end_undef
     ;; reset menu_event
     movlw MENU_EVENT_UNDEF
@@ -304,11 +328,27 @@ menu_select_specific_entry macro entry_nb
     movlw MENU_ACTION_SELECT_SPEC_ENTRY
     banksel menu_asked_action
     movwf menu_asked_action
-    menu_get_number_from_id entry_nb
+    menu_get_nb_from_id_macro entry_nb
     banksel menu_asked_action_param
     movwf menu_asked_action_param
+
     endm
 
+
+;;; This macro is used recusively to write function menu_get_nb_from_focusable_nb
+menu_get_nb_from_focusable_nb_func_write macro nb_focusable_entry
+    ;; local not_this_number
+    movf param1, W
+    sublw nb_focusable_entry
+    btfss STATUS, Z
+    goto not_this_number_#v(nb_focusable_entry)
+    menu_get_nb_from_focusable_nb_macro nb_focusable_entry
+    return
+not_this_number_#v(nb_focusable_entry)
+    if nb_focusable_entry > 0
+    menu_get_nb_from_focusable_nb_func_write (nb_focusable_entry-1)
+    endif
+    endm
 
 
 ;;;

@@ -45,13 +45,15 @@ menu_select_value       RES 1
     global menu_select_value
 menu_asked_action_param RES 1
     global menu_asked_action_param
-menu_focused_entry RES
+menu_focused_entry RES 1
     global menu_focused_entry
 ;;; relocatable code
 COMMON CODE
 
 ;;;
 ;;; Manage main process of menu_start macro
+;;; param1: high order byte of menu_get_nb_from_focusable_nb function
+;;; param2: low order byte of menu_get_nb_from_focusable_nb function
 ;;;
 menu_start_process:
     global menu_start_process
@@ -232,7 +234,43 @@ menu_start_process_complex_action_focus_change_2:
     movf encoder_value, W
     banksel menu_focused_entry
     movwf menu_focused_entry
-    ;; menu_value
+    ;; Get corresponding absolute menu entry nb into menu_value
+#if 1
+    ;; Do the indired call
+    call menu_start_process_call_label
+    movwf menu_value
+    pagesel $
+    goto menu_start_process_after_call
+menu_start_process_call_label:
+    ;; Prepare plcath
+    movf param1, W
+    movwf PCLATH
+    ;; prepare parameter
+    banksel menu_focused_entry
+    movf menu_focused_entry, W
+    movwf param1
+    movf param2, W
+    ;; goto function
+    movwf PCL
+    ;; call_other_page menu_get_nb_from_focusable_nb
+menu_start_process_after_call:
+#else
+    banksel menu_focused_entry
+    movf menu_focused_entry, W
+    movwf menu_value
+#endif
+#if 1
+    movlw 4
+    movwf param1
+    movlw 3
+    movwf param2
+    call_other_page lcd_locate
+    movf menu_value, W
+    movwf param1
+    clrf param2
+    call_other_page lcd_int
+#endif
+
     ;; Set event value
     movlw MENU_EVENT_FOCUS
     movwf menu_event
