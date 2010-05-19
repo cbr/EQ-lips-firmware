@@ -226,7 +226,37 @@ chk_btn_down_button_not_released:
     iorwf edit_common_button_free_to_use, F
     return
 
+;;;
+;;; Select next memory bank
+;;;
+edit_common_bank_up:
+    global edit_common_bank_up
+    ;; Try to inc bank number if possible
+    banksel current_bank
+    movf current_bank, W
+    sublw BANK_NB
+    btfsc STATUS, Z
+    goto edit_common_bank_up_end
+    incf current_bank, F
+    call_other_page edit_common_load
+edit_common_bank_up_end:
+    return
 
+;;;
+;;; Select previous memory bank
+;;;
+edit_common_bank_down:
+    global edit_common_bank_down
+    ;; Try to dec bank number if possible
+    banksel current_bank
+    movf current_bank, W
+    sublw 1
+    btfsc STATUS, Z
+    goto edit_common_bank_down_end
+    decf current_bank, F
+    call_other_page edit_common_load
+edit_common_bank_down_end:
+    return
 
 #ifdef TREMOLO
 ;;; Function called periodically in order to do periodic actions:

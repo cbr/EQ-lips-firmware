@@ -7,7 +7,7 @@
 ;;; Changed registers: param1, param2, param3, param4
 ;;;
 menu_button macro id, string, pos, on_select_function
-    menu_button_common id, string, pos, on_select_function, 0
+    menu_button_common id, string, pos, on_select_function, 0, 0
     endm
 
 ;;;
@@ -20,7 +20,32 @@ menu_button macro id, string, pos, on_select_function
 ;;; Changed registers: param1, param2, param3, param4
 ;;;
 menu_button_goto macro id, string, pos, on_select_function
-    menu_button_common id, string, pos, on_select_function, 1
+    menu_button_common id, string, pos, on_select_function, 1, 0
+    endm
+
+;;;
+;;; This macro add a hidden menu button into a dialog screen.
+;;; This button is not drawn and does not get focus. It can only
+;;; by activated with the help of macro menu_select_specific_entry.
+;;; id: uniq id of menu_entry element
+;;; on_select_function: function called on selection
+;;; Changed registers: param1, param2, param3, param4
+;;;
+menu_button_hidden macro id, on_select_function
+    menu_button_common id, 0, 0, on_select_function, 0, 1
+    endm
+
+;;;
+;;; This macro add a hidden menu button into a dialog screen.
+;;; This button is not drawn and does not get focus. It can only
+;;; by activated with the help of macro menu_select_specific_entry.
+;;; This variant goto the specified label on selection
+;;; id: uniq id of menu_entry element
+;;; on_select_function: function 'gotoed' on selecttion
+;;; Changed registers: param1, param2, param3, param4
+;;;
+menu_button_hidden_goto macro id, on_select_function
+    menu_button_common id, 0, 0, on_select_function, 1, 1
     endm
 
 ;;;
@@ -30,9 +55,10 @@ menu_button_goto macro id, string, pos, on_select_function
 ;;; pos: y position of menu button
 ;;; on_select_function: label used on selection
 ;;; use_goto: if 1, on_select_function is used as a goto, otherwise it is called
+;;; hidden: if 0 the button is not hidden, otherwise it is hidden and does not get the focus
 ;;; Changed registers: param1, param2, param3, param4
 ;;;
-menu_button_common macro id, string, pos, on_select_function, use_goto
+menu_button_common macro id, string, pos, on_select_function, use_goto, hidden
     local menu_button_init_or_refresh
     local menu_button_undef
     local menu_button_focus
@@ -44,6 +70,7 @@ menu_button_common macro id, string, pos, on_select_function, use_goto
     goto menu_button_undef
 
 menu_button_init_or_refresh:
+    if hidden == 0
     ;; Print string
     movlw MENU_STRING_POS_X
     movwf param1
@@ -57,8 +84,10 @@ menu_button_init_or_refresh:
     movwf param4
 
     call_other_page lcd_loc_string
+    endif
     goto menu_button_undef
 
+    if hidden == 0
 #ifdef SIMPLE_FOCUS
 menu_button_unfocus:
     clrf param1
@@ -98,12 +127,18 @@ menu_button_focus:
     bsf param5, LCD_XOR
     call_other_page lcd_rectangle
 #endif
+    else
+menu_button_unfocus:
+menu_button_focus:
+    endif
     goto menu_button_undef
 
 menu_button_select:
+    if hidden == 0
     movlw pos
     movwf param1
     call_other_page menu_button_select_func
+    endif
     menu_leave_selection
     goto menu_button_undef
 
@@ -117,7 +152,11 @@ menu_button_unselect:
     goto menu_button_undef
 
 menu_button_undef:
+    if hidden == 0
     MENU_NEW_ENTRY_WITH_FOCUS
+    else
+    MENU_NEW_ENTRY_WITHOUT_FOCUS
+    endif
     endm
 
 #ifndef MENU_BUTTON_M

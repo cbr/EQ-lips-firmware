@@ -303,6 +303,19 @@ menu_end macro
     movlw MENU_EVENT_UNDEF
     movwf menu_event
     goto menu_start_end_return_#v(menu_number)
+
+;;; In the 'end' macro we also write the function which return the
+;;; absolute menu entry number from the focusable number
+;;; param1: focusable entry nb for which absolute entry nb must be returned (in W)
+menu_get_nb_from_focusable_nb:
+#if 0
+    movf param1, W
+    return
+#endif
+    ;; This function is realized by recursively calling a macro
+    menu_get_nb_from_focusable_nb_func_write MENU_NB_FOCUSABLE_ENTRY-1
+    return
+
     endm
 
 ;;; This macro ask to leave the selection sub state of a menu.

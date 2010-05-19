@@ -47,7 +47,7 @@ edit_eq_show:
 
     ;; Before managing every element of menu, check buttons state
     call_other_page edit_common_check_buttons
-    edit_common_basic_btn_mgt edit_eq_show
+    edit_common_basic_btn_mgt
 #endif
 
     ;; menu_label_int 0, current_bank
@@ -55,9 +55,9 @@ edit_eq_show:
     menu_button_goto edit_eq_st_trem, 0, edit_trem_show
 #endif
     ;; menu_button edit_common_st_save, 0, tst_select_spec
-    ;; menu_edit edit_common_st_bank, 1, 1, 1, BANK_NB, current_bank, edit_common_load, UNUSED_PARAM
-    menu_edit 10, edit_common_st_bank, 1, 1, 1, BANK_NB, current_bank, tst_select_spec, UNUSED_PARAM
-    menu_edit_no_show 11, edit_common_st_save, 1, 2, 1, BANK_NB, current_bank, edit_common_refresh, edit_common_save
+    menu_edit 10, edit_common_st_bank, 1, 1, 1, BANK_NB, current_bank, edit_common_load, UNUSED_PARAM
+    ;; menu_edit 10, edit_common_st_bank, 1, 1, 1, BANK_NB, current_bank, tst_select_spec, UNUSED_PARAM
+    ;; menu_edit_no_show 11, edit_common_st_save, 1, 2, 1, BANK_NB, current_bank, edit_common_refresh, edit_common_save
     menu_eq 12, (0x5*0 + 0x3D), bank_numpot_values, process_change_conf
     menu_eq 13, (0x5*1 + 0x3D), bank_numpot_values+1, process_change_conf
     menu_eq 14, (0x5*2 + 0x3D), bank_numpot_values+2, process_change_conf
@@ -69,17 +69,10 @@ edit_eq_show:
     menu_eq 110, (0x5*8 + 0x3D), bank_numpot_values+8, process_change_conf
     menu_eq 111, (0x5*9 + 0x3D), bank_numpot_values+9, process_change_conf
     menu_eq 112,(0x5*0xB + 0x3D), bank_numpot_values+0xA, process_change_conf
+    menu_button_hidden ID_BANK_UP, edit_common_bank_up
+    menu_button_hidden ID_BANK_DOWN, edit_common_bank_down
     menu_end
 
-    return
-;;; In the 'end' macro we also write the function which return the
-;;; absolute menu entry number from the focusable number
-;;; param1: focusable entry nb for which absolute entry nb must be returned (in W)
-menu_get_nb_from_focusable_nb:
-    ;; movf param1, W
-    ;; return
-    ;; This function is realized by recursively calling a macro
-    menu_get_nb_from_focusable_nb_func_write MENU_NB_FOCUSABLE_ENTRY
     return
 
 

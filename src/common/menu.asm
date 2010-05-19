@@ -235,25 +235,36 @@ menu_start_process_complex_action_focus_change_2:
     banksel menu_focused_entry
     movwf menu_focused_entry
     ;; Get corresponding absolute menu entry nb into menu_value
+    ;; This value can be get with the help of function given in parameters (param1 and param2)
+    ;; We have to make an indirect call to this function by correctly managing page changes.
 #if 1
-    ;; Do the indired call
-    call menu_start_process_call_label
+    ;; Do the call locally ... (1)
+    call menu_start_process_complex_action_focus_change_2_call_label
+    ;; ...(2) function has been returned.
+    ;; Store result into menu_value
     movwf menu_value
+    ;; reset PCLATH according to current position
     pagesel $
-    goto menu_start_process_after_call
-menu_start_process_call_label:
+    ;; The operation is finished
+    goto menu_start_process_complex_action_focus_change_2_after_call
+menu_start_process_complex_action_focus_change_2_call_label:
+    ;; ... (1) Now the call have been made:
+    ;; returned position has been memorized.
+    ;; Now, to go to the function code, 3 step have to be realized:
+    ;; Step 1:
     ;; Prepare plcath
     movf param1, W
     movwf PCLATH
+    ;; Step 2: Prepare parameter
     ;; prepare parameter
     banksel menu_focused_entry
     movf menu_focused_entry, W
     movwf param1
+    ;; Step 3: go to function
     movf param2, W
-    ;; goto function
     movwf PCL
-    ;; call_other_page menu_get_nb_from_focusable_nb
-menu_start_process_after_call:
+    ;; The function will do a 'return'. It will bring back to (2)...
+menu_start_process_complex_action_focus_change_2_after_call:
 #else
     banksel menu_focused_entry
     movf menu_focused_entry, W
