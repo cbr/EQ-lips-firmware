@@ -239,6 +239,7 @@ edit_common_bank_up:
     goto edit_common_bank_up_end
     incf current_bank, F
     call_other_page edit_common_load
+    menu_select_specific_entry_from_nb 0
 edit_common_bank_up_end:
     return
 
@@ -256,6 +257,7 @@ edit_common_bank_down:
     decf current_bank, F
     call_other_page edit_common_load
 edit_common_bank_down_end:
+    menu_select_specific_entry_from_nb 0
     return
 
 #ifdef TREMOLO

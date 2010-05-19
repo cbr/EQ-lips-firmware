@@ -270,7 +270,7 @@ menu_start_process_complex_action_focus_change_2_after_call:
     movf menu_focused_entry, W
     movwf menu_value
 #endif
-#if 1
+#if 0
     movlw 4
     movwf param1
     movlw 3
@@ -311,7 +311,7 @@ menu_start_process_complex_action_complete_init_2:
     ;; This is the last step of complete init
     clrf menu_action_step
     clrf menu_action
-    encoder_set_value 0, 0, MENU_NB_FOCUSABLE_ENTRY-1
+    ;; encoder_set_value 0, 0, MENU_NB_FOCUSABLE_ENTRY-1
     ;; After init, we manage focus entry
     movlw MENU_EVENT_FOCUS
     movwf menu_event
@@ -324,20 +324,9 @@ menu_start_process_complex_action_leave:
     sublw MENU_ACTION_LEAVE
     btfss STATUS, Z
     goto menu_start_process_complex_action_leave_end
-    ;; Check action step
-    banksel menu_action_step
-    movf menu_action_step, W
-    sublw MENU_ACTION_STEP_1
-    btfss STATUS, Z
-    goto menu_start_process_complex_action_leave_2
-    ;; step 1: unselect
-menu_start_process_complex_action_leave_1:
-    incf menu_action_step, F
+    ;; Unselect event
     movlw MENU_EVENT_UNSELECT
     movwf menu_event
-    goto menu_start_process_end
-    ;; step 2: reinit encoder
-menu_start_process_complex_action_leave_2:
     ;; This is the last step of complete init
     clrf menu_action_step
     clrf menu_action
@@ -348,14 +337,22 @@ menu_start_process_complex_action_leave_2:
     clrf param2
     movlw MENU_NB_FOCUSABLE_ENTRY-1
     movwf param3
-    call_other_page encoder_set_value
+    ;; call_other_page encoder_set_value
+#if 1
+    movlw 4
+    movwf param1
+    movlw 3
+    movwf param2
+    call_other_page lcd_locate
+    movlw MENU_NB_FOCUSABLE_ENTRY-1
+    movwf param1
+    clrf param2
+    call_other_page lcd_int
+#endif
     ;; Change state to none
     movlw MENU_STATE_NONE
     banksel menu_state
     movwf menu_state
-    ;; reset action
-    movlw MENU_EVENT_UNDEF
-    movwf menu_event
     goto menu_start_process_end
 menu_start_process_complex_action_leave_end:
 
@@ -374,15 +371,8 @@ menu_start_process_complex_action_select_specific_entry:
     ;; step 1:
 menu_start_process_complex_action_select_specific_entry_1:
     incf menu_action_step, F
-    ;; Check current menu state
-    banksel menu_state
-    movf menu_state, W
-    sublw MENU_STATE_SELECT
-    btfss STATUS, Z
-    ;; No current selection, go directly to next step
-    goto menu_start_process_complex_action_select_specific_entry_2
-    ;; There is a selection -> unselect
-    movlw MENU_EVENT_UNSELECT
+    ;; Refresh
+    movlw MENU_EVENT_REFRESH
     movwf menu_event
     goto menu_start_process_end
 
@@ -394,8 +384,15 @@ menu_start_process_complex_action_select_specific_entry_2:
     goto menu_start_process_complex_action_select_specific_entry_3
     ;; Prepare next step
     incf menu_action_step, F
-    ;; Unfocus current entry
-    movlw MENU_EVENT_UNFOCUS
+    ;; Check current menu state
+    banksel menu_state
+    movf menu_state, W
+    sublw MENU_STATE_SELECT
+    btfss STATUS, Z
+    ;; No current selection, go directly to next step
+    goto menu_start_process_complex_action_select_specific_entry_3
+    ;; There is a selection -> unselect
+    movlw MENU_EVENT_UNSELECT
     movwf menu_event
     goto menu_start_process_end
 
@@ -405,6 +402,19 @@ menu_start_process_complex_action_select_specific_entry_3:
     sublw MENU_ACTION_STEP_3
     btfss STATUS, Z
     goto menu_start_process_complex_action_select_specific_entry_4
+    ;; Prepare next step
+    incf menu_action_step, F
+    ;; Unfocus current entry
+    movlw MENU_EVENT_UNFOCUS
+    movwf menu_event
+    goto menu_start_process_end
+
+    ;; step 4:
+menu_start_process_complex_action_select_specific_entry_4:
+    movf menu_action_step, W
+    sublw MENU_ACTION_STEP_4
+    btfss STATUS, Z
+    goto menu_start_process_complex_action_select_specific_entry_5
     ;; Prepare next step
     incf menu_action_step, F
     ;; Change current menu entry and focus it
@@ -417,14 +427,14 @@ menu_start_process_complex_action_select_specific_entry_3:
     clrf param2
     movlw MENU_NB_FOCUSABLE_ENTRY-1
     movwf param3
-    call_other_page encoder_set_value
+    ;; call_other_page encoder_set_value
 
     movlw MENU_EVENT_FOCUS
     movwf menu_event
     goto menu_start_process_end
 
-    ;; step 4:
-menu_start_process_complex_action_select_specific_entry_4:
+    ;; step 5:
+menu_start_process_complex_action_select_specific_entry_5:
     ;; This is the last step of complete init
     clrf menu_action_step
     clrf menu_action
@@ -437,6 +447,7 @@ menu_start_process_complex_action_select_specific_entry_4:
     goto menu_start_process_end
 menu_start_process_complex_action_select_specific_entry_end:
 
+    call_other_page lcd_clear
 menu_start_process_end:
     return
 

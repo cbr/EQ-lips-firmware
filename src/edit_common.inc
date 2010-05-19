@@ -13,7 +13,7 @@ chk_down:
     goto chk_up
     ;; Down button pressed
     decf edit_common_down_btn_released, F
-    menu_select_specific_entry ID_BANK_DOWN
+    menu_select_specific_entry_from_id ID_BANK_DOWN
     goto end_mgt
 chk_up:
     banksel edit_common_up_btn_released
@@ -22,7 +22,7 @@ chk_up:
     goto end_mgt
     ;; Up button pressed
     decf edit_common_up_btn_released, F
-    menu_select_specific_entry ID_BANK_UP
+    menu_select_specific_entry_from_id ID_BANK_UP
 end_mgt:
     endm
 

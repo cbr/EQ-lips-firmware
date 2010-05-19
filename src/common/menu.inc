@@ -222,6 +222,8 @@ menu_start macro tick_function, idle_function
     clrf menu_action
     banksel menu_action_step
     clrf menu_action_step
+    banksel menu_focused_entry
+    clrf menu_focused_entry
 
     ;; Action to realize is 'complete init' the first time
     movlw MENU_ACTION_COMPLETE_INIT
@@ -276,7 +278,18 @@ menu_start_quit:
 ;;; Changed registers: menu_event
 ;;;
 menu_end macro
-#if 1
+    local menu_end_init_encoder
+    local menu_end_do_not_init_encoder
+    movf menu_event, W
+    sublw MENU_EVENT_INIT
+    btfsc STATUS, Z
+    goto menu_end_init_encoder
+    movf menu_event, W
+    sublw MENU_EVENT_UNSELECT
+    btfss STATUS, Z
+    goto menu_end_do_not_init_encoder
+menu_end_init_encoder:
+#if 0
     movlw .16
     movwf param1
     movlw 3
@@ -297,7 +310,16 @@ menu_end macro
     clrf param2
     call_other_page lcd_int
 #endif
+    ;; After unfocus and init, encoder have to be initialized
+    banksel menu_focused_entry
+    movf menu_focused_entry, W
+    movwf param1
+    clrf param2
+    movlw MENU_NB_FOCUSABLE_ENTRY-1
+    movwf param3
+    call_other_page encoder_set_value
 
+menu_end_do_not_init_encoder:
     local menu_end_undef
     ;; reset menu_event
     movlw MENU_EVENT_UNDEF
@@ -337,16 +359,27 @@ menu_ask_refresh macro
 
 ;;; This macro ask to select the given menu entry
 ;;; on next event loop
-menu_select_specific_entry macro entry_nb
+menu_select_specific_entry_from_id macro entry_id
     movlw MENU_ACTION_SELECT_SPEC_ENTRY
     banksel menu_asked_action
     movwf menu_asked_action
-    menu_get_nb_from_id_macro entry_nb
+    menu_get_nb_from_id_macro entry_id
     banksel menu_asked_action_param
     movwf menu_asked_action_param
 
     endm
 
+;;; This macro ask to select the given menu entry
+;;; on next event loop
+menu_select_specific_entry_from_nb macro entry_nb
+    movlw MENU_ACTION_SELECT_SPEC_ENTRY
+    banksel menu_asked_action
+    movwf menu_asked_action
+    movlw entry_nb
+    banksel menu_asked_action_param
+    movwf menu_asked_action_param
+
+    endm
 
 ;;; This macro is used recusively to write function menu_get_nb_from_focusable_nb
 menu_get_nb_from_focusable_nb_func_write macro nb_focusable_entry

@@ -32,7 +32,7 @@ button_sleep_st:
     dt "SLEEP", 0
 
 tst_select_spec:
-    menu_select_specific_entry 112
+    menu_select_specific_entry_from_id 112
     return
 
 edit_eq_show:
@@ -57,7 +57,7 @@ edit_eq_show:
     ;; menu_button edit_common_st_save, 0, tst_select_spec
     menu_edit 10, edit_common_st_bank, 1, 1, 1, BANK_NB, current_bank, edit_common_load, UNUSED_PARAM
     ;; menu_edit 10, edit_common_st_bank, 1, 1, 1, BANK_NB, current_bank, tst_select_spec, UNUSED_PARAM
-    ;; menu_edit_no_show 11, edit_common_st_save, 1, 2, 1, BANK_NB, current_bank, edit_common_refresh, edit_common_save
+    menu_edit_no_show 11, edit_common_st_save, 1, 2, 1, BANK_NB, current_bank, edit_common_refresh, edit_common_save
     menu_eq 12, (0x5*0 + 0x3D), bank_numpot_values, process_change_conf
     menu_eq 13, (0x5*1 + 0x3D), bank_numpot_values+1, process_change_conf
     menu_eq 14, (0x5*2 + 0x3D), bank_numpot_values+2, process_change_conf
