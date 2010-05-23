@@ -151,7 +151,7 @@ menu_start_process_check_select_switch:
 
     ;; **** STATE NONE ****
 menu_start_process_state_none:
-menu_start_process_check_focus_change:
+menu_start_process_check_refresh_and_focus_change:
     ;; Check if encoder value is equal to current focused menu value
     movf encoder_value, W
     banksel menu_focused_entry
@@ -161,9 +161,14 @@ menu_start_process_check_focus_change:
     goto menu_start_process_check_select
     ;; not equal !
     ;; -> change focus
-    movlw MENU_ACTION_FOCUS_CHANGE
+    movlw MENU_ACTION_REFRESH_AND_FOCUS_CHANGE
     banksel menu_action
     movwf menu_action
+    ;; However, we do not realize the first step of REFRESH_AND_FOCUS_CHANGE: no refresh is needed
+    movlw MENU_ACTION_STEP_2
+    banksel menu_action_step
+    movwf menu_action_step
+
     goto menu_start_process_check_actions
 
 menu_start_process_check_select:
@@ -206,26 +211,37 @@ menu_start_process_simple_action
 ;;;   - Complex action:
 menu_start_process_complex_action:
 
-menu_start_process_complex_action_focus_change:
+menu_start_process_complex_action_refresh_and_focus_change:
     banksel menu_action
     movf menu_action, W
-    sublw MENU_ACTION_FOCUS_CHANGE
+    sublw MENU_ACTION_REFRESH_AND_FOCUS_CHANGE
     btfss STATUS, Z
-    goto menu_start_process_complex_action_focus_change_end
+    goto menu_start_process_complex_action_refresh_and_focus_change_end
     ;; Check action step
     banksel menu_action_step
     movf menu_action_step, W
     sublw MENU_ACTION_STEP_1
     btfss STATUS, Z
-    goto menu_start_process_complex_action_focus_change_2
-    ;; step 1: unfocus
-menu_start_process_complex_action_focus_change_1:
+    goto menu_start_process_complex_action_refresh_and_focus_change_2
+    ;; step 1: refresh
+menu_start_process_complex_action_refresh_and_focus_change_1:
+    incf menu_action_step, F
+    movlw MENU_EVENT_REFRESH
+    movwf menu_event
+    goto menu_start_process_end
+
+menu_start_process_complex_action_refresh_and_focus_change_2:
+    movf menu_action_step, W
+    sublw MENU_ACTION_STEP_2
+    btfss STATUS, Z
+    goto menu_start_process_complex_action_refresh_and_focus_change_3
+    ;; step 2: unfocus
     incf menu_action_step, F
     movlw MENU_EVENT_UNFOCUS
     movwf menu_event
     goto menu_start_process_end
-    ;; step 2: focus
-menu_start_process_complex_action_focus_change_2:
+    ;; step 3: focus
+menu_start_process_complex_action_refresh_and_focus_change_3:
     ;; This is the last step of focus change
     ;; Reinit
     clrf menu_action_step
@@ -239,15 +255,15 @@ menu_start_process_complex_action_focus_change_2:
     ;; We have to make an indirect call to this function by correctly managing page changes.
 #if 1
     ;; Do the call locally ... (1)
-    call menu_start_process_complex_action_focus_change_2_call_label
+    call menu_start_process_complex_action_refresh_and_focus_change_3_call_label
     ;; ...(2) function has been returned.
     ;; Store result into menu_value
     movwf menu_value
     ;; reset PCLATH according to current position
     pagesel $
     ;; The operation is finished
-    goto menu_start_process_complex_action_focus_change_2_after_call
-menu_start_process_complex_action_focus_change_2_call_label:
+    goto menu_start_process_complex_action_refresh_and_focus_change_3_after_call
+menu_start_process_complex_action_refresh_and_focus_change_3_call_label:
     ;; ... (1) Now the call have been made:
     ;; returned position has been memorized.
     ;; Now, to go to the function code, 3 step have to be realized:
@@ -264,7 +280,7 @@ menu_start_process_complex_action_focus_change_2_call_label:
     movf param2, W
     movwf PCL
     ;; The function will do a 'return'. It will bring back to (2)...
-menu_start_process_complex_action_focus_change_2_after_call:
+menu_start_process_complex_action_refresh_and_focus_change_3_after_call:
 #else
     banksel menu_focused_entry
     movf menu_focused_entry, W
@@ -286,7 +302,7 @@ menu_start_process_complex_action_focus_change_2_after_call:
     movlw MENU_EVENT_FOCUS
     movwf menu_event
     goto menu_start_process_end
-menu_start_process_complex_action_focus_change_end:
+menu_start_process_complex_action_refresh_and_focus_change_end:
 
 menu_start_process_complex_action_complete_init:
     banksel menu_action
@@ -338,7 +354,7 @@ menu_start_process_complex_action_leave:
     movlw MENU_NB_FOCUSABLE_ENTRY-1
     movwf param3
     ;; call_other_page encoder_set_value
-#if 1
+#if 0
     movlw 4
     movwf param1
     movlw 3

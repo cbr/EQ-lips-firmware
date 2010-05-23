@@ -20,7 +20,7 @@
 #define MENU_ACTION_SELECT_SWITCH       MENU_EVENT_SELECT_SWITCH
 #define MENU_ACTION_REFRESH             MENU_EVENT_REFRESH
 #define MENU_ACTION_TICK                MENU_EVENT_TICK
-#define MENU_ACTION_FOCUS_CHANGE        (0x80 + 0x01)
+#define MENU_ACTION_REFRESH_AND_FOCUS_CHANGE        (0x80 + 0x01)
 #define MENU_ACTION_COMPLETE_INIT       (0x80 + 0x02)
 #define MENU_ACTION_LEAVE               (0x80 + 0x03)
 #define MENU_ACTION_SELECT_SPEC_ENTRY   (0x80 + 0x04)
@@ -357,6 +357,15 @@ menu_ask_refresh macro
     movwf menu_asked_action
     endm
 
+;;; This macro ask to refresh simulate an encoder switch press while
+;;; being in select state
+menu_ask_select_switch macro
+    movlw MENU_ACTION_SELECT_SWITCH
+    banksel menu_asked_action
+    movwf menu_asked_action
+    endm
+
+
 ;;; This macro ask to select the given menu entry
 ;;; on next event loop
 menu_select_specific_entry_from_id macro entry_id
@@ -366,7 +375,12 @@ menu_select_specific_entry_from_id macro entry_id
     menu_get_nb_from_id_macro entry_id
     banksel menu_asked_action_param
     movwf menu_asked_action_param
+    endm
 
+menu_change_focus macro
+    movlw MENU_ACTION_REFRESH_AND_FOCUS_CHANGE
+    banksel menu_asked_action
+    movwf menu_asked_action
     endm
 
 ;;; This macro ask to select the given menu entry

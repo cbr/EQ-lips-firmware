@@ -1,11 +1,111 @@
+#define ID_BANK_SELECT  0x0
 #define ID_BANK_UP      0x200
 #define ID_BANK_DOWN    0x201
 
-edit_common_basic_btn_mgt macro
+edit_common_btn_evt_mgt macro
+    local simple_mgt
+    local no_entry_selected
+    local no_entry_selected_end
+    local bank_change_entry_selected
+    local other_entry_selected
+    local other_entry_selected_end
+    local change_entry_selected_end
+    local cplx_chk_down
+    local cplx_chk_up
     local chk_down
     local chk_up
     local end_mgt
+    ;; Check current menu state
+    banksel menu_state
+    movf menu_state, W
+    sublw MENU_STATE_SELECT
+    btfss STATUS, Z
+    ;; Simple up & down btn management
+    goto no_entry_selected
+    ;; Check is current selected entry is "bank selection" menu entry
+    movf menu_value, W
+    sublw ID_BANK_SELECT
+    btfss STATUS, Z
+    goto other_entry_selected
 
+bank_change_entry_selected:
+    ;; Check both button evt
+    banksel edit_common_both_btn_pressed
+    movf edit_common_both_btn_pressed, W
+    btfsc STATUS, Z
+    goto change_entry_selected_end
+    decf edit_common_both_btn_pressed, F
+    ;; Simulate encoder swicth in order to validate
+    menu_ask_select_switch
+change_entry_selected_end:
+
+cplx_chk_down:
+    banksel edit_common_down_btn_released
+    movf edit_common_down_btn_released, W
+    btfsc STATUS, Z
+    goto cplx_chk_up
+    ;; Down button pressed
+    decf edit_common_down_btn_released, F
+    ;; Try to inc encoder value if possible
+    movf encoder_value, W
+    sublw 1
+    btfsc STATUS, Z
+    goto end_mgt
+    decf encoder_value, W
+    movwf param1
+    movlw 1
+    movwf param2
+    movlw BANK_NB
+    movwf param3
+    call_other_page encoder_set_value
+    goto end_mgt
+cplx_chk_up:
+    banksel edit_common_up_btn_released
+    movf edit_common_up_btn_released, W
+    btfsc STATUS, Z
+    goto end_mgt
+    ;; Up button pressed
+    decf edit_common_up_btn_released, F
+    ;; Try to inc encoder value if possible
+    movf encoder_value, W
+    sublw BANK_NB
+    btfsc STATUS, Z
+    goto end_mgt
+    incf encoder_value, W
+    movwf param1
+    movlw 1
+    movwf param2
+    movlw BANK_NB
+    movwf param3
+    call_other_page encoder_set_value
+    goto end_mgt
+
+no_entry_selected:
+    ;; Check both button evt
+    banksel edit_common_both_btn_pressed
+    movf edit_common_both_btn_pressed, W
+    btfsc STATUS, Z
+    goto no_entry_selected_end
+    ;; Both button pressed !
+    ;; -> select "bank change" entry
+    decf edit_common_both_btn_pressed, F
+    menu_select_specific_entry_from_id 10
+no_entry_selected_end:
+    goto simple_mgt
+
+other_entry_selected:
+    ;; Check both button evt
+    banksel edit_common_both_btn_pressed
+    movf edit_common_both_btn_pressed, W
+    btfsc STATUS, Z
+    goto other_entry_selected_end
+    decf edit_common_both_btn_pressed, F
+    ;; Leave current entry
+    menu_leave_selection
+other_entry_selected_end:
+    goto simple_mgt
+
+simple_mgt:
 chk_down:
     banksel edit_common_down_btn_released
     movf edit_common_down_btn_released, W
@@ -23,9 +123,10 @@ chk_up:
     ;; Up button pressed
     decf edit_common_up_btn_released, F
     menu_select_specific_entry_from_id ID_BANK_UP
+    goto end_mgt
+
 end_mgt:
     endm
-
 
 
 #ifndef EDIT_COMMON_M
@@ -40,6 +141,7 @@ end_mgt:
     ; Functions
     extern edit_common_init
     extern edit_common_save
+    extern edit_common_load_preview
     extern edit_common_load
     extern edit_common_refresh
     extern edit_common_sleep

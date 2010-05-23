@@ -59,6 +59,7 @@ edit_common_init:
     movwf edit_common_button_last_value
     clrf edit_common_up_btn_released
     clrf edit_common_down_btn_released
+    clrf edit_common_both_btn_pressed
     return
 
 edit_common_save:
@@ -70,15 +71,20 @@ edit_common_save:
     call_other_page bank_save
     return
 
-edit_common_load:
-    global edit_common_load
+edit_common_load_preview:
+    global edit_common_load_preview
 
     movf current_bank, W
     movwf param1
     decf param1, F
     call_other_page bank_load
-    call_other_page process_change_conf
     menu_ask_refresh
+    return
+
+edit_common_load:
+    global edit_common_load
+    call_other_page process_change_conf
+    menu_change_focus
     return
 
 edit_common_refresh:
@@ -138,15 +144,22 @@ edit_common_up_long:
     ;; call_other_page lcd_int
     return
 
+;;;
+;;; This function checks the state of foot switches.
+;;; The following variables are updated:
+;;; - edit_common_both_btn_pressed
+;;; - edit_common_up_btn_released
+;;; - edit_common_down_btn_released
+;;;
 edit_common_check_buttons:
     global edit_common_check_buttons
-#if 1
+#if 0
     clrf param1
     movlw 3
     movwf param2
     call_other_page lcd_locate
-    banksel menu_asked_action
-    movf menu_asked_action, W
+    banksel reg_input_current_value
+    movf reg_input_current_value, W
     movwf param1
     clrf param2
     call_other_page lcd_int
@@ -238,8 +251,9 @@ edit_common_bank_up:
     btfsc STATUS, Z
     goto edit_common_bank_up_end
     incf current_bank, F
+    call_other_page edit_common_load_preview
     call_other_page edit_common_load
-    menu_select_specific_entry_from_nb 0
+    menu_change_focus
 edit_common_bank_up_end:
     return
 
@@ -255,9 +269,10 @@ edit_common_bank_down:
     btfsc STATUS, Z
     goto edit_common_bank_down_end
     decf current_bank, F
+    call_other_page edit_common_load_preview
     call_other_page edit_common_load
 edit_common_bank_down_end:
-    menu_select_specific_entry_from_nb 0
+    menu_change_focus
     return
 
 #ifdef TREMOLO
@@ -266,6 +281,7 @@ edit_common_bank_down_end:
 ;;; - update numpot values (very important for tremolo)
 edit_common_cycle_period:
     global edit_common_cycle_period
+#if 0
     clrf param1
     movlw 3
     movwf param2
@@ -274,7 +290,7 @@ edit_common_cycle_period:
     movf timer_cpt, W
     movwf param1
     call_other_page lcd_int
-
+#endif
     ;; Check up & down switches
     io_cycle_check_button reg_input_current_value, UP_SW_BIT, button_up_time_cpt, edit_common_up_short, edit_common_up_long
     io_cycle_check_button reg_input_current_value, DOWN_SW_BIT, button_down_time_cpt, edit_common_down_short, edit_common_down_long

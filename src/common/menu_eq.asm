@@ -89,8 +89,9 @@ menu_refresh_eq_band:
     movwf menu_eq_var2
 
     ;; erase
+    incf param1, F
     clrf param2
-    movlw MENU_EQ_BAND_FOCUS_WIDTH
+    movlw MENU_EQ_BAND_WIDTH
     movwf param3
     movlw LCD_HEIGH
     movwf param4
