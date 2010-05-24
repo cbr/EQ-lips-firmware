@@ -7,8 +7,10 @@
 #define BANK_TREM_TYPE_SIMPLE            0x01
 #define BANK_TREM_TYPE_EQ                0x02
 
+;;; Size of a bank in EEPROM
+#define BANK_EESIZE         0xB
 ;;; Number of total bank
-#define BANK_NB                          0x10
+#define BANK_NB                          (0xFF/BANK_EESIZE)
 
 #ifndef BANK_M
     ;; Variables

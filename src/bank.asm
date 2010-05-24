@@ -8,9 +8,6 @@
 #include <eeprom.inc>
 #include <bank.inc>
 
-#define BANK_EESIZE_SHT     0x04
-
-
 PROG_VAR_1 UDATA
     ;; GLOBAL
 
@@ -120,6 +117,25 @@ bank_load:
 #endif
     return
 
+;;; This function calculate a bank address in EEPROM from its number
+;;; param1: input -> bank number
+;;;         output -> address in EEPROM
+bank_get_bank_addr:
+    movf param1, W
+    banksel bank_tmp
+    movwf bank_tmp
+    clrf param1
+bank_get_bank_addr_next_bank_loop:
+    decfsz bank_tmp, F
+    goto bank_get_bank_addr_next_bank
+    goto bank_get_bank_addr_no_next_bank
+bank_get_bank_addr_next_bank:
+    movlw BANK_EESIZE
+    addwf param1, F
+    goto bank_get_bank_addr_next_bank_loop
+bank_get_bank_addr_no_next_bank:
+    return
+
 ;;; Save current eq and gain values into a bank
 ;;; param1: bank number
 ;;; param2: address of buffer from which equalizer and gain config are read.
@@ -130,7 +146,7 @@ bank_save_eq_gain:
     global bank_save_eq_gain
 
     ;; set param1 to the start of bank in eeprom
-    lshift_f param1, BANK_EESIZE_SHT
+    call bank_get_bank_addr
     ;; Prepare current value counter
     banksel bank_tmp
     clrf bank_tmp
@@ -170,7 +186,8 @@ bank_load_eq_gain:
     global bank_load_eq_gain
 
     ;; set param1 to the start of bank in eeprom
-    lshift_f param1, BANK_EESIZE_SHT
+    ;; set param1 to the start of bank in eeprom
+    call bank_get_bank_addr
     ;; Prepare current value counter
     banksel bank_tmp
     clrf bank_tmp
