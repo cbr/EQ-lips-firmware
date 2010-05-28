@@ -111,9 +111,9 @@ menu_edit_unselect:
 
 menu_edit_select_unselect_draw:
     ;; calculate size of string
-    movlw high string
-    movwf param1
     movlw low string
+    movwf param1
+    movlw high string
     movwf param2
     call_other_page std_strlen
     ;; store in param1
@@ -137,9 +137,9 @@ menu_edit_select_switch:
     goto menu_edit_undef
 
 menu_edit_select_value_change:
-    movlw high string
-    movwf param1
     movlw low string
+    movwf param1
+    movlw high string
     movwf param2
     movlw pos_x
     movwf param3

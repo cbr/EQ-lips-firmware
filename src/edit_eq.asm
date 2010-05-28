@@ -26,14 +26,10 @@ PROG_VAR_1 UDATA
 
 ; relocatable code
 EQ_PROG_2 CODE
+#ifdef TREMOLO
 edit_eq_st_trem:
     dt "GOTO TREMOLO", 0
-button_sleep_st:
-    dt "SLEEP", 0
-
-tst_select_spec:
-    menu_select_specific_entry_from_id 112
-    return
+#endif
 
 edit_eq_show:
     global edit_eq_show
@@ -54,21 +50,19 @@ edit_eq_show:
 #ifdef TREMOLO
     menu_button_goto edit_eq_st_trem, 0, edit_trem_show
 #endif
-    ;; menu_button edit_common_st_save, 0, tst_select_spec
-    menu_edit 10, edit_common_st_bank, 1, 1, 1, BANK_NB, current_bank, edit_common_load_preview, edit_common_load
-    ;; menu_edit 10, edit_common_st_bank, 1, 1, 1, BANK_NB, current_bank, tst_select_spec, UNUSED_PARAM
-    menu_edit_no_show 11, edit_common_st_save, 1, 2, 1, BANK_NB, current_bank, edit_common_refresh, edit_common_save
-    menu_eq 12, (0x5*0 + 0x3D), bank_numpot_values, process_change_conf
-    menu_eq 13, (0x5*1 + 0x3D), bank_numpot_values+1, process_change_conf
-    menu_eq 14, (0x5*2 + 0x3D), bank_numpot_values+2, process_change_conf
-    menu_eq 15, (0x5*3 + 0x3D), bank_numpot_values+3, process_change_conf
-    menu_eq 16, (0x5*4 + 0x3D), bank_numpot_values+4, process_change_conf
-    menu_eq 17, (0x5*5 + 0x3D), bank_numpot_values+5, process_change_conf
-    menu_eq 18, (0x5*6 + 0x3D), bank_numpot_values+6, process_change_conf
-    menu_eq 19, (0x5*7 + 0x3D), bank_numpot_values+7, process_change_conf
-    menu_eq 110, (0x5*8 + 0x3D), bank_numpot_values+8, process_change_conf
-    menu_eq 111, (0x5*9 + 0x3D), bank_numpot_values+9, process_change_conf
-    menu_eq 112,(0x5*0xB + 0x3D), bank_numpot_values+0xA, process_change_conf
+    menu_edit ID_BANK_SELECT, edit_common_st_bank, 1, 0, 1, BANK_NB, current_bank, edit_common_load_preview, edit_common_load
+    menu_edit_no_show ID_BANK_SAVE, edit_common_st_save, 1, 1, 1, BANK_NB, current_bank, edit_common_refresh, edit_common_save
+    menu_eq ID_EQ_BAND_BASE + 0x0, (0x5*0 + 0x3D), bank_numpot_values, edit_common_eq_band_focus, edit_common_eq_band_unfocus, edit_common_eq_band_change
+    menu_eq ID_EQ_BAND_BASE + 0x1, (0x5*1 + 0x3D), bank_numpot_values+1, edit_common_eq_band_focus, edit_common_eq_band_unfocus, edit_common_eq_band_change
+    menu_eq ID_EQ_BAND_BASE + 0x2, (0x5*2 + 0x3D), bank_numpot_values+2, edit_common_eq_band_focus, edit_common_eq_band_unfocus, edit_common_eq_band_change
+    menu_eq ID_EQ_BAND_BASE + 0x3, (0x5*3 + 0x3D), bank_numpot_values+3, edit_common_eq_band_focus, edit_common_eq_band_unfocus, edit_common_eq_band_change
+    menu_eq ID_EQ_BAND_BASE + 0x4, (0x5*4 + 0x3D), bank_numpot_values+4, edit_common_eq_band_focus, edit_common_eq_band_unfocus, edit_common_eq_band_change
+    menu_eq ID_EQ_BAND_BASE + 0x5, (0x5*5 + 0x3D), bank_numpot_values+5, edit_common_eq_band_focus, edit_common_eq_band_unfocus, edit_common_eq_band_change
+    menu_eq ID_EQ_BAND_BASE + 0x6, (0x5*6 + 0x3D), bank_numpot_values+6, edit_common_eq_band_focus, edit_common_eq_band_unfocus, edit_common_eq_band_change
+    menu_eq ID_EQ_BAND_BASE + 0x7, (0x5*7 + 0x3D), bank_numpot_values+7, edit_common_eq_band_focus, edit_common_eq_band_unfocus, edit_common_eq_band_change
+    menu_eq ID_EQ_BAND_BASE + 0x8, (0x5*8 + 0x3D), bank_numpot_values+8, edit_common_eq_band_focus, edit_common_eq_band_unfocus, edit_common_eq_band_change
+    menu_eq ID_EQ_BAND_BASE + 0x9, (0x5*9 + 0x3D), bank_numpot_values+9, edit_common_eq_band_focus, edit_common_eq_band_unfocus, edit_common_eq_band_change
+    menu_eq ID_EQ_BAND_BASE + 0xA,(0x5*0xB + 0x3D), bank_numpot_values+0xA, edit_common_eq_gain_focus, edit_common_eq_band_unfocus, edit_common_eq_band_change
     menu_button_hidden ID_BANK_UP, edit_common_bank_up
     menu_button_hidden ID_BANK_DOWN, edit_common_bank_down
     menu_end

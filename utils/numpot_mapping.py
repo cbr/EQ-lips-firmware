@@ -21,9 +21,15 @@ y = 20*np.log10(( RL + a*(R1 + (1-a)*P2))/( RL + (1-a)*(R2+a*P2) ))
 
 minValue = y[0]
 maxValue = y[255]
-mappingValues=np.linspace(minValue, maxValue, NB_VALUE)
+
+#mappingValues=np.linspace(minValue, maxValue, NB_VALUE)
+mappingValues=[0]*NB_VALUE
+zeroIndex = (NB_VALUE-1)/2
+mappingValues[:zeroIndex]=np.linspace(minValue, 0, NB_VALUE/2)
+mappingValues[zeroIndex:]=np.linspace(0, maxValue, NB_VALUE/2+1)
 mappingIndex=[0]*NB_VALUE
-def getCloserIndex(value):
+mappingCloserValue=[0]*NB_VALUE
+def getCloserIndexAndValue(value):
     closerValue = 0xFFFF
     closerIndex = 0
     for i in range(0, 256):
@@ -31,23 +37,39 @@ def getCloserIndex(value):
             closerValue = y[i]
             closerIndex = i
 
-    return closerIndex
+    return closerIndex, closerValue
 
 num_val_in_line=0
+
+if len(sys.argv) != 3:
+    sys.stderr.write("Not enough parameters\n")
+    sys.exit(-1)
+
+mapping_file = open(sys.argv[1], "w")
+
 for i in range(0, NB_VALUE):
     if (num_val_in_line==8):
-        sys.stdout.write("\n")
+        mapping_file.write("\n")
         num_val_in_line=0
 
     if (num_val_in_line == 0):
-        sys.stdout.write("    dt ")
+        mapping_file.write("    dt ")
     else:
-        sys.stdout.write(", ")
+        mapping_file.write(", ")
 
-    mappingIndex[i] = getCloserIndex(mappingValues[i])
-    sys.stdout.write("0x%02X" % mappingIndex[i])
+    mappingIndex[i], mappingCloserValue[i] = getCloserIndexAndValue(mappingValues[i])
+    mapping_file.write("0x%02X" % mappingIndex[i])
     num_val_in_line=num_val_in_line+1
 
-sys.stdout.write("\n")
+mapping_file.write("\n")
+mapping_file.close()
 
-
+value_file = open(sys.argv[2], "w")
+value_file.write("    dt ")
+for i in range(NB_VALUE/2 - 1, NB_VALUE):
+    val = 10 * mappingCloserValue[i]
+    value_file.write("0x%02X" % val)
+    if i < (NB_VALUE - 1):
+        value_file.write(", ")
+value_file.write("\n")
+value_file.close()

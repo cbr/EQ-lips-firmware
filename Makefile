@@ -31,7 +31,10 @@ endif
 
 IMGS=src/common/font.xcf
 
-OTHER_GEN_INC=src/common/numpot_mapping.inc
+MAPPING_FILE=src/common/numpot_mapping.inc
+MAPPING_VALUE_FILE=src/numpot_mapping_value.inc
+
+OTHER_GEN_INC=$(MAPPING_FILE) $(MAPPING_VALUE_FILE)
 
 STAT_DIR=stat
 OBJ_DIR=obj
@@ -52,7 +55,7 @@ UNASM_FLAGS=-pp16f886
 LINK_SCRIPT=16f886.lkr
 LD_FLAGS= -c -ainhx32 -m -s$(LINK_SCRIPT)
 
-UNASM_NAME=$(BIN_NAME:.hex=.unasm)
+UNASM_NAME=$(BIN_NAME).unasm
 
 OBJS=$(patsubst %.asm,$(OBJ_DIR)/%.o, $(SRCS))
 
@@ -73,7 +76,7 @@ prog: all
 
 .PHONY:unasm
 unasm: all
-	gpdasm $(UNASM_FLAGS) $(BIN_NAME) > $(UNASM_NAME)
+	gpdasm $(UNASM_FLAGS) $(BIN_NAME).hex > $(UNASM_NAME)
 
 .PHONY:stat
 stat:
@@ -103,8 +106,8 @@ $(OBJ_DIR)/%.d: %.asm
 %.inc: %.xcf
 	$(IMG2GPASM) $< $@ 64 32 8
 
-src/common/numpot_mapping.inc:
-	$(NUMPOT_MAPPING) > $@
+$(MAPPING_FILE) $(MAPPING_VALUE_FILE):
+	$(NUMPOT_MAPPING) $(MAPPING_FILE) $(MAPPING_VALUE_FILE)
 
 sinclude $(MAKEDEP)
 $(MAKEDEP): $(SRCS)

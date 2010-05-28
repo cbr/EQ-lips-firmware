@@ -216,13 +216,11 @@ menu_start macro tick_function, idle_function
     ;; init variables
     clrf menu_value
     clrf menu_event
+    ;; Only one banksel for all variable (they are on the same page)
     banksel menu_state
     clrf menu_state
-    banksel menu_action
     clrf menu_action
-    banksel menu_action_step
     clrf menu_action_step
-    banksel menu_focused_entry
     clrf menu_focused_entry
 
     ;; Action to realize is 'complete init' the first time
@@ -330,10 +328,6 @@ menu_end_do_not_init_encoder:
 ;;; absolute menu entry number from the focusable number
 ;;; param1: focusable entry nb for which absolute entry nb must be returned (in W)
 menu_get_nb_from_focusable_nb:
-#if 0
-    movf param1, W
-    return
-#endif
     ;; This function is realized by recursively calling a macro
     menu_get_nb_from_focusable_nb_func_write MENU_NB_FOCUSABLE_ENTRY-1
     return

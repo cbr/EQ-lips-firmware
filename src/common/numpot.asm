@@ -131,7 +131,7 @@ numpot_send_all_next_chip:
 
 ;;;
 ;;; Set internal value of a potentiometer.
-;;; The value is stored but transmitted to tye real potentiometer
+;;; The value is stored but transmitted to the real potentiometer
 ;;; param1: potentiometer number
 ;;; param2: value
 ;;; Changed registers: none

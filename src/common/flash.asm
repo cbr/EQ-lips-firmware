@@ -12,8 +12,8 @@ COMMON CODE
 
 ;;; Get flash data from an address and an offset
 ;;; Read data is put in W.
-;;; param1: addrl of null terminated string
-;;; param2: addrh of null terminated string
+;;; param1: addrl of base address
+;;; param2: addrh of base address
 ;;; param3: offset
 ;;; changed registers: EEADR, EEADRH, EECON1
 flash_get_data:
@@ -21,12 +21,11 @@ flash_get_data:
     ;;  set base_addr to read
     banksel EEADR
     movf param1, W
-    movwf EEADRH
-    movf param2, W
     movwf EEADR
+    movf param2, W
+    movwf EEADRH
 
     ;; add offset
-    ;; bcf STATUS, C
     movf param3, W
     addwf EEADR, F
     btfsc STATUS, C

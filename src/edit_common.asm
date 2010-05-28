@@ -3,6 +3,7 @@
 #define EDIT_COMMON_M
 
 #include <cpu.inc>
+#include <edit_common.inc>
 #include <global.inc>
 #include <std.inc>
 #include <menu.inc>
@@ -12,6 +13,12 @@
 #include <io_interrupt.inc>
 #include <math.inc>
 #include <io.inc>
+#include <flash.inc>
+#include <menu_eq.inc>
+
+#define HINT_X              0
+#define HINT_X_VALUE        .7
+#define HINT_Y              3
 
 #define BOTH_BUTTON_MASK    ((1 << DOWN_SW_BIT) | (1 << UP_SW_BIT))
 
@@ -24,6 +31,7 @@ button_up_time_cpt  RES 2
 button_down_time_cpt  RES 2
 #endif
 edit_common_var1 RES 1
+edit_common_var2 RES 1
 edit_common_button_free_to_use RES 1
 edit_common_button_last_value RES 1
 ;;; Counter of number of down switch released event
@@ -47,6 +55,38 @@ edit_common_st_load:
 edit_common_st_save:
     global edit_common_st_save
     dt "SAVE", 0
+edit_common_st_empty_hint:
+    global edit_common_st_empty_hint
+    dt "               ", 0
+edit_common_st_gain_hint_label:
+    dt "GAIN", 0
+edit_common_st_eq_band_hint_unit:
+    dt "HZ", 0
+edit_common_st_eq_band_hint_value_unit:
+    dt " DB", 0
+
+edit_common_st_freq_value_0:
+    dt "32 ", 0
+edit_common_st_freq_value_1:
+    dt "64 ", 0
+edit_common_st_freq_value_2:
+    dt "125 ", 0
+edit_common_st_freq_value_3:
+    dt "250 ", 0
+edit_common_st_freq_value_4:
+    dt "500 ", 0
+edit_common_st_freq_value_5:
+    dt "1 K", 0
+edit_common_st_freq_value_6:
+    dt "2 K", 0
+edit_common_st_freq_value_7:
+    dt "4 K", 0
+edit_common_st_freq_value_8:
+    dt "8 K", 0
+edit_common_st_freq_value_9:
+    dt "16 K", 0
+edit_common_mapping_values:
+#include <numpot_mapping_value.inc>
 
 ;;;
 ;;; Initialize module
@@ -273,6 +313,180 @@ edit_common_bank_down:
     call_other_page edit_common_load
 edit_common_bank_down_end:
     menu_change_focus
+    return
+
+edit_common_freq_val_macro macro eq_nb
+    local not_this_one
+    local found
+
+    movf edit_common_var1, W
+    sublw eq_nb
+    btfss STATUS, Z
+    goto not_this_one
+    movlw low edit_common_st_freq_value_#v(eq_nb)
+    movwf param1
+    movlw high edit_common_st_freq_value_#v(eq_nb)
+    movwf param2
+    goto found
+not_this_one:
+    if (eq_nb > 0)
+    edit_common_freq_val_macro (eq_nb-1)
+    endif
+found:
+    endm
+
+;;;
+;;; Function called when an eq band gain the focus
+;;; param1: id of menu entry which gain focus (not used here)
+;;;
+edit_common_eq_gain_focus:
+    global edit_common_eq_gain_focus
+    ;; Locate
+    movlw HINT_X
+    movwf param1
+    movlw HINT_Y
+    movwf param2
+    call_other_page lcd_locate
+    ;; Draw legend string
+    movlw low edit_common_st_gain_hint_label
+    movwf param1
+    movlw high edit_common_st_gain_hint_label
+    movwf param2
+    call_other_page lcd_string
+
+    ;; Draw value
+    movlw 0xA
+    movwf param1
+    call_other_page edit_common_eq_band_change
+    return
+
+;;;
+;;; Function called when an eq band gain the focus
+;;; param1: id of menu entry which gain focus
+;;;
+edit_common_eq_band_focus:
+    global edit_common_eq_band_focus
+    ;; save param
+    movf param1, W
+    banksel edit_common_var2
+    movwf edit_common_var2
+    ;; Get 0-indexed value
+    movlw ID_EQ_BAND_BASE
+    subwf param1, W
+    banksel edit_common_var1
+    movwf edit_common_var1
+    ;; Locate
+    movlw HINT_X
+    movwf param1
+    movlw HINT_Y
+    movwf param2
+    call_other_page lcd_locate
+    ;; Draw legend string
+    ;; movlw low edit_common_st_eq_band_hint_label
+    ;; movwf param1
+    ;; movlw high edit_common_st_eq_band_hint_label
+    ;; movwf param2
+    ;; call_other_page lcd_string
+    ;; Draw freq value
+    banksel edit_common_var1
+    edit_common_freq_val_macro 9
+    call_other_page lcd_string
+    ;; Draw unit
+    movlw low edit_common_st_eq_band_hint_unit
+    movwf param1
+    movlw high edit_common_st_eq_band_hint_unit
+    movwf param2
+    call_other_page lcd_string
+
+    ;; Draw value
+    banksel edit_common_var2
+    movf edit_common_var2, W
+    movwf param1
+    call_other_page edit_common_eq_band_change
+    return
+
+;;;
+;;; Function called when an eq band loose the focus
+;;; param1: id of menu entry which loose focus
+;;;
+edit_common_eq_band_unfocus:
+    global edit_common_eq_band_unfocus
+    ;; Locate
+    movlw HINT_X
+    movwf param1
+    movlw HINT_Y
+    movwf param2
+    call_other_page lcd_locate
+    ;; Draw empty string
+    movlw low edit_common_st_empty_hint
+    movwf param1
+    movlw high edit_common_st_empty_hint
+    movwf param2
+    call_other_page lcd_string
+
+    return
+
+;;;
+;;; Function called when an eq band has its value changed
+;;; param1: id of menu entry which have vakue change
+;;;
+edit_common_eq_band_change:
+    global edit_common_eq_band_change
+
+    ;; Extract band value and put it into edit_common_var1
+    bankisel bank_numpot_values
+    movlw ID_EQ_BAND_BASE
+    subwf param1, W
+    addlw low bank_numpot_values
+    movwf FSR
+    movf INDF, W
+    banksel edit_common_var1
+    movwf edit_common_var1
+
+    ;; Locate
+    movlw HINT_X_VALUE
+    movwf param1
+    movlw HINT_Y
+    movwf param2
+    call_other_page lcd_locate
+    ;; Check sign
+    movlw MENU_EQ_ZERO_VALUE
+    banksel edit_common_var1
+    subwf edit_common_var1, F
+    btfss STATUS, C
+    goto edit_common_eq_band_change_neg
+edit_common_eq_band_change_pos:
+    movlw '+'
+    movwf param1
+    call_other_page lcd_char
+    goto edit_common_eq_band_change_print_val
+edit_common_eq_band_change_neg:
+    comf edit_common_var1, F
+    incf edit_common_var1, F
+    movlw '-'
+    movwf param1
+    call_other_page lcd_char
+edit_common_eq_band_change_print_val
+    ;; print
+    movlw low edit_common_mapping_values
+    movwf param1
+    movlw high edit_common_mapping_values
+    movwf param2
+    banksel edit_common_var1
+    movf edit_common_var1, W
+    movwf param3
+    call_other_page flash_get_data
+    movwf param1
+    movlw 1
+    movwf param2
+    call_other_page lcd_int
+
+    movlw low edit_common_st_eq_band_hint_value_unit
+    movwf param1
+    movlw high edit_common_st_eq_band_hint_value_unit
+    movwf param2
+    call_other_page lcd_string
+
     return
 
 #ifdef TREMOLO

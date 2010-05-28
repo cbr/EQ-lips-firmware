@@ -903,7 +903,6 @@ lcd_string_loop:
     ;; It's 0 -> finished
     goto lcd_string_end
     ;; write read data in param1 and draw char
-    banksel EEDAT
     movf EEDAT, W
     banksel param1
     movwf param1

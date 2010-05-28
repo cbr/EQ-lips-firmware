@@ -11,7 +11,6 @@
 #define MENU_EQ_BAND_WIDTH          0x04
 #define MENU_EQ_BAND_FOCUS_WIDTH    0x05
 
-#define MENU_EQ_ZERO_VALUE          0x10
 #define MENU_EQ_VALUE_TO_LCD_SHT    0x00
 
 COMMON_VAR UDATA
@@ -47,7 +46,7 @@ menu_draw_eq_pos:
     incf param4, F
     ;; Rectangle y start
     movf param4, W
-    sublw (LCD_HEIGH / 2)
+    sublw (LCD_HEIGH / 2) + 1
     movwf param2
     goto menu_draw_eq_rect
 
@@ -61,7 +60,7 @@ menu_draw_eq_neg:
     incf param4, F
 
     ;; Rectangle y start
-    movlw (LCD_HEIGH / 2)
+    movlw (LCD_HEIGH / 2) +1
     movwf param2
 
 menu_draw_eq_rect:

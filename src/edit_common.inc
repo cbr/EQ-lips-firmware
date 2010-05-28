@@ -1,6 +1,8 @@
-#define ID_BANK_SELECT  0x0
-#define ID_BANK_UP      0x200
-#define ID_BANK_DOWN    0x201
+#define ID_BANK_SELECT  0x1
+#define ID_BANK_UP      0x2
+#define ID_BANK_DOWN    0x3
+#define ID_BANK_SAVE    0x4
+#define ID_EQ_BAND_BASE 0x10
 
 edit_common_btn_evt_mgt macro
     local simple_mgt
@@ -23,8 +25,8 @@ edit_common_btn_evt_mgt macro
     ;; Simple up & down btn management
     goto no_entry_selected
     ;; Check is current selected entry is "bank selection" menu entry
-    movf menu_value, W
-    sublw ID_BANK_SELECT
+    menu_get_nb_from_id_macro ID_BANK_SELECT
+    subwf menu_value, W
     btfss STATUS, Z
     goto other_entry_selected
 
@@ -89,7 +91,7 @@ no_entry_selected:
     ;; Both button pressed !
     ;; -> select "bank change" entry
     decf edit_common_both_btn_pressed, F
-    menu_select_specific_entry_from_id 10
+    menu_select_specific_entry_from_id ID_BANK_SELECT
 no_entry_selected_end:
     goto simple_mgt
 
@@ -134,6 +136,7 @@ end_mgt:
     extern edit_common_st_bank
     extern edit_common_st_load
     extern edit_common_st_save
+    extern edit_common_st_empty_hint
     extern edit_common_down_btn_released
     extern edit_common_up_btn_released
     extern edit_common_both_btn_pressed
@@ -148,6 +151,10 @@ end_mgt:
     extern edit_common_check_buttons
     extern edit_common_bank_up
     extern edit_common_bank_down
+    extern edit_common_eq_gain_focus
+    extern edit_common_eq_band_focus
+    extern edit_common_eq_band_unfocus
+    extern edit_common_eq_band_change
 #ifdef TREMOLO
     extern edit_common_cycle_period
 #endif
