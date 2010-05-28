@@ -104,7 +104,7 @@ $(OBJ_DIR)/%.d: %.asm
 	$(AS) -c -M $(AS_FLAGS) -I. $(addprefix -I,$(UNIQ_INC_DIR)) $< -o $@
 
 %.inc: %.xcf
-	$(IMG2GPASM) $< $@ 64 32 8
+	$(IMG2GPASM) $< $@ 64 48 8
 
 $(MAPPING_FILE) $(MAPPING_VALUE_FILE):
 	$(NUMPOT_MAPPING) $(MAPPING_FILE) $(MAPPING_VALUE_FILE)

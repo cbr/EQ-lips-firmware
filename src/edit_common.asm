@@ -48,22 +48,22 @@ edit_common_both_btn_pressed RES 1
 EQ_PROG_1 CODE
 edit_common_st_bank:
     global edit_common_st_bank
-    dt "BANK: ", 0
+    dt "Bank: ", 0
 edit_common_st_load:
     global edit_common_st_load
-    dt "LOAD", 0
+    dt "Load", 0
 edit_common_st_save:
     global edit_common_st_save
-    dt "SAVE", 0
+    dt "Save", 0
 edit_common_st_empty_hint:
     global edit_common_st_empty_hint
     dt "               ", 0
 edit_common_st_gain_hint_label:
-    dt "GAIN", 0
+    dt "Gain", 0
 edit_common_st_eq_band_hint_unit:
-    dt "HZ", 0
+    dt "Hz", 0
 edit_common_st_eq_band_hint_value_unit:
-    dt "DB", 0
+    dt "dB", 0
 
 edit_common_st_freq_value_0:
     dt "32", 0
@@ -76,15 +76,15 @@ edit_common_st_freq_value_3:
 edit_common_st_freq_value_4:
     dt "500", 0
 edit_common_st_freq_value_5:
-    dt "1K", 0
+    dt "1k", 0
 edit_common_st_freq_value_6:
-    dt "2K", 0
+    dt "2k", 0
 edit_common_st_freq_value_7:
-    dt "4K", 0
+    dt "4k", 0
 edit_common_st_freq_value_8:
-    dt "8K", 0
+    dt "8k", 0
 edit_common_st_freq_value_9:
-    dt "16K", 0
+    dt "16k", 0
 edit_common_mapping_values:
 #include <numpot_mapping_value.inc>
 
