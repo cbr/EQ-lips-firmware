@@ -16,7 +16,7 @@
 #include <flash.inc>
 #include <menu_eq.inc>
 
-#define HINT_X              0
+#define HINT_X              1
 #define HINT_X_VALUE        .7
 #define HINT_Y              3
 
@@ -63,28 +63,28 @@ edit_common_st_gain_hint_label:
 edit_common_st_eq_band_hint_unit:
     dt "HZ", 0
 edit_common_st_eq_band_hint_value_unit:
-    dt " DB", 0
+    dt "DB", 0
 
 edit_common_st_freq_value_0:
-    dt "32 ", 0
+    dt "32", 0
 edit_common_st_freq_value_1:
-    dt "64 ", 0
+    dt "64", 0
 edit_common_st_freq_value_2:
-    dt "125 ", 0
+    dt "125", 0
 edit_common_st_freq_value_3:
-    dt "250 ", 0
+    dt "250", 0
 edit_common_st_freq_value_4:
-    dt "500 ", 0
+    dt "500", 0
 edit_common_st_freq_value_5:
-    dt "1 K", 0
+    dt "1K", 0
 edit_common_st_freq_value_6:
-    dt "2 K", 0
+    dt "2K", 0
 edit_common_st_freq_value_7:
-    dt "4 K", 0
+    dt "4K", 0
 edit_common_st_freq_value_8:
-    dt "8 K", 0
+    dt "8K", 0
 edit_common_st_freq_value_9:
-    dt "16 K", 0
+    dt "16K", 0
 edit_common_mapping_values:
 #include <numpot_mapping_value.inc>
 
