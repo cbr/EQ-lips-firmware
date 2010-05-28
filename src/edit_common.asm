@@ -355,7 +355,7 @@ edit_common_eq_gain_focus:
     call_other_page lcd_string
 
     ;; Draw value
-    movlw 0xA
+    movlw ID_EQ_BAND_BASE + 0xA
     movwf param1
     call_other_page edit_common_eq_band_change
     return
