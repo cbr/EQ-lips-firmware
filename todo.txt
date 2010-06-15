@@ -1,6 +1,12 @@
+* On first run, init EEPROM banks
+* Font with big char for bank number
+*
+
+====== OLD ITEMS =======
+
 * Fix IDF/FSR bank access (with bankisel and other things)
 
-* Manage stomp switch
+* Manage stomp switch. Proposition:
 ** Stomp switch 1: bypass, hardware only
 ** Stomp switch 2:
          short:
@@ -13,17 +19,13 @@
               - in no_select mode: select current bank
          long: enter in no_select mode, change to next bank with blink
 
+  ==> NO ! It needs timer, and because of sound "ticks" we prefer to stay in sleep mode.
+
+
 * Manage generic bank module
 ** Save bank in flash if enough flash mem is available
 
 * Tremolo: eq and simple are now working. However, eq trem result is not very interresting.
-
-* Gui
-** Context label and value
-** Switch eq_a, eq_b, tremolo screens
-** Manage blinking for more intuitive gui (while saving for exemple and in no_select bank switching for exemple))
-   -> need to know how tu use timer for multiple purpose
-
 
 * Sound problem with tremolo: presence of "tic"
 ** Facts:
@@ -35,3 +37,4 @@
 *** When CS of numpot is 'in the air' the signal is very noisy. -> CS problem ?
 ** TODO:
 *** Simulate the fact that there is another chained numpot after the gain numpot.
+==> Maybe it is an alim pb ? As workaround, tremolo is deactivated
