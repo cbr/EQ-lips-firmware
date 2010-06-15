@@ -487,6 +487,9 @@ edit_common_eq_band_change_print_val
     movwf param2
     call_other_page lcd_string
 
+    ;; Update numpot
+    call_other_page process_change_conf
+
     return
 
 #ifdef TREMOLO
