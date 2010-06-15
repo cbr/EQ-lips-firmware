@@ -1,4 +1,4 @@
-#define IO_FILTER_NB_STABLE_STATE     0x60
+#define IO_FILTER_NB_STABLE_STATE     0x80
 
 io_interrupt macro
 #ifdef RABIF
