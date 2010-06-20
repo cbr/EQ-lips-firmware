@@ -681,10 +681,21 @@ get_lcd_data:
 
     return
 
-
-lcd_int_print_unit macro reg_value, unit, max_unit
+;;;
+;;; Print one characater from an integer value
+;;; reg_value: register which contain the integer value
+;;; unit: unit character which has to be printed
+;;; max_unit: maximal possible value for the unit
+;;; char_pos: character position
+;;; var4 is used as configuration and let unchanged. Its format is the same as
+;;; param2 from lcd_int function
+;;; Changed registers: var2, var5, reg_value
+;;;
+lcd_int_print_unit macro reg_value, unit, max_unit, char_pos
     local lcd_int_print_unit_continue
     local lcd_int_print_unit_end
+    local lcd_int_print_unit_before_print
+    local lcd_int_print_unit_after_print
     movlw 0x00
     banksel var2
     movwf var2
@@ -707,15 +718,36 @@ lcd_int_print_unit_end:
     ;; Print unit value
     banksel var2
     movf var2, W
+#if 0
+    btfsc STATUS, Z
+    btfsc var4, LCD_INT_SHT_USELESS_ZERO
+    goto lcd_int_print_unit_before_print
+    goto lcd_int_print_unit_after_print
+#else
+    btfss STATUS, Z
+    goto lcd_int_print_unit_before_print
+    movf var4, W
+    andlw LCD_INT_MASK_FILLING_ZERO
+    movwf var5
+    rshift_f var5, LCD_INT_SHT_FILLING_ZERO
+    movf var5, W
+    sublw char_pos
+    btfsc STATUS, C
+    goto lcd_int_print_unit_after_print
+    movf var2, W
+#endif
+
+lcd_int_print_unit_before_print:
     addlw '0'
     movwf param1
     call lcd_char
-
+lcd_int_print_unit_after_print:
     endm
 
 ;;; Print an integer on current position of LCD
 ;;; param1: value of integer to be printed
-;;; param2: position of decimal point. If 0, no decimal point
+;;; param2: bit 1 - 0: position of decimal point. If 0, no decimal point
+;;;         bit 4 - 0: number of filling 0
 ;;; used variables: var1, var2, var3, var4
 lcd_int:
     global lcd_int
@@ -735,9 +767,10 @@ lcd_int:
     call lcd_char
 lcd_int_print_100:
     banksel var3
-    lcd_int_print_unit var3, 0x64, 2
+    lcd_int_print_unit var3, 0x64, 2, 2
     banksel var4
     movf var4, W
+    andlw LCD_INT_MASK_COMA_POS
     sublw LCD_INT_DEC_POS_10
     btfss STATUS, Z
     goto lcd_int_print_10
@@ -746,9 +779,10 @@ lcd_int_print_100:
     call lcd_char
 lcd_int_print_10:
     banksel var3
-    lcd_int_print_unit var3, 0x0A, 9
+    lcd_int_print_unit var3, 0x0A, 9, 1
     banksel var4
     movf var4, W
+    andlw LCD_INT_MASK_COMA_POS
     sublw LCD_INT_DEC_POS_1
     btfss STATUS, Z
     goto lcd_int_print_1

@@ -50,8 +50,8 @@ edit_eq_show:
 #ifdef TREMOLO
     menu_button_goto edit_eq_st_trem, 0, edit_trem_show
 #endif
-    menu_edit ID_BANK_SELECT, edit_common_st_bank, 1, 0, 1, BANK_NB, current_bank, edit_common_load_preview, edit_common_load
-    menu_edit_no_show ID_BANK_SAVE, edit_common_st_save, 1, 1, 1, BANK_NB, current_bank, edit_common_refresh, edit_common_save
+    menu_edit ID_BANK_SELECT, edit_common_st_bank, 1, 0, 1, BANK_NB, current_bank, (2 << LCD_INT_SHT_FILLING_ZERO), edit_common_load_preview, edit_common_load
+    menu_edit_no_show ID_BANK_SAVE, edit_common_st_save, 1, 1, 1, BANK_NB, current_bank, (2 << LCD_INT_SHT_FILLING_ZERO), edit_common_refresh, edit_common_save
     menu_eq ID_EQ_BAND_BASE + 0x0, (0x5*0 + 0x3D), bank_numpot_values, edit_common_eq_band_focus, edit_common_eq_band_unfocus, edit_common_eq_band_change
     menu_eq ID_EQ_BAND_BASE + 0x1, (0x5*1 + 0x3D), bank_numpot_values+1, edit_common_eq_band_focus, edit_common_eq_band_unfocus, edit_common_eq_band_change
     menu_eq ID_EQ_BAND_BASE + 0x2, (0x5*2 + 0x3D), bank_numpot_values+2, edit_common_eq_band_focus, edit_common_eq_band_unfocus, edit_common_eq_band_change

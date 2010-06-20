@@ -31,6 +31,9 @@
 #define LCD_CHAR_HEIGH_SHIFT  3
 #define FIRST_FONT_CHAR_NUM   0x20
 
+#define LCD_INT_MASK_COMA_POS       0x3
+#define LCD_INT_MASK_FILLING_ZERO   0xC
+#define LCD_INT_SHT_FILLING_ZERO    2
 
 lcd_recv_cmd_1 macro
     bsf param2, LCD_COMMAND

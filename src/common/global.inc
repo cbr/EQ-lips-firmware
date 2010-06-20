@@ -7,6 +7,7 @@
     extern param3
     extern param4
     extern param5
+    extern param6
 
     extern encoder_sw
     extern encoder_value

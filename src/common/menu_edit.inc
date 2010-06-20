@@ -8,8 +8,8 @@
 ;;; pos_y: y position of menu edit
 ;;; Changed registers: param1, param2, param3, param4
 ;;;
-menu_edit macro id, string, pos_x, pos_y, min_value, max_value, value_addr, on_value_change_func, on_valid_value_func
-    menu_edit_comon id, string, pos_x, pos_y, min_value, max_value, value_addr, on_value_change_func, on_valid_value_func, 1
+menu_edit macro id, string, pos_x, pos_y, min_value, max_value, value_addr, value_format, on_value_change_func, on_valid_value_func
+    menu_edit_comon id, string, pos_x, pos_y, min_value, max_value, value_addr, value_format, on_value_change_func, on_valid_value_func, 1
     endm
 
 ;;;
@@ -20,8 +20,8 @@ menu_edit macro id, string, pos_x, pos_y, min_value, max_value, value_addr, on_v
 ;;; pos_y: y position of menu edit
 ;;; Changed registers: param1, param2, param3, param4
 ;;;
-menu_edit_no_show macro id, string, pos_x, pos_y, min_value, max_value, value_addr, on_value_change_func, on_valid_value_func
-    menu_edit_comon id, string, pos_x, pos_y, min_value, max_value, value_addr, on_value_change_func, on_valid_value_func, 0
+menu_edit_no_show macro id, string, pos_x, pos_y, min_value, max_value, value_addr, value_format, on_value_change_func, on_valid_value_func
+    menu_edit_comon id, string, pos_x, pos_y, min_value, max_value, value_addr, value_format, on_value_change_func, on_valid_value_func, 0
     endm
 
 ;;;
@@ -32,7 +32,7 @@ menu_edit_no_show macro id, string, pos_x, pos_y, min_value, max_value, value_ad
 ;;; pos_y: y position of menu edit
 ;;; Changed registers: param1, param2, param3, param4
 ;;;
-menu_edit_comon macro id, string, pos_x, pos_y, min_value, max_value, value_addr, on_value_change_func, on_valid_value_func, print_value
+menu_edit_comon macro id, string, pos_x, pos_y, min_value, max_value, value_addr, value_format, on_value_change_func, on_valid_value_func, print_value
     local menu_edit_init_or_refresh
     local menu_edit_undef
     local menu_edit_focus
@@ -63,7 +63,8 @@ menu_edit_init_or_refresh:
     bankisel value_addr
     movf INDF, W
     movwf param1
-    clrf param2
+    movlw value_format
+    movwf param2
     call_other_page lcd_int
     goto menu_edit_undef
 #endif
@@ -152,6 +153,8 @@ menu_edit_select_value_change:
     bankisel value_addr
     movlw value_addr
     movwf param5
+    movlw value_format
+    movwf param6
     call_other_page menu_edit_manage_select_value_change
 #if on_value_change_func == UNUSED_PARAM
 #else

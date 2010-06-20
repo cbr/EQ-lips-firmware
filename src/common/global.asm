@@ -16,6 +16,8 @@ param4       RES 1 ; parameter 4 of functions
     global param4;
 param5       RES 1 ; parameter 5 of functions
     global param5;
+param6       RES 1 ; parameter 6 of functions
+    global param6;
 encoder_sw RES 1 ; encoder value
     global encoder_sw;
 encoder_value RES 1 ; encoder value

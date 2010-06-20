@@ -14,8 +14,9 @@ menu_edit_var1               RES 1
 ;;; relocatable code
 COMMON CODE
 
-;;; Manage value change of edit
 
+;;;
+;;; Manage value change of edit
 ;;; param1: addrl of null terminated string
 ;;; param2: addrh of null terminated string
 ;;; param3: x position of edit
@@ -23,6 +24,7 @@ COMMON CODE
 ;;; param5: address of edit value. IRP bit of STATUS register must be correctly
 ;;;         set before calling this function in order to read the value with the
 ;;;         help of FSR/INDF
+;;; param6: configuration of value to print (format of param2 of lcd_int function)
 menu_edit_manage_select_value_change:
     global menu_edit_manage_select_value_change
     ;; save param3
@@ -61,7 +63,8 @@ menu_edit_manage_select_value_change:
     banksel menu_select_value
     movf menu_select_value, W
     movwf param1
-    clrf param2
+    movf param6, W
+    movwf param2
     call lcd_int
     ;; ***************
 menu_edit_manage_select_value_change_after_print:

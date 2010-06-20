@@ -63,7 +63,7 @@ edit_common_st_gain_hint_label:
 edit_common_st_eq_band_hint_unit:
     dt "Hz", 0
 edit_common_st_eq_band_hint_value_unit:
-    dt "dB", 0
+    dt "dB ", 0
 
 edit_common_st_freq_value_0:
     dt "32", 0
@@ -477,7 +477,7 @@ edit_common_eq_band_change_print_val
     movwf param3
     call_other_page flash_get_data
     movwf param1
-    movlw 1
+    movlw (1 | (2 << LCD_INT_SHT_FILLING_ZERO))
     movwf param2
     call_other_page lcd_int
 
