@@ -1,6 +1,4 @@
 * On first run, init EEPROM banks
-* Font with big char for bank number
-*
 
 ====== OLD ITEMS =======
 
