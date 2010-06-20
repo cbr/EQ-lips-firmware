@@ -29,11 +29,15 @@
 #define LCD_CHAR_HEIGH        8
 #define LCD_CHAR_WIDTH_SHIFT  2
 #define LCD_CHAR_HEIGH_SHIFT  3
-#define FIRST_FONT_CHAR_NUM   0x20
+#define LCD_BIG_CHAR_WIDTH        8
+#define LCD_BIG_CHAR_HEIGH        .16
+#define FIRST_FONT_CHAR_NUM   ' '
+#define FIRST_FONT_BIG_CHAR_NUM   '.'
 
 #define LCD_INT_MASK_COMA_POS       0x3
 #define LCD_INT_MASK_FILLING_ZERO   0xC
 #define LCD_INT_SHT_FILLING_ZERO    2
+#define LCD_INT_SHT_BIG_CHAR        4
 
 lcd_recv_cmd_1 macro
     bsf param2, LCD_COMMAND
@@ -107,6 +111,7 @@ lcd_send_cmd_2 macro cmd, value
     extern set_lcd_data
     extern get_lcd_data
     extern lcd_char
+    extern lcd_big_char
     extern lcd_locate
 #if 0
     extern lcd_test_io_blink

@@ -70,7 +70,7 @@ menu_draw_eq_rect:
 
     bsf param5, LCD_SET_PIXEL
 
-    call lcd_rectangle
+    call_other_page lcd_rectangle
     return
 
 ;;; Refresh band
@@ -96,7 +96,7 @@ menu_refresh_eq_band:
     movwf param4
     bcf param5, LCD_XOR
     bcf param5, LCD_SET_PIXEL
-    call lcd_rectangle
+    call_other_page lcd_rectangle
 
     ;; draw the band
     banksel menu_eq_var1
@@ -125,7 +125,7 @@ menu_draw_focus_eq_band:
     movlw LCD_HEIGH
     movwf param4
     bsf param5, LCD_XOR
-    call lcd_rectangle
+    call_other_page lcd_rectangle
     ;; draw right vertical line
     banksel menu_eq_var1
     movf menu_eq_var1, W
@@ -137,7 +137,7 @@ menu_draw_focus_eq_band:
     movlw LCD_HEIGH
     movwf param4
     bsf param5, LCD_XOR
-    call lcd_rectangle
+    call_other_page lcd_rectangle
     return
 
 ;;; Draw the selection/deselection rectangle
@@ -152,7 +152,7 @@ menu_eq_draw_select:
     movlw LCD_HEIGH
     movwf param4
     bsf param5, LCD_XOR
-    call lcd_rectangle
+    call_other_page lcd_rectangle
     return
 
 

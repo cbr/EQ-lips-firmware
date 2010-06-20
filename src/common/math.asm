@@ -209,7 +209,7 @@ math_test:
     global math_test
 
     ;; **** TEST MATH ****
-    call lcd_clear
+    call_other_page lcd_clear
     ;; Mult 1. Expected result: 004 218
     math_banksel
     movlw 0x12
@@ -219,17 +219,17 @@ math_test:
     call math_mult_08u08u_16u
     clrf param1
     clrf param2
-    call lcd_locate
+    call_other_page lcd_locate
     math_banksel
     movf number_c_hi, W
     movwf param1
     clrf param2
-    call lcd_int
+    call_other_page lcd_int
     math_banksel
     movf number_c_lo, W
     movwf param1
     clrf param2
-    call lcd_int
+    call_other_page lcd_int
 
     ;; Mult 2. Expected result:  254 001
     math_banksel
@@ -241,17 +241,17 @@ math_test:
     movlw 0x11
     movwf param1
     clrf param2
-    call lcd_locate
+    call_other_page lcd_locate
     math_banksel
     movf number_c_hi, W
     movwf param1
     clrf param2
-    call lcd_int
+    call_other_page lcd_int
     math_banksel
     movf number_c_lo, W
     movwf param1
     clrf param2
-    call lcd_int
+    call_other_page lcd_int
 
     ;; Add 1. Expected result: 034 080
     math_banksel
@@ -266,17 +266,17 @@ math_test:
     clrf param1
     movlw 1
     movwf param2
-    call lcd_locate
+    call_other_page lcd_locate
     math_banksel
     movf number_b_hi, W
     movwf param1
     clrf param2
-    call lcd_int
+    call_other_page lcd_int
     math_banksel
     movf number_b_lo, W
     movwf param1
     clrf param2
-    call lcd_int
+    call_other_page lcd_int
 
     ;; Add 2. Expected result: 065 016
     math_banksel
@@ -294,17 +294,17 @@ math_test:
     movwf param1
     movlw 1
     movwf param2
-    call lcd_locate
+    call_other_page lcd_locate
     math_banksel
     movf number_b_hi, W
     movwf param1
     clrf param2
-    call lcd_int
+    call_other_page lcd_int
     math_banksel
     movf number_b_lo, W
     movwf param1
     clrf param2
-    call lcd_int
+    call_other_page lcd_int
 
     ;; Neg. Expected result: 239 064
     math_banksel
@@ -321,17 +321,17 @@ math_test:
     movwf param1
     movlw 2
     movwf param2
-    call lcd_locate
+    call_other_page lcd_locate
     math_banksel
     movf number_b_hi, W
     movwf param1
     clrf param2
-    call lcd_int
+    call_other_page lcd_int
     math_banksel
     movf number_b_lo, W
     movwf param1
     clrf param2
-    call lcd_int
+    call_other_page lcd_int
 
     ;; Div 1. Expected result: 000 007
     math_banksel
@@ -348,17 +348,17 @@ math_test:
     movwf param1
     movlw 3
     movwf param2
-    call lcd_locate
+    call_other_page lcd_locate
     math_banksel
     movf number_b_hi, W
     movwf param1
     clrf param2
-    call lcd_int
+    call_other_page lcd_int
     math_banksel
     movf number_b_lo, W
     movwf param1
     clrf param2
-    call lcd_int
+    call_other_page lcd_int
 
     ;; Div 2. Expected result: 254 038
     math_banksel
@@ -375,17 +375,17 @@ math_test:
     movwf param1
     movlw 3
     movwf param2
-    call lcd_locate
+    call_other_page lcd_locate
     math_banksel
     movf number_b_hi, W
     movwf param1
     clrf param2
-    call lcd_int
+    call_other_page lcd_int
     math_banksel
     movf number_b_lo, W
     movwf param1
     clrf param2
-    call lcd_int
+    call_other_page lcd_int
     return
     goto $
 #endif

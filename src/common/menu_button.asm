@@ -93,7 +93,7 @@ menu_button_select_func_draw:
     iorwf param1, F
     bsf param2, LCD_COMMAND
     bsf param2, LCD_FIRST_CHIP
-    call lcd_write
+    call_other_page lcd_write
 
     ;; delay
     movlw 0xFF

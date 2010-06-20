@@ -59,13 +59,13 @@ menu_edit_manage_select_value_change:
     ;; not equal -> print value
     movf param4, W
     movwf param2
-    call lcd_locate
+    call_other_page lcd_locate
     banksel menu_select_value
     movf menu_select_value, W
     movwf param1
     movf param6, W
     movwf param2
-    call lcd_int
+    call_other_page lcd_int
     ;; ***************
 menu_edit_manage_select_value_change_after_print:
 
@@ -91,7 +91,7 @@ menu_edit_draw_select:
     movwf param4
 
     bsf param5, LCD_XOR
-    call lcd_rectangle
+    call_other_page lcd_rectangle
 
     return
 

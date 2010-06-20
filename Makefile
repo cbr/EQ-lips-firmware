@@ -29,7 +29,7 @@ SRCS +=	src/edit_trem.asm \
 	src/common/timer.asm
 endif
 
-IMGS=src/common/font.xcf
+IMGS=src/common/font.xcf src/common/font-big.xcf
 
 MAPPING_FILE=src/common/numpot_mapping.inc
 MAPPING_VALUE_FILE=src/numpot_mapping_value.inc
