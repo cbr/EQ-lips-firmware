@@ -17,7 +17,7 @@
 ;;; along with EQ-lips firmware.  If not, see <http://www.gnu.org/licenses/>.
 ;;;
 
-#define IO_FILTER_NB_STABLE_STATE     0x80
+#define IO_FILTER_NB_STABLE_STATE     0xC0
 
 io_interrupt macro
 #ifdef RABIF

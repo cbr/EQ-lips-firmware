@@ -155,9 +155,14 @@ edit_common_refresh:
 
 edit_common_sleep:
     global edit_common_sleep
-    ;; Nothing to do -> put processor in sleep mode
+
+    call_other_page edit_common_check_buttons
+    sublw 0
+    btfss STATUS, Z
+    goto edit_common_sleep_no_sleep
     sleep
     nop
+edit_common_sleep_no_sleep:
     ;; We have been wake up
     return
 
@@ -209,20 +214,14 @@ edit_common_up_long:
 ;;; - edit_common_both_btn_pressed
 ;;; - edit_common_up_btn_released
 ;;; - edit_common_down_btn_released
+;;; Return with W=1 if a new event have been detected, and W=0 otherwise
 ;;;
 edit_common_check_buttons:
     global edit_common_check_buttons
-#if 0
-    clrf param1
-    movlw 3
-    movwf param2
-    call_other_page lcd_locate
-    banksel reg_input_current_value
-    movf reg_input_current_value, W
-    movwf param1
-    clrf param2
-    call_other_page lcd_int
-#endif
+    ;; Memorize that we have a new event
+    banksel edit_common_var2
+    clrf edit_common_var2
+
     ;; Check if both button are pressed and not used
     ;; (bits are active when equal to 0, so the value is first negated)
     banksel reg_input_current_value
@@ -243,6 +242,11 @@ chk_btn_both_button_pressed:
     andwf edit_common_button_free_to_use, F
     banksel edit_common_both_btn_pressed
     incf edit_common_both_btn_pressed, F
+    ;; Memorize that we have a new event
+    banksel edit_common_var2
+    movlw 1
+    movwf edit_common_var2
+
     ;; call_other_page lcd_clear
 
     ;; Both button are not pressed
@@ -267,6 +271,10 @@ chk_btn_up_button_released:
     ;; call_other_page lcd_clear
     banksel edit_common_up_btn_released
     incf edit_common_up_btn_released, F
+    ;; Memorize that we have a new event
+    banksel edit_common_var2
+    movlw 1
+    movwf edit_common_var2
     goto chk_btn_up_button_released_end
 
 chk_btn_up_button_released_end:
@@ -280,6 +288,10 @@ chk_btn_down_button_released:
     ;; call_other_page lcd_clear
     banksel edit_common_down_btn_released
     incf edit_common_down_btn_released, F
+    ;; Memorize that we have a new event
+    banksel edit_common_var2
+    movlw 1
+    movwf edit_common_var2
     goto chk_btn_down_button_released_end
 
 chk_btn_down_button_released_end:
@@ -296,6 +308,11 @@ chk_btn_down_button_not_released:
     andlw BOTH_BUTTON_MASK
     banksel edit_common_button_free_to_use
     iorwf edit_common_button_free_to_use, F
+
+    ;; Return with edit_common_var2 value in W
+    ;; to tell if a new event have been detected
+    banksel edit_common_var2
+    movf edit_common_var2, W
     return
 
 ;;;

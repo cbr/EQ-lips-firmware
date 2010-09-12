@@ -71,15 +71,22 @@ cplx_chk_down:
     movf encoder_value, W
     sublw 1
     btfsc STATUS, Z
-    goto end_mgt
+    ;; Loopback of encoder
+    goto cplx_chk_down_loopback
+    ;; No loopback of encoder
     decf encoder_value, W
     movwf param1
-    movlw 1
-    movwf param2
+    goto cplx_chk_set_encoder
+cplx_chk_down_loopback:
     movlw BANK_NB
-    movwf param3
-    call_other_page encoder_set_value
-    goto end_mgt
+    movwf param1
+    goto cplx_chk_set_encoder
+    ;; movlw 1
+    ;; movwf param2
+    ;; movlw BANK_NB
+    ;; movwf param3
+    ;; call_other_page encoder_set_value
+    ;; goto end_mgt
 cplx_chk_up:
     banksel edit_common_up_btn_released
     movf edit_common_up_btn_released, W
@@ -91,15 +98,23 @@ cplx_chk_up:
     movf encoder_value, W
     sublw BANK_NB
     btfsc STATUS, Z
-    goto end_mgt
+    ;; Loopback of encoder
+    goto cplx_chk_up_loopback
+    ;; No loopback of encoder
     incf encoder_value, W
     movwf param1
+    goto cplx_chk_set_encoder
+
+cplx_chk_up_loopback:
     movlw 1
-    movwf param2
-    movlw BANK_NB
-    movwf param3
-    call_other_page encoder_set_value
-    goto end_mgt
+    movwf param1
+    goto cplx_chk_set_encoder
+    ;; movlw 1
+    ;; movwf param2
+    ;; movlw BANK_NB
+    ;; movwf param3
+    ;; call_other_page encoder_set_value
+    ;; goto end_mgt
 
 no_entry_selected:
     ;; Check both button evt
@@ -145,6 +160,13 @@ chk_up:
     decf edit_common_up_btn_released, F
     menu_select_specific_entry_from_id ID_BANK_UP
     goto end_mgt
+
+cplx_chk_set_encoder:
+    movlw 1
+    movwf param2
+    movlw BANK_NB
+    movwf param3
+    call_other_page encoder_set_value
 
 end_mgt:
     endm
