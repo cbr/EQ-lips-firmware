@@ -36,6 +36,8 @@ encoder_min_value RES 1 ; encoder minimum value
     global encoder_min_value
 encoder_max_value RES 1 ; encoder maximum value
     global encoder_max_value
+encoder_loopback RES 1 ; encoder loopback
+    global encoder_loopback
 
 COMMON CODE
 
@@ -68,6 +70,8 @@ encoder_init:
     movlw ENCODER_DEFAULT_MAX_VALUE
     banksel encoder_max_value
     movwf encoder_max_value
+    banksel encoder_loopback
+    clrf encoder_loopback
     banksel 0
 
     return
@@ -77,6 +81,7 @@ encoder_init:
 ;;; param1: current_value
 ;;; param2: value_min
 ;;; param3: value_max
+;;; param4: loopback (0=no, other=yes)
 encoder_set_value:
     global encoder_set_value
     interrupt_disable
@@ -88,6 +93,9 @@ encoder_set_value:
     movf param3, W
     banksel encoder_max_value
     movwf encoder_max_value
+    movf param4, W
+    banksel encoder_loopback
+    movwf encoder_loopback
     interrupt_enable
     banksel 0
     return

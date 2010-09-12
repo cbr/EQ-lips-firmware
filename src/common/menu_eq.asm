@@ -207,6 +207,7 @@ menu_eq_manage_select:
     clrf param2
     movlw MENU_EQ_MAX_INPUT
     movwf param3
+    clrf param4
     call_other_page menu_selection_encoder_configure
     return
 

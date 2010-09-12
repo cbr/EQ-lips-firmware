@@ -308,12 +308,19 @@ edit_common_bank_up:
     movf current_bank, W
     sublw BANK_NB
     btfsc STATUS, Z
-    goto edit_common_bank_up_end
+    ;; This is the max bank -> loopback
+    goto edit_common_bank_up_loopback
+    ;; This is not the max bank -> increment
     incf current_bank, F
+    goto edit_common_bank_up_continue
+edit_common_bank_up_loopback:
+    movlw 1
+    movwf current_bank
+edit_common_bank_up_continue:
     call_other_page edit_common_load_preview
     call_other_page edit_common_load
     menu_change_focus
-edit_common_bank_up_end:
+
     return
 
 ;;;
@@ -326,11 +333,16 @@ edit_common_bank_down:
     movf current_bank, W
     sublw 1
     btfsc STATUS, Z
-    goto edit_common_bank_down_end
+    goto edit_common_bank_down_loopback
     decf current_bank, F
+    goto edit_common_bank_down_continue
+edit_common_bank_down_loopback:
+    movlw BANK_NB
+    movwf current_bank
+edit_common_bank_down_continue:
     call_other_page edit_common_load_preview
     call_other_page edit_common_load
-edit_common_bank_down_end:
+
     menu_change_focus
     return
 

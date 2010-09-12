@@ -491,6 +491,7 @@ menu_start_process_end:
 ;;; param1: current_value
 ;;; param2: value_min
 ;;; param3: value_max
+;;; param4: loopback (0=no, other=yes)
 menu_selection_encoder_configure:
     global menu_selection_encoder_configure
     ;; Set encoder value

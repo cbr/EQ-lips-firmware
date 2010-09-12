@@ -122,6 +122,8 @@ menu_edit_select:
     movwf param2
     movlw low max_value
     movwf param3
+    movlw 1
+    movwf param4
     call_other_page menu_selection_encoder_configure
     ;; draw selection rectangle: the code is shared with unselect event, so
     ;; continue with select/unselect drawing part

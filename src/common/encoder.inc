@@ -21,6 +21,7 @@
 
     extern encoder_min_value
     extern encoder_max_value
+    extern encoder_loopback
 
 encoder_it macro reg_current_value, reg_changed_bit
 
@@ -60,7 +61,8 @@ encoder_rotate_cw:
     banksel encoder_max_value
     subwf encoder_max_value, W
     btfsc STATUS, Z
-    goto encoder_it_end
+    ;; This is max value, check if loopback is needed
+    goto encoder_loopback_min_check
     ;; Not max value
     incf encoder_value, F
     goto encoder_it_end
@@ -70,15 +72,39 @@ encoder_rotate_ccw:
     banksel encoder_min_value
     subwf encoder_min_value, W
     btfsc STATUS, Z
-    goto encoder_it_end
+    ;; This is min value, check if loopback is needed
+    goto encoder_loopback_max_check
     ;; Not min value
     decf encoder_value, F
+    goto encoder_it_end
+encoder_loopback_min_check:
+    ;; Check if loopback is activated
+    banksel encoder_loopback
+    movf encoder_loopback, W
+    btfsc STATUS, Z
+    ;; Loopback is not activated
+    goto encoder_it_end
+    ;; Loopback is activated
+    banksel encoder_min_value
+    movf encoder_min_value, W
+    movwf encoder_value
+    goto encoder_it_end
+encoder_loopback_max_check:
+    ;; Check if loopback is activated
+    banksel encoder_loopback
+    movf encoder_loopback, W
+    btfsc STATUS, Z
+    ;; Loopback is not activated
+    goto encoder_it_end
+    ;; Loopback is activated
+    banksel encoder_max_value
+    movf encoder_max_value, W
+    movwf encoder_value
 
 encoder_it_end:
     endm
 
-
-encoder_set_value macro current_value, value_min, value_max
+encoder_set_value macro current_value, value_min, value_max, loopback
     interrupt_disable
     movlw current_value
     movwf encoder_value
@@ -88,6 +114,9 @@ encoder_set_value macro current_value, value_min, value_max
     movlw value_max
     banksel encoder_max_value
     movwf encoder_max_value
+    movlw loopback
+    banksel encoder_loopback
+    movwf encoder_loopback
     interrupt_enable
     banksel 0
     endm
