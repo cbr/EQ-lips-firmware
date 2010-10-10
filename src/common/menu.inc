@@ -190,8 +190,9 @@ menu_event_dispatch_end:
 #define menu_number (menu_number+1)
 #endif
 
+
 ;;;
-;;; This macro define the begining of a new dialog screen.
+;;; This macro define the beginning of a new dialog screen.
 ;;; A dialog is constantly looping between the 'menu_start'
 ;;; and the 'menu_end' macro. In 'menu_start' the following process
 ;;; is realized:
@@ -222,6 +223,7 @@ menu_event_dispatch_end:
 ;;; Events can be separated in two categories: events of states and event of sub-states.
 ;;; tick_function: function called at every timer tick (period to be checked in timer.h)
 ;;; Changed registers: menu_value, menu_event, param1
+;;; idle_function: called (if defined) if there is no action to execute
 ;;;
 menu_start macro tick_function, idle_function
     local menu_start_quit
