@@ -27,6 +27,11 @@ io_interrupt macro
 #endif
     goto no_io_it
 
+    ;; Memorized that it has occured
+    banksel reg_input_it_entered
+    movlw 1
+    movwf reg_input_it_entered
+
     ;; Memorize previous register filtered value
     banksel reg_input_current_value
     movf reg_input_current_value, W
@@ -59,11 +64,25 @@ no_io_it:
 
     endm
 
+;;; Call this macro to tell that values changed into interrupt handler have been used
+io_interrupt_consume macro
+    banksel reg_input_it_entered
+    clrf reg_input_it_entered
+    endm
+
+;;; Go to the specified label if values changed in interrupt have not been consumed
+io_interrupt_if_not_consumed macro label_not_consumed
+    banksel reg_input_it_entered
+    movf reg_input_it_entered, F
+    btfss STATUS, Z
+    goto label_not_consumed
+    endm
 
 #ifndef IO_INTERRUPT_M
     ;; Variables
     extern reg_input_last_value
     extern reg_input_current_value
+    extern reg_input_it_entered
     ;; Functions
     extern io_interrupt_init
 #endif

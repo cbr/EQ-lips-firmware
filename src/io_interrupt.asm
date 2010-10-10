@@ -27,6 +27,9 @@ reg_input_last_value RES 1
 ;;; Current filtered input register
 reg_input_current_value RES 1
     global reg_input_current_value
+;;; Tell if interrupt has been entered.
+reg_input_it_entered RES 1
+    global reg_input_it_entered
 
 ; relocatable code
 EQ_PROG_1 CODE

@@ -58,7 +58,7 @@ edit_eq_show:
 #ifdef TREMOLO
     menu_start edit_common_cycle_period, UNUSED_PARAM
 #else
-    menu_start UNUSED_PARAM, edit_common_sleep
+    menu_start UNUSED_PARAM, edit_common_idle
 
     ;; Before managing every element of menu, check buttons state
     call_other_page edit_common_check_buttons

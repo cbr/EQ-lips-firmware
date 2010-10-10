@@ -34,6 +34,7 @@
 #include <io.inc>
 #include <flash.inc>
 #include <menu_eq.inc>
+#include <interrupt.inc>
 
 #define HINT_X              1
 #define HINT_X_VALUE        .7
@@ -153,17 +154,24 @@ edit_common_refresh:
     return
 
 
-edit_common_sleep:
-    global edit_common_sleep
+edit_common_idle:
+    global edit_common_idle
 
-    call_other_page edit_common_check_buttons
-    sublw 0
-    btfss STATUS, Z
-    goto edit_common_sleep_no_sleep
+    ;; Mask interrupts. Even if interrupts are masked, the proc will returned from sleep mode if an interrupt occurs.
+    interrupt_disable
+    ;; Check if value changed during io interrupts have used (consumed)
+    io_interrupt_if_not_consumed edit_common_idle_no_sleep
+
+    ;; Last interrupts have been consumed
+    ;; Now, sleep
     sleep
     nop
-edit_common_sleep_no_sleep:
     ;; We have been wake up
+edit_common_idle_no_sleep:
+    ;; last interrupts have not been consumed, so we do not sleep for now
+
+    ;; Enable interrupt
+    interrupt_enable
     return
 
 
@@ -313,6 +321,9 @@ chk_btn_down_button_not_released:
     ;; to tell if a new event have been detected
     banksel edit_common_var2
     movf edit_common_var2, W
+
+    ;; Value changed during io interrupt have been used
+    io_interrupt_consume
     return
 
 ;;;
@@ -546,16 +557,6 @@ edit_common_eq_band_change_print_val
 ;;; - update numpot values (very important for tremolo)
 edit_common_cycle_period:
     global edit_common_cycle_period
-#if 0
-    clrf param1
-    movlw 3
-    movwf param2
-    call_other_page lcd_locate
-    clrf param2
-    movf timer_cpt, W
-    movwf param1
-    call_other_page lcd_int
-#endif
     ;; Check up & down switches
     io_cycle_check_button reg_input_current_value, UP_SW_BIT, button_up_time_cpt, edit_common_up_short, edit_common_up_long
     io_cycle_check_button reg_input_current_value, DOWN_SW_BIT, button_down_time_cpt, edit_common_down_short, edit_common_down_long

@@ -188,7 +188,7 @@ end_mgt:
     extern edit_common_load_preview
     extern edit_common_load
     extern edit_common_refresh
-    extern edit_common_sleep
+    extern edit_common_idle
     extern edit_common_check_buttons
     extern edit_common_bank_up
     extern edit_common_bank_down
