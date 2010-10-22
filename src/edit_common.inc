@@ -17,12 +17,36 @@
 ;;; along with EQ-lips firmware.  If not, see <http://www.gnu.org/licenses/>.
 ;;;
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; DEFINES
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 #define ID_BANK_SELECT  0x1
 #define ID_BANK_UP      0x2
 #define ID_BANK_DOWN    0x3
 #define ID_BANK_SAVE    0x4
 #define ID_EQ_BAND_BASE 0x10
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; MACROS
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;
+;;; Manage foot switch. This macro analyze foorswitches state and interract with
+;;; menu entrie management in order to realize the following actions:
+;;; |--------------+---------------------+-------------------+----------------------|
+;;; |              | no entry selected   | bank change entry | other entry selected |
+;;; |              |                     | selected          |                      |
+;;; |--------------+---------------------+-------------------+----------------------|
+;;; | up release   | Next bank & update  | Next bank         | Leave sub state &    |
+;;; |              |                     |                   | Next bank & update   |
+;;; |--------------+---------------------+-------------------+----------------------|
+;;; | down release | Prev bank & update  | Prev bank         | Leave sub state &    |
+;;; |              |                     |                   | Prev bank & update   |
+;;; |--------------+---------------------+-------------------+----------------------|
+;;; | both pressed | Select 'bank change | Update &          | Leave sub state      |
+;;; |              | entry'              | leave sub state   |                      |
+;;; |--------------+---------------------+-------------------+----------------------|
+;;;
 edit_common_btn_evt_mgt macro
     local simple_mgt
     local no_entry_selected
@@ -43,7 +67,7 @@ edit_common_btn_evt_mgt macro
     btfss STATUS, Z
     ;; Simple up & down btn management
     goto no_entry_selected
-    ;; Check is current selected entry is "bank selection" menu entry
+    ;; Check is current select entry is "bank selection" menu entry
     menu_get_nb_from_id_macro ID_BANK_SELECT
     subwf menu_value, W
     btfss STATUS, Z
@@ -172,6 +196,10 @@ end_mgt:
     endm
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; PUBLIC DECLARATIONS
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 #ifndef EDIT_COMMON_M
     ;; Variables
     extern edit_common_st_bank
@@ -182,7 +210,7 @@ end_mgt:
     extern edit_common_up_btn_released
     extern edit_common_both_btn_pressed
 
-    ; Functions
+    ;; Functions
     extern edit_common_init
     extern edit_common_save
     extern edit_common_load_preview

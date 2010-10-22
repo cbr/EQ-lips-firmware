@@ -17,13 +17,19 @@
 ;;; along with EQ-lips firmware.  If not, see <http://www.gnu.org/licenses/>.
 ;;;
 
+#define DELAY_M
+
+#include <delay.inc>
+
 COMMON_VAR UDATA
 delay      RES 1 ; variable used for context saving
 
-; relocatable code
+;;; relocatable code
 COMMON CODE
 
-; wait for w cycles
+;;;
+;;; wait for w cycles
+;;;
 delay_wait:
     return
     global delay_wait

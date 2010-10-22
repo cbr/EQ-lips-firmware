@@ -17,9 +17,14 @@
 ;;; along with EQ-lips firmware.  If not, see <http://www.gnu.org/licenses/>.
 ;;;
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; MACROS
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
 ;;; Get flash data from a label and an offset stored in a register
 ;;; base_addr: base address label
 ;;; offset_register: register in which offset is stored
+;;;
 flash_get_data_reg macro base_addr, offset_register
     ;;  set base_addr to read
     banksel EEADR
@@ -50,8 +55,10 @@ flash_get_data_reg macro base_addr, offset_register
 
     endm
 
+;;;
 ;;; Get flash data from a label and an offset stored in W
 ;;; base_addr: base address label
+;;;
 flash_get_data_w macro base_addr
     banksel EEADR
     ;; reset hight order bits of pointer
@@ -81,6 +88,10 @@ flash_get_data_w macro base_addr
     movf EEDAT, W
 
     endm
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; PUBLIC DECLARATIONS
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 #ifndef FLASH_M
     extern flash_get_data

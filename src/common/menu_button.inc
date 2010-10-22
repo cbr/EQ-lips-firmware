@@ -17,6 +17,10 @@
 ;;; along with EQ-lips firmware.  If not, see <http://www.gnu.org/licenses/>.
 ;;;
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; MACROS
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 ;;;
 ;;; This macro add a menu button into a dialog screen
 ;;; id: uniq id of menu_entry element
@@ -177,6 +181,10 @@ menu_button_undef:
     MENU_NEW_ENTRY_WITHOUT_FOCUS
     endif
     endm
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; PUBLIC DECLARATIONS
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 #ifndef MENU_BUTTON_M
     extern menu_button_select_func

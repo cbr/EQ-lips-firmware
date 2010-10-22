@@ -26,15 +26,17 @@
 
 
 
-; relocatable code
+;;; relocatable code
 COMMON CODE
 
+;;;
 ;;; Get flash data from an address and an offset
 ;;; Read data is put in W.
 ;;; param1: addrl of base address
 ;;; param2: addrh of base address
 ;;; param3: offset
 ;;; changed registers: EEADR, EEADRH, EECON1
+;;;
 flash_get_data:
     global flash_get_data
     ;;  set base_addr to read

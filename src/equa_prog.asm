@@ -17,77 +17,13 @@
 ;;; along with EQ-lips firmware.  If not, see <http://www.gnu.org/licenses/>.
 ;;;
 
-; -----------------------------------------------------------------------
-;;; Main screen show the following information
-;;; - equalizer
-;;;   - 10 bands -> 1 band is 4/5 pixel wide -> show all presets in half a screen
-;;; - tremolo
-;;;   - 1 amplitude (depth)
-;;;   - 1 type (none / sinus(moste difficult) / triangle / square(easier)) -> draw the shape
-;;;   - 1 vitesse
-;;;  (- 1 slope)
-;;; - global gain
-;;; - current preset (if any, otherwise something like '--')
-;;; - current element detailed info
-;;; It is hard to put everything one one screen
-;;;  -> use two screen (gain with eq)
-;;;
-;;; +--------------+---------------+
-;;; +MEM       EQ    X   X   X   X +
-;;; + Param label:   XXX XX  X   X +
-;;; +    Value       XXXXXX XXX  X +
-;;; +(trem resume)   XXXXXXXXXX  X +
-;;; +--------------+---------------+
-;;;
-;;; +--------------+---------------+
-;;; +MEM      TREM   typ   depth % +
-;;; + Param label:                 +
-;;; +    Value           bpm       +
-;;; +  (eq resume)                 +
-;;; +--------------+---------------+
-;;;
-;;; +--------------+---------------+
-;;; +                              +
-;;; +                              +
-;;; +                              +
-;;; +                              +
-;;; +--------------+---------------+
-;;;
-;;; +--------------+---------------+
-;;; +                              +
-;;; +                              +
-;;; +                              +
-;;; +                              +
-;;; +--------------+---------------+
-;;;
-;;; Memory
-;;;  - One preset size is 14/15 bytes (eq, trem and gain)
-;;;  - Solution 1
-;;;    - Y user settings with X (X <= Y) preset configured in factory
-;;;    - The X first user settings can be reset to factory settings
-;;;    -> simpler (especially with X=Y)
-;;;  - Solution 2
-;;;    - X factory settings: read only
-;;;    - Y user settings: read/write
-;;;    -> more complete but more difficult to use
-;;; => Prefered solution is solution 1 with X=Y
-;;;  - Global context menu:
-;;;   - Switch to trem/eq (if not enough space on one main screen)
-;;;   - Memorize program (even when no modification are realized)
-;;;   - Switch preset (when an active preset is selected)
-;;;   - Reset one preset (when an active preset is selected)
-;;;   - Reset all presets
-;;;
-;;;
 #include <cpu.inc>
 
 
-; -----------------------------------------------------------------------
-; Configuration bits
-;    __CONFIG _CONFIG1, _EXTRC_OSC_CLKOUT & _WDT_ON & _PWRTE_OFF & _MCLRE_ON & _CP_OFF & _CPD_OFF & _BOR_ON & _IESO_ON & _FCMEN_ON & _LVP_ON & _DEBUG_OFF
+;;; -----------------------------------------------------------------------
+;;; Configuration bits
     __CONFIG _CONFIG1, _INTOSCIO  & _WDT_OFF & _PWRTE_ON & _MCLRE_OFF & _CP_OFF & _CPD_OFF & _BOR_ON & _IESO_ON & _FCMEN_ON & _LVP_OFF & _DEBUG_OFF
     __CONFIG _CONFIG2, _BOR21V & _WRT_OFF
-;    __CONFIG _INTOSCIO & _WDT_OFF & _PWRTE_OFF & _MCLRE_OFF & _CP_OFF & _CPD_OFF & _BOR_ON & _IESO_ON & _FCMEN_ON
 
 #include <global.inc>
 #include <interrupt.inc>
@@ -111,76 +47,71 @@
 #include <timer.inc>
 #endif
 
-; -----------------------------------------------------------------------
-; Variable declaration
+;;; Variable declaration
 PROG_VAR UDATA
 
-; -----------------------------------------------------------------------
-; Startup vector
+;;;
+;;; Startup vector.
+;;;
 STARTUP CODE 0x000
     nop                    ; necessary for debug with ICD2
     movlw   high start     ; load high order byte from start label
     movwf   PCLATH         ; initialiee PCLATH
     goto    start          ; start
 
-; interrupt vector
+;;;
+;;; Interrupt vector. Called when an interrupt occurs.
+;;;
 INT_VECTOR CODE 0x004
-    movwf   w_saved        ; save context
-    swapf   STATUS,w
+    ;; Save context
+    movwf   w_saved
+    swapf   STATUS, w
     movwf   status_saved
-    movf    PCLATH,w       ; only necessary if using more than the first page
+    movf    PCLATH, w
     movwf   pclath_saved
     clrf    PCLATH
 
-    ;; Manage io interrupt
+    ;; Manage IO interrupts
     io_interrupt
 #ifdef TREMOLO
+    ;; Manage timer interrupt
     timer_it
 #endif
-    movf    pclath_saved,w ; restore context
+
+    ;; Restore context
+    movf    pclath_saved, w
     movwf   PCLATH
-    swapf   status_saved,w
+    swapf   status_saved, w
     movwf   STATUS
-    swapf   w_saved,f
-    swapf   w_saved,w
+    swapf   w_saved, f
+    swapf   w_saved, w
     retfie
 
-; relocatable code
+;;; relocatable code
 PROG CODE
-st_eqprog:
-    dt "-= EQ_PROG =-", 0
-st_de:
-    dt "DE", 0
-st_0:
-    dt "0", 0
-st_1:
-    dt "1", 0
 
 start:
-
-    ; init clock
-    BSF  STATUS,RP0 ;Bank 1
-    BCF  STATUS,RP1 ;
+    ;; *** SPECIFIC HARDWARE INIT ***
+    ;; init clock
+    banksel OSCCON
     movlw 0x0F
     andwf OSCCON, 1
     movlw 0x70 ; 8 MHz
     ;; movlw 0x30 ; 500kHz
-    ;movlw 0x00 ; 31kHz
+    ;; movlw 0x00 ; 31kHz
     iorwf OSCCON, 1
-    BCF  STATUS,RP0 ;Bank 0
-    BCF  STATUS,RP1 ;
 
     ;; Do not deactivate week pull-up
     banksel OPTION_REG
     bcf OPTION_REG, NOT_RBPU
-    ; disable adc (necessary to use io)
+    ;; disable adc (necessary to use io)
     banksel ANSEL
     clrf ANSEL
     clrf ANSELH
     banksel 0
 
 
-    ; init
+    ;; *** MODULES INIT ***
     call_other_page io_configure
     call_other_page lcd_init
     call_other_page encoder_init
@@ -191,292 +122,30 @@ start:
     call_other_page io_interrupt_init
     call_other_page edit_common_init
 
-    ;; activate it for foot switch
+    ;; activate interrupt for foot switch
     banksel IOCB
     bsf IOCB, UP_SW_BIT
     bsf IOCB, DOWN_SW_BIT
 
     ;; enable interrupt
     interrupt_enable
-#if 0
-    call_other_page lcd_clear
 
-test_switch:
-    movlw 1
-    movwf param1
-    movlw 1
-    movwf param2
-    call_other_page lcd_locate
-
-    movf encoder_sw, W
-    movwf param1
-    clrf param2
-    call_other_page lcd_int
-
-    goto test_switch
-    ;; goto $
-#endif
-
-#if 0
-#define INIT_VAL    0x10
-    NUMPOT_SET_ONE_VALUE 0x0, INIT_VAL
-    NUMPOT_SET_ONE_VALUE 0x1, INIT_VAL
-    NUMPOT_SET_ONE_VALUE 0x2, INIT_VAL
-    NUMPOT_SET_ONE_VALUE 0x3, INIT_VAL
-    NUMPOT_SET_ONE_VALUE 0x4, INIT_VAL
-    NUMPOT_SET_ONE_VALUE 0x5, INIT_VAL
-    NUMPOT_SET_ONE_VALUE 0x6, INIT_VAL
-    NUMPOT_SET_ONE_VALUE 0x7, INIT_VAL
-    NUMPOT_SET_ONE_VALUE 0x8, INIT_VAL
-    NUMPOT_SET_ONE_VALUE 0x9, INIT_VAL
-    NUMPOT_SET_ONE_VALUE 0xA, INIT_VAL
-    NUMPOT_SET_ONE_VALUE 0xB, INIT_VAL
-
-    call_other_page numpot_send_all
-
-    ;; goto spi_test
-#endif
-
-#if 0
-
-    ;; **** TEST TIMER ****
-    ;; Clear tst reg
-    movlw 1
-    movwf tst_timer
-
-    call_other_page lcd_clear
-tst_timer_loop:
-    banksel 0
-    clrf param2
-    movlw 1
-    movwf param4
-    movwf param3
-    movf tst_timer, W
-    movwf param1
-    decf param1, F
-    bcf param5, LCD_XOR
-    bsf param5, LCD_SET_PIXEL
-    call_other_page lcd_rectangle
-    goto tst_timer_loop
-#endif
-
-
-#if 1
-    ;; select first bank
+    ;; *** SOFTWARE INIT ***
+    ;; select first memory bank
     movlw 1
     movwf current_bank
 
-    ;; load
+    ;; load bank
     movwf param1
     decf param1, F
     call_other_page bank_load
 
-    ;; call prepare_trem
+    ;; apply eq settings
     call_other_page process_change_conf
 
+    ;; *** LAUNCH GUI ***
     call_other_page edit_eq_show
-#endif
 
-
-#if 0
-spi_test:
-    movlw 0x13
-    movwf param1
-    movlw 0xFF
-    movwf param2
-    call_other_page spi_send
-
-    goto spi_test
-
-    movlw 0xFF
-    movwf param3
-
-
-loop_spi_inc
-    movlw 0x13
-    movwf param1
-    movf param3, W
-    movwf param2
-
-    call_other_page spi_send
-
-    movlw 0x70
-    call_other_page delay_wait
-
-    incfsz param3
-    goto loop_spi_inc
-
-loop_spi_dec
-    movlw 0x13
-    movwf param1
-    movf param3, W
-    movwf param2
-
-    call_other_page spi_send
-
-    movlw 0x70
-    call_other_page delay_wait
-
-    decfsz param3
-    goto loop_spi_dec
-
-    goto loop_spi_inc
-
-#endif
-
-
-#if 0
-    ;; *** TEST MENU ***
-    menu_start
-    menu_button st_eqprog, 0, 0
-    ;; menu_button st_de
-    menu_button st_eqprog, 2, 0
-    menu_button st_de, 3, 0
-    menu_end
-    goto $
-    ;; clrf param1
-    ;; clrf param2
-    ;; movlw LCD_WIDTH
-    ;; movwf param3
-    ;; movlw 9
-    ;; movwf param4
-    ;; bsf param5, LCD_XOR
-    ;; call_other_page lcd_rectangle
-#endif
-
-#if 0
-    ;; *** TEST LCD ***
-    ; draw rectangle
-    movlw 1
-    movwf param1
-    movlw 1
-    movwf param2
-    movlw 10
-    movwf param3
-    movlw 10
-    movwf param4
-    bsf param5, LCD_SET_PIXEL
-    call_other_page lcd_rectangle
-
-    ; draw a white plot on the rectangle
-    movlw 5
-    movwf param1
-    movlw 5
-    movwf param2
-    bcf param3, LCD_SET_PIXEL
-    call_other_page lcd_plot
-    goto $
-#endif
-
-#if 0
-    ;; *** TEST FONT PRINTING ***
-    movlw 0x08
-    movwf param1
-    clrf param2
-
-
-    movlw low st_eqprog
-    movwf param3
-    movlw high st_eqprog
-    movwf param4
-
-    call_other_page lcd_loc_string
-
-    ;; Print 'A' then 'B'
-    movlw 0x05
-    movwf param1
-    movlw 1
-    movwf param2
-    nop
-    call_other_page lcd_locate
-    movlw 'A'
-    movwf param1
-    call_other_page lcd_char
-    movlw 'B'
-    movwf param1
-    call_other_page lcd_char
-
-    ;; Print 'C' then "DE"
-    movlw 0x15
-    movwf param1
-    movlw 2
-    movwf param2
-    call_other_page lcd_locate
-    movlw 'C'
-    movwf param1
-    call_other_page lcd_char
-    movlw low st_de
-    movwf param1
-    movlw high st_de
-    movwf param2
-    call_other_page lcd_string
-
-    ;; Print int
-    movlw 0x02
-    movwf param1
-    movlw 0x03
-    movwf param2
-    call_other_page lcd_locate
-
-    movlw 0xF0                  ; = 240
-    movwf param1
-    movlw 0x00
-    movwf param2
-    call_other_page lcd_int
-
-    movlw 0x12
-    movwf param1
-    movlw 0x03
-    movwf param2
-    call_other_page lcd_locate
-
-    movlw 0x7C                  ; = 1.24
-    movwf param1
-    movlw 0x02
-    movwf param2
-    call_other_page lcd_int
-
-#endif
-
-#if 0
-    ;; *** DRAW RECT WITH ENCODER ***
-loop_draw:
-
-    movf encoder_last_value, W
-    subwf encoder_value, W
-    btfsc STATUS, Z
-    goto loop_draw
-
-    clrf param1
-    clrf param2
-    movlw 10
-    movwf param3
-    movlw LCD_HEIGH
-    movwf param4
-    bcf param5, LCD_SET_PIXEL
-    call_other_page lcd_rectangle
-
-    clrf param1
-    clrf param2
-    movlw 10
-    movwf param3
-    movf encoder_value, W
-    movwf encoder_last_value
-    movwf param4
-#if 0
-    bcf STATUS, C
-    rrf param4, F
-    bcf STATUS, C
-    rrf param4, F
-    bcf STATUS, C
-    rrf param4, F
-#endif
-    bsf param5, LCD_SET_PIXEL
-    call_other_page lcd_rectangle
-
-    goto loop_draw
-#endif
-
-    goto    $              ; infinite loop
+    goto $              ; infinite loop
 
 END

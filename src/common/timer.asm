@@ -33,12 +33,14 @@ timer_cpt       RES 1
     COMMON_VAR UDATA
 var1    RES 1
 
-; relocatable code
+;;; relocatable code
 COMMON CODE
 
+;;;
 ;;; Initialize a 10 ms tick using a hardware timer
 ;;; param1: addrl of function to be called at each tick
 ;;; param2: addrh of function to be called at each tick
+;;;
 timer_init:
     global timer_init
 
@@ -94,7 +96,9 @@ timer_init:
     bsf T1CON, TMR1ON
     return
 
+;;;
 ;;; Enable timer 1
+;;;
 timer_enable:
     global timer_enable
 #if 1
@@ -133,7 +137,9 @@ timer_enable:
 #endif
     return
 
+;;;
 ;;; Disable timer 1
+;;;
 timer_disable:
     global timer_disable
 #if 1

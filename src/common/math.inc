@@ -17,6 +17,9 @@
 ;;; along with EQ-lips firmware.  If not, see <http://www.gnu.org/licenses/>.
 ;;;
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; DEFINES
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 #define MATH_MAX_16S_VALUE  0x7FFF
 #define MATH_MIN_16S_VALUE  0x8000
 
@@ -32,10 +35,19 @@
 #define number_d_lo     number_d
 #define number_d_hi     (number_d+1)
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; MACROS
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Select bank associated to math module variables
+;;;
 math_banksel macro
     banksel number_a_lo
     endm
 
+;;;
+;;; Copy a 16 bit register into another one
+;;;
 math_copy_16 macro number_from, number_to
     banksel (number_from)
     movf (number_from), W
@@ -47,8 +59,10 @@ math_copy_16 macro number_from, number_to
     movwf (number_to)+1
     endm
 
+;;;
 ;;; This macro set the Z bit of STATUS register if number_test
 ;;; is equal to 0
+;;;
 math_test_16 macro number_test
     local math_test_16_end
     banksel number_test
@@ -59,7 +73,9 @@ math_test_16 macro number_test
 math_test_16_end:
     endm
 
+;;;
 ;;; This macro set the Z bit of STATUS if the parameters are equal.
+;;;
 math_equal macro number_16_a, number_16_b
     local math_equal_end
     banksel number_16_a
@@ -76,7 +92,9 @@ math_equal macro number_16_a, number_16_b
 math_equal_end:
     endm
 
+;;;
 ;;; Load a 16 bit constant value into a 16 bit variable
+;;;
 math_load_const macro reg16, const_value
     banksel reg16
     movlw low const_value
@@ -85,8 +103,10 @@ math_load_const macro reg16, const_value
     movwf reg16+1
     endm
 
+;;;
 ;;; Increment 16 bits number by taking care of roll over.
 ;;; changed registers: number_a
+;;;
 math_inc_16 macro number_16
     local math_inc_16_end
     math_load_const number_a, MATH_MAX_16S_VALUE
@@ -102,6 +122,10 @@ math_inc_16 macro number_16
     incf number_16+1, F
 math_inc_16_end:
     endm
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; PUBLIC DECLARATIONS
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 #ifndef MATH_M
     extern number_a

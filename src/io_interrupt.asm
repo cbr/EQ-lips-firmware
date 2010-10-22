@@ -31,7 +31,7 @@ reg_input_current_value RES 1
 reg_input_it_entered RES 1
     global reg_input_it_entered
 
-; relocatable code
+;;; relocatable code
 EQ_PROG_1 CODE
 
 ;;;

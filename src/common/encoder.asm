@@ -17,7 +17,7 @@
 ;;; along with EQ-lips firmware.  If not, see <http://www.gnu.org/licenses/>.
 ;;;
 
-; Driver for encoder
+;;; Driver for encoder
 
 #define SPI_M
 
@@ -41,18 +41,19 @@ encoder_loopback RES 1 ; encoder loopback
 
 COMMON CODE
 
-; init encoder
-;   no param
+;;;
+;;; init encoder
+;;;   no param
 encoder_init:
     global encoder_init
 
-    ; configure ENC_A and ENC_B
-    ; Activate interrupt for ENC_A
+    ;; configure ENC_A and ENC_B
+    ;; Activate interrupt for ENC_A
     banksel IOCB
     bsf IOCB, ENC_A_BIT
-    ; Activate interrupt for ENC_SW
+    ;; Activate interrupt for ENC_SW
     bsf IOCB, ENC_SW_BIT
-    ; Activate interrupt for PORTA/PORTB change
+    ;; Activate interrupt for PORTA/PORTB change
     banksel 0
 #ifdef RABIE
     bsf INTCON, RABIE
@@ -61,7 +62,7 @@ encoder_init:
 #endif
     ;; init encoder_sw counter
     clrf encoder_sw
-    ; Set default encoder values
+    ;; Set default encoder values
     movlw ENCODER_DEFAULT_VALUE
     movwf encoder_value
     movlw ENCODER_DEFAULT_MIN_VALUE

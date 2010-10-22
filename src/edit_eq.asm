@@ -18,6 +18,7 @@
 ;;;
 
 ;;; Manage dialog screen for eqalizer editing
+;;;
 
 #define EDIT_EQ_M
 
@@ -43,7 +44,7 @@
 
 PROG_VAR_1 UDATA
 
-; relocatable code
+;;; relocatable code
 EQ_PROG_2 CODE
 #ifdef TREMOLO
 edit_eq_st_trem:

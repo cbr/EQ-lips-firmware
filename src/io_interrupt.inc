@@ -17,8 +17,18 @@
 ;;; along with EQ-lips firmware.  If not, see <http://www.gnu.org/licenses/>.
 ;;;
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; DEFINES
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 #define IO_FILTER_NB_STABLE_STATE     0xC0
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; MACROS
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;
+;;; Manage external input interrupt
+;;;
 io_interrupt macro
 #ifdef RABIF
     btfss INTCON, RABIF
@@ -52,7 +62,7 @@ io_interrupt macro
 
     encoder_it reg_input_current_value, interrupt_var_1
 ack_it_io:
-    ; ack it
+    ;; ack it
     banksel ENC_A_PORT
     movf ENC_A_PORT, F
 #ifdef RABIF
@@ -64,19 +74,28 @@ no_io_it:
 
     endm
 
+;;;
 ;;; Call this macro to tell that values changed into interrupt handler have been used
+;;;
 io_interrupt_consume macro
     banksel reg_input_it_entered
     clrf reg_input_it_entered
     endm
 
+;;;
 ;;; Go to the specified label if values changed in interrupt have not been consumed
+;;; label_not_consumed: Label to be used if not consumed
+;;;
 io_interrupt_if_not_consumed macro label_not_consumed
     banksel reg_input_it_entered
     movf reg_input_it_entered, F
     btfss STATUS, Z
     goto label_not_consumed
     endm
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; PUBLIC DECLARATIONS
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 #ifndef IO_INTERRUPT_M
     ;; Variables

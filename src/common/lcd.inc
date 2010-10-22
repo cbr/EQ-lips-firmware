@@ -17,6 +17,9 @@
 ;;; along with EQ-lips firmware.  If not, see <http://www.gnu.org/licenses/>.
 ;;;
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; DEFINES
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 #define LCD_COMMAND        0x01
 #define LCD_FIRST_CHIP     0x02
 
@@ -58,31 +61,50 @@
 #define LCD_INT_SHT_FILLING_ZERO    2
 #define LCD_INT_SHT_BIG_CHAR        4
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; MACROS
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;
+;;; Receive command from LCD chip 1. Put result into param1.
+;;;
 lcd_recv_cmd_1 macro
     bsf param2, LCD_COMMAND
     bsf param2, LCD_FIRST_CHIP
     call_other_page lcd_read
     endm
 
+;;;
+;;; Receive command from LCD chip 2. Put result into param1.
+;;;
 lcd_recv_cmd_2 macro
     bsf param2, LCD_COMMAND
     bcf param2, LCD_FIRST_CHIP
     call_other_page lcd_read
     endm
 
+;;;
+;;; Receive data from LCD chip 1. Put result into param1.
+;;;
 lcd_recv_data_1 macro
     bcf param2, LCD_COMMAND
     bsf param2, LCD_FIRST_CHIP
     call_other_page lcd_read
     endm
 
+;;;
+;;; Receive data from LCD chip 2. Put result into param1.
+;;;
 lcd_recv_data_2 macro
     bcf param2, LCD_COMMAND
     bcf param2, LCD_FIRST_CHIP
     call_other_page lcd_read
     endm
 
-
+;;;
+;;; Send data to chip 1.
+;;; value: data to send
+;;;
 lcd_send_data_1 macro value
     movlw value
     movwf param1
@@ -91,6 +113,10 @@ lcd_send_data_1 macro value
     call_other_page lcd_write
     endm
 
+;;;
+;;; Send data to chip 2.
+;;; value: data to send
+;;;
 lcd_send_data_2 macro value
     movlw value
     movwf param1
@@ -99,6 +125,10 @@ lcd_send_data_2 macro value
     call_other_page lcd_write
     endm
 
+;;;
+;;; Send command to chip 1.
+;;; value: command to send
+;;;
 lcd_send_cmd_1 macro cmd, value
     movlw cmd | value
     movwf param1
@@ -107,6 +137,10 @@ lcd_send_cmd_1 macro cmd, value
     call_other_page lcd_write
     endm
 
+;;;
+;;; Send command to chip 2.
+;;; value: command to send
+;;;
 lcd_send_cmd_2 macro cmd, value
     movlw cmd | value
     movwf param1
@@ -116,8 +150,12 @@ lcd_send_cmd_2 macro cmd, value
     endm
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; PUBLIC DECLARATIONS
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 #ifndef LCD_M
-    ; Functions
+    ;; Functions
     extern lcd_init
     extern lcd_clear
     extern lcd_plot

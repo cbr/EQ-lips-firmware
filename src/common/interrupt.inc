@@ -20,10 +20,19 @@
 
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; MACROS
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Enable interrupts
+;;;
 interrupt_enable macro
     bsf INTCON, GIE
     endm
 
+;;;
+;;; Disable interrupts
+;;;
 interrupt_disable macro
     local interrupt_disable_loop
 interrupt_disable_loop:

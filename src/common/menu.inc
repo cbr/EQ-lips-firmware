@@ -17,6 +17,9 @@
 ;;; along with EQ-lips firmware.  If not, see <http://www.gnu.org/licenses/>.
 ;;;
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; DEFINES
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 #define MENU_EVENT_UNDEF               0x00
 #define MENU_EVENT_INIT                0x01
 #define MENU_EVENT_FOCUS               0x02
@@ -61,10 +64,20 @@
     VARIABLE MENU_NB_TOTAL_ENTRY
     VARIABLE MENU_NB_FOCUSABLE_ENTRY
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; MACROS
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;
+;;; Get absolute menu entry number from its id
+;;;
 menu_get_nb_from_id_macro macro id
     movlw entry_nb_from_id_#v(id)
     endm
 
+;;;
+;;; Get absolute menu entry nb from its number among focusable entries subset
+;;;
 menu_get_nb_from_focusable_nb_macro macro focus_nb
     movlw entry_nb_from_focus_nb_#v(focus_nb)
     endm
@@ -86,9 +99,18 @@ MENU_NEW_ENTRY_WITHOUT_FOCUS macro
     VARIABLE MENU_NB_TOTAL_ENTRY=MENU_NB_TOTAL_ENTRY+1
     endm
 
+;;;
 ;;; Macro which manage event dispatching for menu element
 ;;; id: uniq id of menu_entry element
-;;; other parameters: label for different event
+;;; label_init: label for initialization event
+;;; label_focus: label for focus event
+;;; label_unfocus: label for unfocus event
+;;; label_select: label for select event
+;;; label_unselect: label for unselect event
+;;; label_select_value_change: label for 'encoder value change' event during select sub state
+;;; label_select_switch: label for 'encoder switch' event during select sub state
+;;; label_refresh: label for refresh event
+;;;
 menu_event_dispatch macro id, label_init, label_focus, label_unfocus, label_select, label_unselect, label_select_value_change, label_select_switch, label_refresh
 
 entry_nb_from_id_#v(id) equ MENU_NB_TOTAL_ENTRY
@@ -345,9 +367,11 @@ menu_end_do_not_init_encoder:
     movwf menu_event
     goto menu_start_end_return_#v(menu_number)
 
+;;;
 ;;; In the 'end' macro we also write the function which return the
 ;;; absolute menu entry number from the focusable number
 ;;; param1: focusable entry nb for which absolute entry nb must be returned (in W)
+;;;
 menu_get_nb_from_focusable_nb:
     ;; This function is realized by recursively calling a macro
     menu_get_nb_from_focusable_nb_func_write MENU_NB_FOCUSABLE_ENTRY-1
@@ -355,34 +379,41 @@ menu_get_nb_from_focusable_nb:
 
     endm
 
+;;;
 ;;; This macro ask to leave the selection sub state of a menu.
 ;;; On the next event loop the event MENU_EVENT_UNSELECT will
 ;;; be active.
+;;;
 menu_leave_selection macro
     movlw MENU_ACTION_LEAVE
     banksel menu_asked_action
     movwf menu_asked_action
     endm
 
+;;;
 ;;; This macro ask to refresh all menu entries except the current one,
 ;;; on next event loop
+;;;
 menu_ask_refresh macro
     movlw MENU_ACTION_REFRESH
     banksel menu_asked_action
     movwf menu_asked_action
     endm
 
+;;;
 ;;; This macro ask to refresh simulate an encoder switch press while
 ;;; being in select state
+;;;
 menu_ask_select_switch macro
     movlw MENU_ACTION_SELECT_SWITCH
     banksel menu_asked_action
     movwf menu_asked_action
     endm
 
-
+;;;
 ;;; This macro ask to select the given menu entry
 ;;; on next event loop
+;;;
 menu_select_specific_entry_from_id macro entry_id
     movlw MENU_ACTION_SELECT_SPEC_ENTRY
     banksel menu_asked_action
@@ -398,8 +429,10 @@ menu_change_focus macro
     movwf menu_asked_action
     endm
 
+;;;
 ;;; This macro ask to select the given menu entry
 ;;; on next event loop
+;;;
 menu_select_specific_entry_from_nb macro entry_nb
     movlw MENU_ACTION_SELECT_SPEC_ENTRY
     banksel menu_asked_action
@@ -410,7 +443,9 @@ menu_select_specific_entry_from_nb macro entry_nb
 
     endm
 
+;;;
 ;;; This macro is used recusively to write function menu_get_nb_from_focusable_nb
+;;;
 menu_get_nb_from_focusable_nb_func_write macro nb_focusable_entry
     ;; local not_this_number
     movf param1, W
@@ -429,7 +464,7 @@ not_this_number_#v(nb_focusable_entry)
 ;;;
 ;;; This macro is a template (exemple) for menu entry element
 ;;;
-menu_template macro
+menu_template macro id
     local menu_template_init
     local menu_template_undef
     local menu_template_focus
@@ -438,7 +473,8 @@ menu_template macro
     local menu_template_unselect
     local menu_template_select_value_change
 
-    menu_event_dispatch menu_template_init, menu_template_focus, menu_template_unfocus, menu_template_select, menu_template_unselect, menu_template_select_value_change
+    menu_event_dispatch id, menu_template_init, menu_template_focus, menu_template_unfocus, menu_template_select, menu_template_unselect, menu_template_select_value_change, menu_template_select_switch, menu_template_refresh
+
     goto menu_template_undef
 menu_template_init:
     goto menu_template_undef
@@ -453,10 +489,18 @@ menu_template_unselect:
     goto menu_template_undef
 menu_template_select_value_change:
     goto menu_template_undef
+menu_template_select_switch:
+    goto menu_template_undef
+menu_template_refresh:
+    goto menu_template_undef
 menu_template_undef:
     MENU_NEW_ENTRY_WITH_FOCUS
     endm
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; PUBLIC DECLARATIONS
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 #ifndef MENU_M
     ;; Variables (non shared)

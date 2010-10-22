@@ -74,6 +74,7 @@ math_add_1616s:
 
 
                                 ;
+
 ;;;
 ;;; Negate double precision number_a (INT16S)
 ;;;
@@ -220,10 +221,11 @@ loop:
 
 #if 0
 #include <lcd.inc>
-
+;;;
 ;;; Test math functions
 ;;; Result are printed on the screen as 2 byte value (without space)
 ;;; The expected result is printed in comment in the code
+;;;
 math_test:
     global math_test
 

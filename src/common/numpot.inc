@@ -17,6 +17,9 @@
 ;;; along with EQ-lips firmware.  If not, see <http://www.gnu.org/licenses/>.
 ;;;
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; DEFINES
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Number of chained chips.
 #define NUMPOT_NB_CHIP              0x06
 
@@ -28,13 +31,26 @@
 #define NUMPOT_NB_POT_BY_CHIP       (0x01 << NUMPOT_NB_POT_BY_CHIP_SHT)
 
 
-NUMPOT_SET_ONE_VALUE macro potnumber, value
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; MACROS
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;
+;;; Set one pot value.
+;;; potnumber: Pot number for which value has to be change
+;;; value: new value
+;;;
+numpot_set_one_value_macro macro potnumber, value
     movlw potnumber
     movwf param1
     movlw value
     movwf param2
     call_other_page numpot_set_one_value
     endm
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; PUBLIC DECLARATIONS
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 #ifndef NUMPOT_M
     ;; Variables

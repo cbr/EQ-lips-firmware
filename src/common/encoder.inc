@@ -17,12 +17,15 @@
 ;;; along with EQ-lips firmware.  If not, see <http://www.gnu.org/licenses/>.
 ;;;
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; DEFINES
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 #define ENCODER_MASK                (1 << ENC_A_BIT | 1 << ENC_B_BIT | 1 << ENC_SW_BIT)
 
-    extern encoder_min_value
-    extern encoder_max_value
-    extern encoder_loopback
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; MACROS
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 encoder_it macro reg_current_value, reg_changed_bit
 
 #if (ENC_A_PORT != ENC_B_PORT)
@@ -52,7 +55,7 @@ encoder_switch_check_end:
     btfsc reg_current_value, ENC_A_BIT
     goto encoder_it_end
 
-    ; test enc_b
+    ;; test enc_b
     btfss reg_current_value, ENC_B_BIT
     goto encoder_rotate_ccw
 encoder_rotate_cw:
@@ -121,15 +124,25 @@ encoder_set_value macro current_value, value_min, value_max, loopback
     banksel 0
     endm
 
+;;;
 ;;; Reinitialize encoder switch counter
+;;;
 encoder_ack_sw macro
     clrf encoder_sw
     endm
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; PUBLIC DECLARATIONS
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 #ifndef ENCODER_M
-    ; Functions
+    ;; Functions
     extern encoder_init
     extern encoder_set_value
+    ;; Variables
+    extern encoder_min_value
+    extern encoder_max_value
+    extern encoder_loopback
 #endif
 
 

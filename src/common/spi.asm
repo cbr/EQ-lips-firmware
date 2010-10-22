@@ -17,7 +17,7 @@
 ;;; along with EQ-lips firmware.  If not, see <http://www.gnu.org/licenses/>.
 ;;;
 
-; Driver for SPI controller of PIC16F690
+;;; Driver for SPI controller of PIC16F690
 
 #define SPI_M
 
@@ -29,8 +29,10 @@
 
 COMMON CODE
 
-; init spi
-;   no param
+;;;
+;;; init spi
+;;;   no param
+;;;
 spi_init:
     global spi_init
     ;; unset CS

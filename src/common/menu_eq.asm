@@ -42,9 +42,11 @@ menu_eq_var2               RES 1
 ;;; relocatable code
 COMMON CODE
 
+;;;
 ;;; Draw eq band rectangle value
 ;;; param1: band x position
 ;;; param2: band value.
+;;;
 menu_draw_eq_band:
     global menu_draw_eq_band
 
@@ -92,10 +94,12 @@ menu_draw_eq_rect:
     call_other_page lcd_rectangle
     return
 
+;;;
 ;;; Refresh band
 ;;; param1: band x position
 ;;; param2: band value
 ;;; Changed registers: menu_eq_var1, menu_eq_var2
+;;;
 menu_refresh_eq_band:
     global menu_refresh_eq_band
     ;; save params
@@ -128,9 +132,11 @@ menu_refresh_eq_band:
 
     return
 
+;;;
 ;;; Draw eq band focus
 ;;; param1: band x position
 ;;; Changed registers: menu_eq_var1
+;;;
 menu_draw_focus_eq_band:
     global menu_draw_focus_eq_band
     ;; save param
@@ -159,9 +165,11 @@ menu_draw_focus_eq_band:
     call_other_page lcd_rectangle
     return
 
+;;;
 ;;; Draw the selection/deselection rectangle
 ;;; of eq band
 ;;; param1: band x position
+;;;
 menu_eq_draw_select:
     global menu_eq_draw_select
     incf param1, F

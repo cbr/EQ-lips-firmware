@@ -17,7 +17,7 @@
 ;;; along with EQ-lips firmware.  If not, see <http://www.gnu.org/licenses/>.
 ;;;
 
-; Driver for EEPROM controller of PIC16F690
+;;; Driver for EEPROM controller of PIC16F690
 
 #define EEPROM_M
 
@@ -31,10 +31,11 @@
 COMMON CODE
 
 
-
+;;;
 ;;; write byte into eeprom
 ;;;   param1: addr in eeprom
 ;;;   param2: byte to write
+;;;
 eeprom_write:
     global eeprom_write
     ;; Set addr
@@ -78,9 +79,11 @@ eeprom_write_wait_end:
 
     return
 
-; read byte from eeprom
-;   param1: addr in eeprom
-; return read byte in W
+;;;
+;;; read byte from eeprom
+;;;   param1: addr in eeprom
+;;; return read byte in W
+;;;
 eeprom_read:
     global eeprom_read
 

@@ -37,7 +37,9 @@ menu_button_var2               RES 1
 ;;; relocatable code
 COMMON CODE
 
+;;;
 ;;; param1: y position of button
+;;;
 menu_button_select_func:
     global menu_button_select_func
 

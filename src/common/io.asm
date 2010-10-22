@@ -21,10 +21,10 @@
 #include <cpu.inc>
 #include <io.inc>
 
-; relocatable code
+;;; relocatable code
 COMMON CODE
 
-    ; configure ios
+    ;; configure ios
 io_configure:
     global io_configure
 
@@ -56,7 +56,9 @@ io_configure:
     banksel 0
     return
 
+;;;
 ;;; Configure LCD IO data as output
+;;;
 io_config_lcd_data_output:
     global io_config_lcd_data_output
 #ifdef LCD_ALL_BIT_IN_SAME_REG
@@ -78,7 +80,9 @@ io_config_lcd_data_output:
     banksel 0
     return
 
+;;;
 ;;; Configure LCD IO data as input
+;;;
 io_config_lcd_data_input:
     global io_config_lcd_data_input
 #ifdef LCD_ALL_BIT_IN_SAME_REG

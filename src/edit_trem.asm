@@ -40,7 +40,7 @@
 
 PROG_VAR_1 UDATA
 
-; relocatable code
+;;; relocatable code
 EQ_PROG_1 CODE
 edit_trem_st_eq:
     dt "GOTO EQUALIZER", 0

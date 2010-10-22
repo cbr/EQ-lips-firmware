@@ -44,6 +44,7 @@ COMMON CODE
 ;;;         set before calling this function in order to read the value with the
 ;;;         help of FSR/INDF
 ;;; param6: configuration of value to print (format of param2 of lcd_int function)
+;;;
 menu_edit_manage_select_value_change:
     global menu_edit_manage_select_value_change
     ;; save param3
@@ -90,10 +91,12 @@ menu_edit_manage_select_value_change_after_print:
 
     return
 
+;;;
 ;;; draw selection/deselection rectangle of menu edit
 ;;; param1: x position of edit
 ;;; param2: y position of edit
 ;;; param3: size of edit string
+;;;
 menu_edit_draw_select:
     global menu_edit_draw_select
 

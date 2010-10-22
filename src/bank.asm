@@ -29,7 +29,6 @@
 
 PROG_VAR_1 UDATA
     ;; GLOBAL
-
 ;;; Sources data
 bank_numpot_values RES BANK_NB_NUMPOT_VALUES
     global bank_numpot_values
@@ -52,10 +51,13 @@ bank_trem_target RES 1
 bank_tmp     RES 1
 
 
-; relocatable code
+;;; relocatable code
 EQ_PROG_1 CODE
+
+;;;
 ;;; Save current parameters into bank
 ;;; param1: bank number
+;;;
 bank_save:
     global bank_save
 
@@ -97,8 +99,10 @@ bank_save:
 #endif
     return
 
+;;;
 ;;; Load parameters from bank
 ;;; param1: bank number
+;;;
 bank_load:
     global bank_load
 
@@ -136,9 +140,11 @@ bank_load:
 #endif
     return
 
+;;;
 ;;; This function calculate a bank address in EEPROM from its number
 ;;; param1: input -> bank number
 ;;;         output -> address in EEPROM
+;;;
 bank_get_bank_addr:
     movf param1, W
     banksel bank_tmp
@@ -155,12 +161,14 @@ bank_get_bank_addr_next_bank:
 bank_get_bank_addr_no_next_bank:
     return
 
+;;;
 ;;; Save current eq and gain values into a bank
 ;;; param1: bank number
 ;;; param2: address of buffer from which equalizer and gain config are read.
 ;;;         IRP bit of STATUS register must be correctly set before calling
 ;;;         this function in order to read the value with the help of FSR/INDF.
 ;;; Changed registers: param3
+;;;
 bank_save_eq_gain:
     global bank_save_eq_gain
 
@@ -196,11 +204,13 @@ bank_save_loop:
 
     return
 
+;;;
 ;;; Load the eq and gain values from a memorized bank to numpot
 ;;; param1: bank number
 ;;; param2: address of buffer which will receive equalizer and gain config.
 ;;;         IRP bit of STATUS register must be correctly set before calling
 ;;;         this function in order to read the value with the help of FSR/INDF.
+;;;
 bank_load_eq_gain:
     global bank_load_eq_gain
 

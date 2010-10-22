@@ -39,13 +39,16 @@
 
 PROG_VAR_1 UDATA
 trem_inc_cpt    RES 1
+
 ;;; Data update info. Tell if numpot have to be updated or not.
 ;;; If this value is not 0, then data have to be updated.
 ;;; Bit UPDATE_ONE_TIME tell to only update data one time, and bit
 ;;; UPDATE_EVERY_TIME tell to update data at every tick.
 update_info     RES 1
+
 ;;; Loop index used to update numpot next values
 index           RES 1
+
 ;;; Target eq values used for tremolo type eq
 target_numpot_values RES BANK_NB_NUMPOT_VALUES
     ;; Temporary activation data
@@ -57,7 +60,7 @@ all_inc_16      RES (2*BANK_NB_NUMPOT_VALUES)
 
 tst_reg         RES 1
 
-; relocatable code
+;;; relocatable code
 EQ_PROG_1 CODE
 
 ;;;

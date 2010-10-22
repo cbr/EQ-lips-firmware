@@ -17,7 +17,7 @@
 ;;; along with EQ-lips firmware.  If not, see <http://www.gnu.org/licenses/>.
 ;;;
 
-; Manages SPI-chained MPC420XX numeric potentiometers
+;;; Manages SPI-chained MPC420XX numeric potentiometers
 
 #define NUMPOT_M
 
@@ -47,7 +47,7 @@ num_pot             RES 1
 num_pot_in_cmd      RES 1
 tmp                 RES 1
 
-; relocatable code
+;;; relocatable code
 COMMON CODE
 
 numpot_send_chained_values macro command, num_pot_in_chip, nb_chip

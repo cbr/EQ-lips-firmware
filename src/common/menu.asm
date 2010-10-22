@@ -95,6 +95,7 @@ menu_start_process:
     ;; Else (there is no asked action)
 menu_start_process_no_asked_action:
     ;; Check automatic actions
+
 ;;;   - Else check automatic action:
 ;;;     - All states:
 ;;;       - Timer event -> simple action: tick
@@ -486,12 +487,14 @@ menu_start_process_complex_action_select_specific_entry_end:
 menu_start_process_end:
     return
 
+;;;
 ;;; Configure encoder and memorize current value
 ;;; in order to manage encoder change for select sub sate
 ;;; param1: current_value
 ;;; param2: value_min
 ;;; param3: value_max
 ;;; param4: loopback (0=no, other=yes)
+;;;
 menu_selection_encoder_configure:
     global menu_selection_encoder_configure
     ;; Set encoder value

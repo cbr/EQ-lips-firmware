@@ -54,6 +54,7 @@ edit_common_var1 RES 1
 edit_common_var2 RES 1
 edit_common_button_free_to_use RES 1
 edit_common_button_last_value RES 1
+
 ;;; Counter of number of down switch released event
 edit_common_down_btn_released RES 1
     global edit_common_down_btn_released
@@ -64,7 +65,7 @@ edit_common_up_btn_released RES 1
 edit_common_both_btn_pressed RES 1
     global edit_common_both_btn_pressed
 
-; relocatable code
+;;; relocatable code
 EQ_PROG_1 CODE
 edit_common_st_bank:
     global edit_common_st_bank
@@ -555,6 +556,7 @@ edit_common_eq_band_change_print_val
 ;;; Function called periodically in order to do periodic actions:
 ;;; - evaluate button press (short/long)
 ;;; - update numpot values (very important for tremolo)
+;;;
 edit_common_cycle_period:
     global edit_common_cycle_period
     ;; Check up & down switches

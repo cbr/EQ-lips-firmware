@@ -17,6 +17,9 @@
 ;;; along with EQ-lips firmware.  If not, see <http://www.gnu.org/licenses/>.
 ;;;
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; DEFINES
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 #define IO_LONG_PRESS_NB_CYCLE     (0x5DC/(TIMER_PERIOD_MS))
 
 #define LCD_ALL_BIT_IN_SAME_REG
@@ -105,17 +108,27 @@ UP_SW_TRIS     equ TRISB
 UP_SW_PORT     equ PORTB
 UP_SW_BIT      equ 3
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; MACROS
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; this macro realize software filtering of input.
+;;; port_register: input register to be filtered
+;;; port_mask: mask which identify bits to be filtered
+;;; counter: number of time value must be unchanged to be considered filtered
+;;; result_reg: register into which the filtered inputs must be stored
+;;;
 io_filter macro port_register, port_mask, counter, result_reg
     local io_filter_wait_stable
     local io_filter_continue
-    ; test if rising edge
-    ; wait until edge value is stable
+    ;; test if rising edge
+    ;; wait until edge value is stable
 io_filter_wait_stable:
     banksel 0
-    ; init counter
+    ;; init counter
     movlw counter
     movwf interrupt_var_1
-    ; read reference value
+    ;; read reference value
     banksel port_register
     movf port_register, W
     banksel result_reg
@@ -123,14 +136,14 @@ io_filter_wait_stable:
     movlw port_mask
     andwf result_reg, F
 io_filter_continue:
-    ; read value and mask
+    ;; read value and mask
     movlw port_mask
     banksel port_register
     andwf port_register, W
-    ; compare to reference value
+    ;; compare to reference value
     banksel result_reg
     subwf result_reg, W
-    ; if bit Z of status is not set, the value is different from the reference, so we restart
+    ;; if bit Z of status is not set, the value is different from the reference, so we restart
     btfss STATUS, Z
     goto io_filter_wait_stable
 
@@ -138,6 +151,15 @@ io_filter_continue:
     goto io_filter_continue
     endm
 
+;;;
+;;; Check if a bit into a register has changed, identify if it correspond to a pressed or
+;;; a release event and increment the approprioate register accordingly
+;;; filtered_port: input register
+;;; register containing the xor between the previous value of 'filtered_port' and the current one
+;;; bit: bit number to be checked
+;;; pressed_register: register to be incremented if "pressed" event is detected
+;;; released_register: register to be incremented if "released" event is detected
+;;;
 io_check_button macro filtered_port, port_changes, bit, pressed_register, released_register
     local io_check_button_end
     local io_check_button_pressed
@@ -164,6 +186,7 @@ io_check_button_end:
 ;;; time_cpt: 16 bit register containing the number of cycle the button is pressed
 ;;; label_short_press: label called when short press event is detected
 ;;; label_long_press: label called when long press event is detected
+;;;
 io_cycle_check_button macro current_reg, bit, time_cpt, label_short_press, label_long_press
     local time_cpt_is_zero
     local time_cpt_is_not_zero
@@ -244,6 +267,10 @@ button_unpressed_no_short_press_event:
 io_cycle_check_button_end:
     endm
 #endif
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; PUBLIC DECLARATIONS
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 #ifndef IO_M
     extern io_configure
