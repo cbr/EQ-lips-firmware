@@ -1,4 +1,4 @@
-BIN_NAME=equa_prog
+BIN_NAME=eqlips
 
 TREMOLO=0
 
@@ -17,7 +17,7 @@ SRCS=src/common/numpot.asm \
 	src/common/eeprom.asm  \
 	src/common/flash.asm  \
 	src/common/math.asm  \
-	src/equa_prog.asm \
+	src/eqlips.asm \
 	src/edit_eq.asm \
 	src/edit_common.asm \
 	src/bank.asm \
@@ -114,3 +114,4 @@ $(MAKEDEP): $(SRCS)
 	touch $@
 	makedepend $(addprefix -I,$(UNIQ_INC_DIR)) -p $(OBJ_DIR)/ -f $@ $(SRCS) 2> /dev/null
 	-rm $(MAKEDEP).bak 2> /dev/null
+# DO NOT DELETE
