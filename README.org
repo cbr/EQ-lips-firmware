@@ -1,0 +1,46 @@
+* EQ-lips firmware
+** Description
+Firmware of EQ-lips.
+
+EQ-lips is a graphic equalizer pedal effect with the following
+features:
+  - 10 bands of EQ and global gain control with a range of +/-18dB
+  - 23 memory banks
+  - Analog signal treatment
+  - Equalization configuration with LCD and rotary encoder
+
+The firmware is coded in PIC16F886 assembler.
+
+The electronic schematics of EQ-lips can be found here: [[http://github.com/cbr/EQ-lips-schematic]].
+
+** Requirements
+   - [[http://gputils.sourceforge.net/][GPTUTILS]]
+   - [[http://python.org/][Python]]
+   - makedepend (developement tool provided by [[http://xorg.freedesktop.org/][Xorg]])
+   - convert (from [[http://www.imagemagick.org/][ImageMagick]])
+   - [[http://www.gnu.org/software/bash/][BASH]]
+
+All these tools can be found in standard packages of most Linux distributions.
+They can also be found for other operating systems such as MS Windows.
+
+** Compilation
+To clean any previous compilation:
+: make clean
+To compile EQ-lips firmware:
+: make
+It constructs a binary file named /eqlips.hex/ which is the EQ-lips firmware.
+
+** Author
+Cédric Brégardis (cedric.bregardis <at> gmail.com)
+
+** Licence
+EQ-lips firmware is free software: you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the Free
+Software Foundation, version 3 of the License.
+
+EQ-lips firmware is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with
+EQ-lips firmware.  If not, see [[http://www.gnu.org/licenses/]].
