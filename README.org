@@ -11,7 +11,10 @@ features:
 
 The firmware is coded in PIC16F886 assembler.
 
-The electronic schematics of EQ-lips can be found here: [[http://github.com/cbr/EQ-lips-schematic]].
+The electronic schematics of EQ-lips can be found here:
+[[http://github.com/cbr/EQ-lips-schematic]].
+
+More information at [[http://eqlips.free.fr/]].
 
 ** Requirements
    - [[http://gputils.sourceforge.net/][GPTUTILS]]
